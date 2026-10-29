@@ -7,7 +7,7 @@
 ## Current status
 
 - **Current phase:** Phase 2 — public search and listing pages
-- **Current task:** P2.3
+- **Current task:** P2.4
 - **Last updated:** 2026-10-29
 - **Blocked on owner:** —
 
@@ -33,7 +33,7 @@
 - [x] P2.1 ListingCard
 - [x] P2.2 Home + search
 - [x] P2.3 Listing page
-- [ ] P2.4 Metadata / Open Graph
+- [x] P2.4 Metadata / Open Graph
 - [ ] P2.5 Not found page
 - [ ] P2.6 Manifest, icon, robots
 

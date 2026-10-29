@@ -1,6 +1,7 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CITY } from "@/lib/config";
+import { APP_NAME, CITY, SITE_URL } from "@/lib/config";
 import { getListingBySlug } from "@/lib/data";
 import {
   ago,
@@ -21,6 +22,37 @@ const KIND_LABELS: Record<Listing["kind"], string> = {
   teacher: "Teacher",
   academy: "Academy",
 };
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const listing = await getListingBySlug(slug);
+  if (!listing) return {};
+
+  const description = [
+    `${KIND_LABELS[listing.kind]} in ${listing.area}, ${CITY}`,
+    listing.subjects.map(subjectLabel).join(", "),
+    classesText(listing.classes),
+  ]
+    .filter(Boolean)
+    .join(". ");
+  const url = `${SITE_URL}/t/${listing.slug}`;
+
+  return {
+    title: listing.name,
+    description,
+    openGraph: {
+      title: listing.name,
+      description,
+      url,
+      siteName: APP_NAME,
+      type: "website",
+    },
+  };
+}
 
 function PhoneIcon() {
   return (
