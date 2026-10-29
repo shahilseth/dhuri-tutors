@@ -111,3 +111,29 @@ export async function updateListingAction(
 
   redirect(`/admin/${id}`);
 }
+
+/** Bound with the listing id (app_flow.md A2: "Mark verified today"). */
+export async function markVerifiedAction(id: string): Promise<void> {
+  await requireAdmin();
+  await updateListing(id, { last_verified_at: new Date().toISOString() });
+  redirect("/admin");
+}
+
+/** Bound with the listing id (app_flow.md A2: "Publish/Unpublish"). */
+export async function togglePublishedAction(id: string): Promise<void> {
+  await requireAdmin();
+
+  const listing = await getListingById(id);
+  if (!listing) redirect("/admin");
+
+  if (!listing.published) {
+    // rules.md §4: a listing can never be published without consent, or without its required fields.
+    const hasRequiredFields = listing.subjects.length > 0 && listing.classes.length > 0 && listing.modes.length > 0;
+    if (!listing.consent_at || !hasRequiredFields) {
+      redirect(`/admin/${id}?publishError=1`);
+    }
+  }
+
+  await updateListing(id, { published: !listing.published });
+  redirect("/admin");
+}

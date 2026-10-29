@@ -4,6 +4,7 @@ import AdminHeader from "@/components/AdminHeader";
 import { requireAdmin } from "@/lib/auth";
 import { getTapCounts, listAllListings } from "@/lib/data";
 import { ago, daysSince, isStale } from "@/lib/format";
+import { markVerifiedAction, togglePublishedAction } from "./actions";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
@@ -82,6 +83,24 @@ export default async function AdminDashboard() {
                     >
                       Edit
                     </Link>
+                    <form action={markVerifiedAction.bind(null, listing.id)}>
+                      <button
+                        type="submit"
+                        className="h-9 rounded-md border border-rule px-3 text-[14px] text-blue"
+                      >
+                        Mark verified today
+                      </button>
+                    </form>
+                    <form action={togglePublishedAction.bind(null, listing.id)}>
+                      <button
+                        type="submit"
+                        className={`h-9 rounded-md border px-3 text-[14px] ${
+                          listing.published ? "border-danger text-danger" : "border-rule text-blue"
+                        }`}
+                      >
+                        {listing.published ? "Unpublish" : "Publish"}
+                      </button>
+                    </form>
                     <a
                       href={`/t/${listing.slug}`}
                       target="_blank"

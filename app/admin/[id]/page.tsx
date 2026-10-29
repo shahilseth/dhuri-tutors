@@ -13,11 +13,14 @@ export const metadata: Metadata = { title: "Edit listing" };
 
 export default async function EditListingPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ publishError?: string }>;
 }) {
   await requireAdmin();
   const { id } = await params;
+  const { publishError } = await searchParams;
 
   const listing = await getListingById(id);
   if (!listing) notFound();
@@ -31,6 +34,13 @@ export default async function EditListingPage({
       <div className="mx-auto max-w-[32rem] px-4 py-6">
         <h1 className="text-[22px] font-bold text-ink">{listing.name}</h1>
         <p className="mt-1 text-[15px] text-ink-2">Ref {listing.ref_code}</p>
+
+        {publishError && (
+          <p className="mt-4 rounded-md border border-danger bg-paper p-3 text-[14px] text-danger">
+            Tick &ldquo;The teacher agreed to be listed on this site&rdquo; and save before publishing this
+            listing.
+          </p>
+        )}
 
         <div className="mt-4 flex items-center gap-3 rounded-md border border-rule bg-paper p-3">
           <a
