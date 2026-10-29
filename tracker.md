@@ -6,8 +6,8 @@
 
 ## Current status
 
-- **Current phase:** Phase 0
-- **Current task:** P0.1
+- **Current phase:** Phase 0 — complete, awaiting go-ahead for Phase 1
+- **Current task:** —
 - **Last updated:** 2026-10-29
 - **Blocked on owner:** —
 
@@ -19,7 +19,7 @@
 - [x] P0.5 .env.example + .gitignore
 - [x] P0.6 lib/config.ts + lib/types.ts
 - [x] P0.7 Layout + placeholder home
-- [~] P0.8 git init + first commit
+- [x] P0.8 git init + first commit
 
 ## Phase 1: Database and data layer
 - [ ] P1.1 Migration 0001_init.sql
@@ -95,6 +95,11 @@ Add items here instead of guessing. Remove when answered.
 
 ## Session log
 One entry per session, newest first. Keep each entry to 2–4 lines.
+
+### 2026-10-29
+- Done: owner answers recorded (app name, areas, classes/subjects); design.md replaced twice (first my AA rewrite, then the owner's own "blue ink on a clean register" version, which is now authoritative); schema.md class-value example updated; all of Phase 0 (P0.1–P0.8) complete and committed.
+- Notes: scaffolded in a temp subfolder and moved up (project dir has a space in its name, which `create-next-app` rejects directly). Pinned Next.js to 15.5.28 deliberately — a bare `create-next-app@latest` installs 16.x, which conflicts with `tech_spec.md` §1. `npm audit` flags a postcss advisory inside Next 15's own dependency tree; the fix would force Next 16, so left as-is. Footer's "Message us on WhatsApp" is plain text, not a link yet — no owner WhatsApp number/env var exists for it (added to blockers).
+- Next: owner go-ahead to start Phase 1 (migration 0001_init.sql, seed.sql, then the OWNER step to create the Supabase dev project).
 
 <!--
 ### YYYY-MM-DD
