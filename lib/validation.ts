@@ -4,7 +4,7 @@
  * (rules.md §4: every write is validated server-side regardless of the client).
  */
 import { AREAS, BOARDS, CLASSES, MODES, SUBJECTS } from "./config";
-import type { ListingKind } from "./types";
+import type { Listing, ListingKind } from "./types";
 
 export type ListingFormInput = {
   kind: string;
@@ -179,5 +179,72 @@ export function validateListingInput(input: ListingFormInput): ValidationResult 
       about: about.value,
       slug,
     },
+  };
+}
+
+export const emptyListingFormInput: ListingFormInput = {
+  kind: "teacher",
+  name: "",
+  contact_person: "",
+  phone: "",
+  whatsapp: "",
+  subjects: [],
+  classes: [],
+  boards: [],
+  modes: [],
+  area: "",
+  address: "",
+  fee_min: "",
+  fee_max: "",
+  fee_note: "",
+  timings: "",
+  about: "",
+  slug: "",
+};
+
+/** Pre-fills ListingForm when editing (app_flow.md A4). */
+export function listingToFormInput(listing: Listing): ListingFormInput {
+  return {
+    kind: listing.kind,
+    name: listing.name,
+    contact_person: listing.contact_person ?? "",
+    phone: listing.phone,
+    whatsapp: listing.whatsapp ?? "",
+    subjects: listing.subjects,
+    classes: listing.classes,
+    boards: listing.boards,
+    modes: listing.modes,
+    area: listing.area,
+    address: listing.address ?? "",
+    fee_min: listing.fee_min != null ? String(listing.fee_min) : "",
+    fee_max: listing.fee_max != null ? String(listing.fee_max) : "",
+    fee_note: listing.fee_note ?? "",
+    timings: listing.timings ?? "",
+    about: listing.about ?? "",
+    slug: listing.slug,
+  };
+}
+
+/** Reads a submitted ListingForm into the raw shape validateListingInput expects. */
+export function parseListingFormData(formData: FormData): ListingFormInput {
+  const str = (name: string) => (formData.get(name)?.toString() ?? "").trim();
+  return {
+    kind: str("kind"),
+    name: str("name"),
+    contact_person: str("contact_person"),
+    phone: str("phone"),
+    whatsapp: str("whatsapp"),
+    subjects: formData.getAll("subjects").map(String),
+    classes: formData.getAll("classes").map(String),
+    boards: formData.getAll("boards").map(String),
+    modes: formData.getAll("modes").map(String),
+    area: str("area"),
+    address: str("address"),
+    fee_min: str("fee_min"),
+    fee_max: str("fee_max"),
+    fee_note: str("fee_note"),
+    timings: str("timings"),
+    about: str("about"),
+    slug: str("slug"),
   };
 }
