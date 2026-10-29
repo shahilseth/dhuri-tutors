@@ -6,8 +6,8 @@
 
 ## Current status
 
-- **Current phase:** Phase 1 — Database and data layer
-- **Current task:** P1.4 (P1.3 blocked on owner)
+- **Current phase:** Phase 1 — Database and data layer, blocked on P1.3
+- **Current task:** — (P1.1, P1.2, P1.4, P1.5, P1.6 done; P1.3 needs the owner before Phase 1's "done when" can be checked against a real database)
 - **Last updated:** 2026-10-29
 - **Blocked on owner:** P1.3 (create Supabase dev project, run migration + seed, add keys to `.env.local`)
 
@@ -27,7 +27,7 @@
 - [!] P1.3 OWNER: Supabase dev project + keys in .env.local
 - [x] P1.4 lib/data.ts
 - [x] P1.5 lib/format.ts
-- [ ] P1.6 Tests for lib/format.ts
+- [x] P1.6 Tests for lib/format.ts
 
 ## Phase 2: Public search and listing pages
 - [ ] P2.1 ListingCard
@@ -96,10 +96,10 @@ Add items here instead of guessing. Remove when answered.
 ## Session log
 One entry per session, newest first. Keep each entry to 2–4 lines.
 
-### 2026-10-29
-- Done: owner answers recorded (app name, areas, classes/subjects); design.md replaced twice (first my AA rewrite, then the owner's own "blue ink on a clean register" version, which is now authoritative); schema.md class-value example updated; all of Phase 0 (P0.1–P0.8) complete and committed.
-- Notes: scaffolded in a temp subfolder and moved up (project dir has a space in its name, which `create-next-app` rejects directly). Pinned Next.js to 15.5.28 deliberately — a bare `create-next-app@latest` installs 16.x, which conflicts with `tech_spec.md` §1. `npm audit` flags a postcss advisory inside Next 15's own dependency tree; the fix would force Next 16, so left as-is. Footer's "Message us on WhatsApp" is plain text, not a link yet — no owner WhatsApp number/env var exists for it (added to blockers).
-- Next: owner go-ahead to start Phase 1 (migration 0001_init.sql, seed.sql, then the OWNER step to create the Supabase dev project).
+### 2026-10-29 (session 2)
+- Done: P1.1 migration `0001_init.sql` (listings, taps, indexes, checks, trigger, RLS, `listing_tap_counts` view — per schema.md §2); P1.2 `seed.sql` (6 fake listings spread across subjects/classes/areas/modes, one left unpublished with no consent to exercise that path); P1.4 `lib/data.ts` (searchListings, getListingBySlug, listAllListings, getListingById, slugTaken, nextRefCode, createListing, updateListing, logTap, getTapCounts); P1.5 `lib/format.ts` (feeText, classesText, modeLabel, ago, isStale, intl, whatsappMessage, whatsappUrl, telUrl, slugify); P1.6 Vitest tests for every `lib/format.ts` function (22 tests, all passing).
+- Notes: owner's "continue from the next open task" was treated as the go-ahead for Phase 1 (rules.md §1: a chat instruction overrides a waiting tracker note). P1.3 is an OWNER step (create Supabase dev project, run migration + seed, add keys to `.env.local`) so it's marked `[!]` and skipped; P1.4–P1.6 don't need a live database to write or type-check, but the Phase 1 "done when" (a temporary server component listing real seed data) can't be confirmed until P1.3 is done. `npm run typecheck`, `build`, `lint` and `test` all pass after every task.
+- Next: owner to do P1.3, then a quick live check that `lib/data.ts` reads the seeded rows before Phase 1 is fully closed out and Phase 2 starts.
 
 <!--
 ### YYYY-MM-DD
