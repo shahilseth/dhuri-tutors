@@ -6,10 +6,10 @@
 
 ## Current status
 
-- **Current phase:** Phase 1 — Database and data layer, blocked on P1.3
-- **Current task:** — (P1.1, P1.2, P1.4, P1.5, P1.6 done; P1.3 needs the owner before Phase 1's "done when" can be checked against a real database)
+- **Current phase:** Phase 1 — complete, awaiting go-ahead for Phase 2
+- **Current task:** —
 - **Last updated:** 2026-10-29
-- **Blocked on owner:** P1.3 (create Supabase dev project, run migration + seed, add keys to `.env.local`)
+- **Blocked on owner:** —
 
 ## Phase 0: Project setup
 - [x] P0.1 Create Next.js 15 app
@@ -24,7 +24,7 @@
 ## Phase 1: Database and data layer
 - [x] P1.1 Migration 0001_init.sql
 - [x] P1.2 seed.sql (fake data, dev only)
-- [!] P1.3 OWNER: Supabase dev project + keys in .env.local
+- [x] P1.3 OWNER: Supabase dev project + keys in .env.local
 - [x] P1.4 lib/data.ts
 - [x] P1.5 lib/format.ts
 - [x] P1.6 Tests for lib/format.ts
@@ -92,6 +92,7 @@ Add items here instead of guessing. Remove when answered.
 
 - [ ] Full list of Dhuri localities for the area filter (have 4 so far: Pathshalla Mohalla, Janta Nagar, Shivpuri, Bank Road — more to follow)
 - [ ] Owner's own WhatsApp number for the public footer's "Message us on WhatsApp" link (teachers asking to get listed). Not in `tech_spec.md` §6 env vars yet — footer currently shows this as plain text, not a link, until there's a number and an env var for it
+- [ ] `.env.local` has `TAP_SALT=` with no value. Needed in Phase 3 for tap de-duplication (hashes visitor IP+UA). Any random string of 32+ characters works — doesn't need to be memorable, just set once and left alone (changing it later resets de-duplication).
 
 ## Session log
 One entry per session, newest first. Keep each entry to 2–4 lines.
@@ -100,6 +101,11 @@ One entry per session, newest first. Keep each entry to 2–4 lines.
 - Done: P1.1 migration `0001_init.sql` (listings, taps, indexes, checks, trigger, RLS, `listing_tap_counts` view — per schema.md §2); P1.2 `seed.sql` (6 fake listings spread across subjects/classes/areas/modes, one left unpublished with no consent to exercise that path); P1.4 `lib/data.ts` (searchListings, getListingBySlug, listAllListings, getListingById, slugTaken, nextRefCode, createListing, updateListing, logTap, getTapCounts); P1.5 `lib/format.ts` (feeText, classesText, modeLabel, ago, isStale, intl, whatsappMessage, whatsappUrl, telUrl, slugify); P1.6 Vitest tests for every `lib/format.ts` function (22 tests, all passing).
 - Notes: owner's "continue from the next open task" was treated as the go-ahead for Phase 1 (rules.md §1: a chat instruction overrides a waiting tracker note). P1.3 is an OWNER step (create Supabase dev project, run migration + seed, add keys to `.env.local`) so it's marked `[!]` and skipped; P1.4–P1.6 don't need a live database to write or type-check, but the Phase 1 "done when" (a temporary server component listing real seed data) can't be confirmed until P1.3 is done. `npm run typecheck`, `build`, `lint` and `test` all pass after every task.
 - Next: owner to do P1.3, then a quick live check that `lib/data.ts` reads the seeded rows before Phase 1 is fully closed out and Phase 2 starts.
+
+### 2026-10-29 (session 3)
+- Done: owner completed P1.3 (Supabase dev project, migration + seed run, keys in `.env.local`). Verified live: temporarily wired `app/page.tsx` to call `listAllListings()`, ran `npm run dev`, confirmed all 6 seeded listings (D1–D6) came back from the real database, then reverted the file to the original placeholder. Phase 1 is now fully done.
+- Notes: `.env.local` has every key except `TAP_SALT`, which is present but empty — added to blockers; not needed until Phase 3 but should be filled in before then.
+- Next: owner go-ahead to start Phase 2 (search and listing pages).
 
 <!--
 ### YYYY-MM-DD
