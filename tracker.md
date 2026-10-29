@@ -6,8 +6,8 @@
 
 ## Current status
 
-- **Current phase:** Phase 3 — complete, awaiting go-ahead for Phase 4
-- **Current task:** —
+- **Current phase:** Phase 4 — Admin
+- **Current task:** P4.1 lib/auth.ts
 - **Last updated:** 2026-10-29
 - **Blocked on owner:** —
 
@@ -44,7 +44,7 @@
 - [x] P3.4 Share on WhatsApp button
 
 ## Phase 4: Admin
-- [ ] P4.1 lib/auth.ts
+- [x] P4.1 lib/auth.ts
 - [ ] P4.2 Login / logout
 - [ ] P4.3 lib/validation.ts + tests
 - [ ] P4.4 ListingForm
