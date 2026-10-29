@@ -7,9 +7,9 @@
 ## Current status
 
 - **Current phase:** Phase 1 — Database and data layer
-- **Current task:** P1.2
+- **Current task:** P1.4 (P1.3 blocked on owner)
 - **Last updated:** 2026-10-29
-- **Blocked on owner:** —
+- **Blocked on owner:** P1.3 (create Supabase dev project, run migration + seed, add keys to `.env.local`)
 
 ## Phase 0: Project setup
 - [x] P0.1 Create Next.js 15 app
@@ -24,8 +24,8 @@
 ## Phase 1: Database and data layer
 - [x] P1.1 Migration 0001_init.sql
 - [x] P1.2 seed.sql (fake data, dev only)
-- [ ] P1.3 OWNER: Supabase dev project + keys in .env.local
-- [ ] P1.4 lib/data.ts
+- [!] P1.3 OWNER: Supabase dev project + keys in .env.local
+- [x] P1.4 lib/data.ts
 - [ ] P1.5 lib/format.ts
 - [ ] P1.6 Tests for lib/format.ts
 
