@@ -72,6 +72,13 @@ export async function getListingById(id: string): Promise<Listing | null> {
   return (data as Listing | null) ?? null;
 }
 
+/** A single listing by slug, published or not — for admin QR codes. */
+export async function getListingBySlugForAdmin(slug: string): Promise<Listing | null> {
+  const { data, error } = await getClient().from("listings").select("*").eq("slug", slug).maybeSingle();
+  if (error) throw error;
+  return (data as Listing | null) ?? null;
+}
+
 export async function slugTaken(slug: string): Promise<boolean> {
   const { data, error } = await getClient().from("listings").select("id").eq("slug", slug).maybeSingle();
   if (error) throw error;
