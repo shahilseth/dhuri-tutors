@@ -7,7 +7,7 @@
 ## Current status
 
 - **Current phase:** Phase 4 — Admin
-- **Current task:** P4.2 Login/logout
+- **Current task:** P4.3 lib/validation.ts
 - **Last updated:** 2026-10-29
 - **Blocked on owner:** —
 
@@ -46,7 +46,7 @@
 ## Phase 4: Admin
 - [x] P4.1 lib/auth.ts
 - [x] P4.2 Login / logout
-- [ ] P4.3 lib/validation.ts + tests
+- [x] P4.3 lib/validation.ts + tests
 - [ ] P4.4 ListingForm
 - [ ] P4.5 New listing
 - [ ] P4.6 Edit listing
