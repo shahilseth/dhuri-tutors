@@ -6,8 +6,8 @@
 
 ## Current status
 
-- **Current phase:** Phase 4 — Admin
-- **Current task:** P4.9 requireAdmin audit
+- **Current phase:** Phase 4 — complete, awaiting go-ahead for Phase 5
+- **Current task:** —
 - **Last updated:** 2026-10-29
 - **Blocked on owner:** —
 
@@ -52,7 +52,7 @@
 - [x] P4.6 Edit listing
 - [x] P4.7 Dashboard
 - [x] P4.8 Verify + publish actions
-- [ ] P4.9 requireAdmin audit
+- [x] P4.9 requireAdmin audit
 
 ## Phase 5: QR codes
 - [ ] P5.1 /api/qr/[slug]
@@ -115,6 +115,11 @@ One entry per session, newest first. Keep each entry to 2–4 lines.
 - Done: all of Phase 3. P3.1 `app/api/tap/route.ts` (tech_spec.md §3.1: validates `{slug, channel}`, ignores bot/crawler user agents, 404s on unknown/unpublished slug, visitor = first 24 hex chars of `sha256(TAP_SALT|ip|user-agent)`, inserts via `lib/data.ts`'s `logTap`). P3.2 `components/ContactButtons.tsx` (client): WhatsApp/Call as real `wa.me`/`tel:` `<a href>`s; `onClick` fires `navigator.sendBeacon` (fallback `fetch keepalive`) wrapped in try/catch so a logging failure never blocks the link; moved `PhoneIcon` here from the listing page. P3.3 wired `ContactButtons` into `app/t/[slug]/page.tsx` in place of the plain anchors (ref-code WhatsApp message was already in place from Phase 2). P3.4 added `shareUrl()` to `lib/format.ts` (`https://wa.me/?text=<name> - <link>`, no phone number) and the full-width outline "Share this page on WhatsApp" button at the bottom of the listing page per design.md §listing page mock.
 - Notes: verified live, not just typecheck/build — `curl`'d `/api/tap` against the real Supabase dev project: valid taps return 204 and insert a row; bad JSON and bad channel return 400; unknown slug returns 404; a bot-like user agent (including curl's own default UA, which matches the `curl` bot pattern — worth knowing when testing with plain `curl`) returns 204 but inserts nothing. Queried `taps` and `listing_tap_counts` directly via the Supabase REST API: three raw taps (1 call, 2 whatsapp same day) correctly de-duplicate to `whatsapp_total: 1, call_total: 1` in the view. Headless-browser check of the rendered listing page confirmed all three link hrefs (WhatsApp with ref code, tel:, share) and zero console errors. Hit one unrelated dev-server hot-reload glitch (Next DevTools RSC bundler error) from rapid file edits during testing — resolved with a clean `.next` + restart, not a code bug; production `npm run build` was clean throughout.
 - Next: owner go-ahead to start Phase 4 (admin). No new blockers.
+
+### 2026-10-29 (session 6)
+- Done: all of Phase 4. P4.1 `lib/auth.ts` (HMAC-SHA256 session cookie keyed on `ADMIN_PASSWORD`, `timingSafeEqual` throughout, 500ms delay on failed login, `requireAdmin()` redirects to `/admin/login`). P4.2 `/admin/login` + `loginAction`/`logoutAction` in new `app/admin/actions.ts`. P4.3 `lib/validation.ts` (`validateListingInput` plus `parseListingFormData`/`listingToFormInput`/`emptyListingFormInput` adapters) with 29 new Vitest tests covering phone formats, fee min/max, empty arrays and invalid list values. P4.4 `components/ListingForm.tsx` (client, `useActionState`, all app_flow.md A3/A4 fields, live slug-from-name prefill until the admin edits the slug directly, consent box per design.md §7). P4.5 `/admin/new` + `createListingAction` (slug `-2`/`-3` suffixing via a new `uniqueSlug()` helper, `nextRefCode()`, refuses "Save and publish" without consent). P4.6 `/admin/[id]` + `updateListingAction` (bound with the listing id via `.bind(null, id)` rather than a hidden field), read-only ref code, public link + new `components/CopyLinkButton.tsx`; also added `components/AdminHeader.tsx` (Listings / Add listing / Log out, design.md §7 wording — app_flow.md uses "Dashboard/New listing" wording for the same nav, a small spec inconsistency, went with design.md as the newer owner-authored doc) and retrofitted it onto `/admin/new`. P4.7 `/admin` dashboard (live/hidden/stale counts, per-listing tap counts from `listing_tap_counts`, stale shown as raw day count per design.md's exact wording — added and exported `daysSince()` in `lib/format.ts` for this, distinct from the public listing page's month/year-rounding `ago()`). P4.8 `markVerifiedAction` and `togglePublishedAction` (refuses publish without consent or without at least one subject/class/mode, redirecting to the edit page with a `?publishError=1` banner); `updateListingAction` also catches the DB's `listings_publish_needs_consent` check-violation (Postgres code `23514`) if an edit tries to clear consent on an already-published listing, and shows a friendly "unpublish it first" error instead of a raw DB error. P4.9: grepped for every `"use server"` file and every admin `page.tsx`, confirmed `requireAdmin()` is the first statement in all of them except `loginAction`/`logoutAction`/`/admin/login` (correctly exempt — they're the auth entry/exit points), and confirmed no `middleware.ts` exists (auth is page/action-level only, per rules.md §4).
+- Notes: verified every task live against the real Supabase dev project with a headless browser, not just typecheck/build/test (all green throughout) — login (wrong password rejected with the 500ms delay and an error message; correct password sets a properly-attributed cookie), full create→edit→publish→unpublish→mark-verified round trips, slug collision suffixing, the consent-required-to-publish refusal (confirmed the DB row was untouched, not just that the UI showed an error), and the consent-removal-while-published guard (confirmed via direct REST query that the rejected update left the row fully unchanged). Unauthenticated `curl` requests to `/admin`, `/admin/new` and `/admin/[id]` all 307 to `/admin/login`; `/admin/login` itself stays 200. Deleted every throwaway test listing created during verification; left D2's `last_verified_at` updated to "today" from the mark-verified test (harmless, expected side effect of the feature itself). Hit the same dev-server stale-chunk glitch from session 5 once during browser testing (My first attempt at the P4.6 edit flow got stale `_next/static` 404s) — a `rm -rf .next` + restart fixed it, not a code bug.
+- Next: owner go-ahead to start Phase 5 (QR codes). No new blockers. Note for whoever picks up Phase 5: `qrcode`/`@types/qrcode` are already in `package.json` (added ahead of need), unused until P5.1.
 
 <!--
 ### YYYY-MM-DD
