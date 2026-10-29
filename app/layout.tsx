@@ -8,6 +8,9 @@ export const metadata: Metadata = {
     default: APP_NAME,
     template: `%s · ${APP_NAME}`,
   },
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({

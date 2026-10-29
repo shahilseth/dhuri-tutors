@@ -7,7 +7,7 @@
 ## Current status
 
 - **Current phase:** Phase 2 — public search and listing pages
-- **Current task:** P2.5
+- **Current task:** P2.6
 - **Last updated:** 2026-10-29
 - **Blocked on owner:** —
 
@@ -35,7 +35,7 @@
 - [x] P2.3 Listing page
 - [x] P2.4 Metadata / Open Graph
 - [x] P2.5 Not found page
-- [ ] P2.6 Manifest, icon, robots
+- [x] P2.6 Manifest, icon, robots
 
 ## Phase 3: Contact buttons and tap counting
 - [ ] P3.1 /api/tap
