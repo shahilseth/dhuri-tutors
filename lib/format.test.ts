@@ -7,6 +7,7 @@ import {
   isStale,
   modeLabel,
   slugify,
+  subjectLabel,
   telUrl,
   whatsappMessage,
   whatsappUrl,
@@ -54,6 +55,17 @@ describe("modeLabel", () => {
 
   it("falls back to the raw value for an unknown mode", () => {
     expect(modeLabel("carrier-pigeon")).toBe("carrier-pigeon");
+  });
+});
+
+describe("subjectLabel", () => {
+  it("maps a stored value to its display label", () => {
+    expect(subjectLabel("maths")).toBe("Maths");
+    expect(subjectLabel("spoken-english")).toBe("Spoken English");
+  });
+
+  it("falls back to the raw value for an unknown subject", () => {
+    expect(subjectLabel("made-up")).toBe("made-up");
   });
 });
 

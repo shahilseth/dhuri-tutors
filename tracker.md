@@ -6,8 +6,8 @@
 
 ## Current status
 
-- **Current phase:** Phase 1 — complete, awaiting go-ahead for Phase 2
-- **Current task:** —
+- **Current phase:** Phase 2 — public search and listing pages
+- **Current task:** P2.1
 - **Last updated:** 2026-10-29
 - **Blocked on owner:** —
 
@@ -30,7 +30,7 @@
 - [x] P1.6 Tests for lib/format.ts
 
 ## Phase 2: Public search and listing pages
-- [ ] P2.1 ListingCard
+- [x] P2.1 ListingCard
 - [ ] P2.2 Home + search
 - [ ] P2.3 Listing page
 - [ ] P2.4 Metadata / Open Graph

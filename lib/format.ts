@@ -1,5 +1,5 @@
 /** Turns raw listing data into the plain-English text design.md specifies. */
-import { APP_NAME, CLASSES, STALE_AFTER_DAYS } from "./config";
+import { APP_NAME, CLASSES, STALE_AFTER_DAYS, SUBJECTS } from "./config";
 
 function rupees(amount: number): string {
   return `₹${amount.toLocaleString("en-IN")}`;
@@ -14,6 +14,15 @@ export function feeText(feeMin: number | null, feeMax: number | null): string {
 
 function classLabel(value: string): string {
   for (const group of CLASSES) {
+    const option = group.options.find((o) => o.value === value);
+    if (option) return option.label;
+  }
+  return value;
+}
+
+/** Display label for a stored subject value, e.g. "maths" -> "Maths". */
+export function subjectLabel(value: string): string {
+  for (const group of SUBJECTS) {
     const option = group.options.find((o) => o.value === value);
     if (option) return option.label;
   }
