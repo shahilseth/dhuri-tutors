@@ -79,14 +79,14 @@ export default async function AdminDashboard() {
                   <div className="mt-3 flex flex-wrap gap-2">
                     <Link
                       href={`/admin/${listing.id}`}
-                      className="flex h-9 items-center rounded-md border border-rule px-3 text-[14px] text-blue"
+                      className="flex h-11 items-center rounded-md border border-rule px-3 text-[14px] text-blue"
                     >
                       Edit
                     </Link>
                     <form action={markVerifiedAction.bind(null, listing.id)}>
                       <button
                         type="submit"
-                        className="h-9 rounded-md border border-rule px-3 text-[14px] text-blue"
+                        className="h-11 rounded-md border border-rule px-3 text-[14px] text-blue"
                       >
                         Mark verified today
                       </button>
@@ -94,7 +94,7 @@ export default async function AdminDashboard() {
                     <form action={togglePublishedAction.bind(null, listing.id)}>
                       <button
                         type="submit"
-                        className={`h-9 rounded-md border px-3 text-[14px] ${
+                        className={`h-11 rounded-md border px-3 text-[14px] ${
                           listing.published ? "border-danger text-danger" : "border-rule text-blue"
                         }`}
                       >
@@ -103,7 +103,7 @@ export default async function AdminDashboard() {
                     </form>
                     <a
                       href={`/api/qr/${listing.slug}`}
-                      className="flex h-9 items-center rounded-md border border-rule px-3 text-[14px] text-blue"
+                      className="flex h-11 items-center rounded-md border border-rule px-3 text-[14px] text-blue"
                     >
                       Download QR
                     </a>
@@ -111,7 +111,7 @@ export default async function AdminDashboard() {
                       href={`/t/${listing.slug}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex h-9 items-center rounded-md border border-rule px-3 text-[14px] text-blue"
+                      className="flex h-11 items-center rounded-md border border-rule px-3 text-[14px] text-blue"
                     >
                       View page
                     </a>

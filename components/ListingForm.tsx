@@ -37,6 +37,25 @@ function Field({
   );
 }
 
+/** design.md §10: checkbox groups use <fieldset> + <legend>, not a <label> around several inputs. */
+function FieldsetGroup({
+  legend,
+  error,
+  children,
+}: {
+  legend: string;
+  error?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <fieldset className="m-0 block border-0 p-0">
+      <legend className="block p-0 text-[15px] font-medium text-ink">{legend}</legend>
+      {children}
+      {error && <span className="mt-1 block text-[14px] text-danger">{error}</span>}
+    </fieldset>
+  );
+}
+
 function CheckboxOption({
   name,
   value,
@@ -131,7 +150,7 @@ export default function ListingForm({
         />
       </Field>
 
-      <Field label="Subjects" error={errors.subjects}>
+      <FieldsetGroup legend="Subjects" error={errors.subjects}>
         <div className="mt-1 flex flex-col gap-3">
           {SUBJECTS.map((group) => (
             <div key={group.group}>
@@ -150,9 +169,9 @@ export default function ListingForm({
             </div>
           ))}
         </div>
-      </Field>
+      </FieldsetGroup>
 
-      <Field label="Classes" error={errors.classes}>
+      <FieldsetGroup legend="Classes" error={errors.classes}>
         <div className="mt-1 flex flex-col gap-3">
           {CLASSES.map((group) => (
             <div key={group.group}>
@@ -171,9 +190,9 @@ export default function ListingForm({
             </div>
           ))}
         </div>
-      </Field>
+      </FieldsetGroup>
 
-      <Field label="Boards" error={errors.boards}>
+      <FieldsetGroup legend="Boards" error={errors.boards}>
         <div className="mt-1 grid grid-cols-2 gap-2">
           {BOARDS.map((board) => (
             <CheckboxOption
@@ -185,9 +204,9 @@ export default function ListingForm({
             />
           ))}
         </div>
-      </Field>
+      </FieldsetGroup>
 
-      <Field label="Mode" error={errors.modes}>
+      <FieldsetGroup legend="Mode" error={errors.modes}>
         <div className="mt-1 grid grid-cols-2 gap-2">
           {MODES.map((m) => (
             <CheckboxOption
@@ -199,7 +218,7 @@ export default function ListingForm({
             />
           ))}
         </div>
-      </Field>
+      </FieldsetGroup>
 
       <Field label="Area" error={errors.area}>
         <select name="area" defaultValue={values.area} className={`${inputBase} ${fieldBorder(!!errors.area)}`}>
