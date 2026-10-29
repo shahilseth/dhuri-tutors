@@ -7,7 +7,7 @@
 ## Current status
 
 - **Current phase:** Phase 4 — Admin
-- **Current task:** P4.4 components/ListingForm.tsx
+- **Current task:** P4.5 /admin/new
 - **Last updated:** 2026-10-29
 - **Blocked on owner:** —
 
@@ -48,7 +48,7 @@
 - [x] P4.2 Login / logout
 - [x] P4.3 lib/validation.ts + tests
 - [x] P4.4 ListingForm
-- [ ] P4.5 New listing
+- [x] P4.5 New listing
 - [ ] P4.6 Edit listing
 - [ ] P4.7 Dashboard
 - [ ] P4.8 Verify + publish actions

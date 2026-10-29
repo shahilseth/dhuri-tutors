@@ -2,12 +2,14 @@
 
 import { useActionState, useState } from "react";
 import { AREAS, BOARDS, CLASSES, MODES, SUBJECTS } from "@/lib/config";
-import { modeLabel } from "@/lib/format";
+import { modeLabel, slugify } from "@/lib/format";
 import type { ListingFormErrors, ListingFormInput } from "@/lib/validation";
 
 export type ListingFormState = {
   errors: ListingFormErrors;
   values: ListingFormInput;
+  /** A problem that isn't tied to one field, e.g. "tick consent before publishing". */
+  formError?: string;
 };
 
 const inputBase =
@@ -74,8 +76,12 @@ export default function ListingForm({
   mode: "new" | "edit";
 }) {
   const [state, action, pending] = useActionState(formAction, { errors: {}, values: initialValues });
-  const { values, errors } = state;
+  const { values, errors, formError } = state;
   const [consentChecked, setConsentChecked] = useState(consentAt !== null);
+
+  // app_flow.md A3: slug is prefilled from the name as it's typed, until the admin edits it directly.
+  const [slug, setSlug] = useState(values.slug);
+  const [slugTouched, setSlugTouched] = useState(mode === "edit" || values.slug !== "");
 
   return (
     <form action={action} className="flex flex-col gap-5">
@@ -91,6 +97,9 @@ export default function ListingForm({
           type="text"
           name="name"
           defaultValue={values.name}
+          onChange={(e) => {
+            if (mode === "new" && !slugTouched) setSlug(slugify(e.target.value));
+          }}
           className={`${inputBase} ${fieldBorder(!!errors.name)}`}
         />
       </Field>
@@ -268,7 +277,11 @@ export default function ListingForm({
         <input
           type="text"
           name="slug"
-          defaultValue={values.slug}
+          value={slug}
+          onChange={(e) => {
+            setSlugTouched(true);
+            setSlug(e.target.value);
+          }}
           className={`${inputBase} ${fieldBorder(!!errors.slug)}`}
         />
       </Field>
@@ -292,6 +305,8 @@ export default function ListingForm({
           <span className="text-[15px] text-ink">The teacher agreed to be listed on this site.</span>
         )}
       </label>
+
+      {formError && <p className="text-[14px] text-danger">{formError}</p>}
 
       <div className="flex flex-col gap-3">
         {mode === "new" ? (
