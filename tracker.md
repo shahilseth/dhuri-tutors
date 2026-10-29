@@ -7,7 +7,7 @@
 ## Current status
 
 - **Current phase:** Phase 1 — Database and data layer
-- **Current task:** P1.1
+- **Current task:** P1.2
 - **Last updated:** 2026-10-29
 - **Blocked on owner:** —
 
@@ -23,7 +23,7 @@
 
 ## Phase 1: Database and data layer
 - [x] P1.1 Migration 0001_init.sql
-- [ ] P1.2 seed.sql (fake data, dev only)
+- [x] P1.2 seed.sql (fake data, dev only)
 - [ ] P1.3 OWNER: Supabase dev project + keys in .env.local
 - [ ] P1.4 lib/data.ts
 - [ ] P1.5 lib/format.ts
