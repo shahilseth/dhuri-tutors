@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { APP_NAME, CITY } from "@/lib/config";
@@ -34,6 +35,7 @@ export default function RootLayout({
           Are you a teacher in Dhuri? Get listed for free. Message us on
           WhatsApp.
         </footer>
+        <Analytics />
       </body>
     </html>
   );

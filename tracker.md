@@ -7,7 +7,7 @@
 ## Current status
 
 - **Current phase:** Phase 6 — in progress
-- **Current task:** P6.3
+- **Current task:** P6.4
 - **Last updated:** 2026-10-29
 - **Blocked on owner:** —
 
@@ -61,7 +61,7 @@
 ## Phase 6: Hardening, QA and launch
 - [x] P6.1 Accessibility pass
 - [x] P6.2 Performance pass
-- [ ] P6.3 Vercel Analytics
+- [x] P6.3 Vercel Analytics
 - [ ] P6.4 README
 - [ ] P6.5 OWNER: Supabase prod project
 - [ ] P6.6 OWNER: GitHub + Vercel deploy
@@ -127,6 +127,8 @@ One entry per session, newest first. Keep each entry to 2–4 lines.
 - Notes: verified live with a headless browser, not just typecheck/build/test (all green) — confirmed computed focus-ring style (2px solid rgb(31,60,136), 2px offset) on a tabbed-to link; confirmed no horizontal scroll at 320px; confirmed all four fieldsets render with the right `<legend>` text and checkbox counts (29/29/3/3) via a real admin login; confirmed all five dashboard action buttons measure exactly 44px tall across all 6 listing rows. Zero console errors throughout. Did not touch "Clear filters"/"All teachers"/admin-nav text links or any `<label>` around a single input — both already match design.md's own "Text link" category (no height rule) and §10's single-input label rule.
 - Done: P6.2 performance pass. Ran a real production build (`next build` + `next start`, not dev mode) and audited both home and `/t/[slug]` with mobile Lighthouse (simulated throttling): **100/100 performance score** on both. Measured actual JS transferred via Lighthouse's network-requests audit: 106.6 KB (home) / 107.3 KB (listing) — over tech_spec.md's old "100 KB" number. Traced the gap by grepping every chunk for `supabase`/`qrcode` strings (none found) and inspecting `package.json` (only `next`/`react`/`react-dom` ship client code) — confirmed the entire bundle is the Next.js 15/React 19 App Router framework runtime itself, with no app-level fat to cut. Flagged the spec conflict to the owner instead of silently passing or failing the task; owner chose to update the number rather than chase an unreachable target under the mandated stack, so tech_spec.md §9 now reads "~107 KB JS transferred (Next.js 15 App Router baseline) ... Lighthouse mobile performance ≥ 90 is the binding target" (decision logged).
 - Next: P6.3 (Vercel Analytics).
+- Done: P6.3 Vercel Web Analytics. Installed `@vercel/analytics` (per tech_spec.md §1's stack table, which already names it — no extra approval needed) and added `<Analytics />` from `@vercel/analytics/next` to the root layout (`app/layout.tsx`), inside `<body>` after the footer. It's a no-op until the site is actually deployed on Vercel (P6.6); locally it mounts with zero console errors and no failed requests, confirmed with a headless-browser check against the production build. `npm audit` flagged 2 pre-existing vulnerabilities in `postcss` (a transitive dependency of `next`, nothing to do with this change) that need a Next.js major-version bump to fix — out of scope here per rules.md §3, noting for awareness only, not acting on it.
+- Next: P6.4 (README: local setup, Supabase setup, env vars, deploy steps, how to onboard a teacher).
 
 ### 2026-10-29 (session 7)
 - Done: all of Phase 5. P5.1 `app/api/qr/[slug]/route.ts`: checks `isAdmin()` directly (not `requireAdmin()`, which redirects — tech_spec.md §3.1 calls for a plain `401`, and a redirect would break an `<img src>` fetch) → `401` if not signed in; looks the listing up by slug via a new `getListingBySlugForAdmin()` in `lib/data.ts` (published or not, unlike the public page's published-only `getListingBySlug` — admin needs a QR before a listing goes live) → `404` if the slug doesn't exist; `qrcode`'s `toBuffer` with `width: 600, margin: 2`; `Content-Type: image/png` and `Content-Disposition: attachment; filename="<slug>-qr.png"`. P5.2: edit page (`/admin/[id]`) gets a bordered box under the public-link box with a live QR preview (`next/image`, `unoptimized` — required, since Next's image optimizer fetches server-side without the browser's admin cookie and would get a `401`) and a "Download QR" link; dashboard rows get a "Download QR" link in the action row next to "View page", per design.md §7's listed secondary buttons.
