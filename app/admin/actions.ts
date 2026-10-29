@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import type { ListingFormState } from "@/components/ListingForm";
 import { CITY } from "@/lib/config";
 import { logIn, logOut, requireAdmin } from "@/lib/auth";
-import { createListing, nextRefCode, slugTaken } from "@/lib/data";
+import { createListing, getListingById, nextRefCode, slugTaken, updateListing } from "@/lib/data";
 import { parseListingFormData, validateListingInput } from "@/lib/validation";
 
 export async function loginAction(formData: FormData): Promise<void> {
@@ -65,4 +65,49 @@ export async function createListingAction(
   });
 
   redirect(`/admin/${listing.id}`);
+}
+
+/** Postgres check_violation (listings_publish_needs_consent): tried to clear consent while still published. */
+function isConsentCheckViolation(error: unknown): boolean {
+  return typeof error === "object" && error !== null && (error as { code?: string }).code === "23514";
+}
+
+/** Bound with the listing id (`updateListingAction.bind(null, listing.id)`) before being passed to ListingForm. */
+export async function updateListingAction(
+  id: string,
+  _prevState: ListingFormState,
+  formData: FormData,
+): Promise<ListingFormState> {
+  await requireAdmin();
+
+  const input = parseListingFormData(formData);
+  const existing = await getListingById(id);
+  if (!existing) {
+    return { errors: {}, values: input, formError: "This listing no longer exists." };
+  }
+
+  const result = validateListingInput(input);
+  if (!result.ok) {
+    return { errors: result.errors, values: input };
+  }
+
+  const consentGiven = formData.get("consent") === "yes";
+  // tech_spec.md §8: consent_at is set the first time it's ticked, and kept after.
+  const consentAt = consentGiven ? existing.consent_at ?? new Date().toISOString() : null;
+  const slug = result.value.slug === existing.slug ? existing.slug : await uniqueSlug(result.value.slug);
+
+  try {
+    await updateListing(id, { ...result.value, slug, consent_at: consentAt });
+  } catch (error) {
+    if (isConsentCheckViolation(error)) {
+      return {
+        errors: {},
+        values: input,
+        formError: "You can't remove consent while this listing is published. Unpublish it first.",
+      };
+    }
+    throw error;
+  }
+
+  redirect(`/admin/${id}`);
 }
