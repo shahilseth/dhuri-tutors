@@ -92,7 +92,6 @@ Add items here instead of guessing. Remove when answered.
 
 - [ ] Full list of Dhuri localities for the area filter (have 4 so far: Pathshalla Mohalla, Janta Nagar, Shivpuri, Bank Road — more to follow)
 - [ ] Owner's own WhatsApp number for the public footer's "Message us on WhatsApp" link (teachers asking to get listed). Not in `tech_spec.md` §6 env vars yet — footer currently shows this as plain text, not a link, until there's a number and an env var for it
-- [ ] `.env.local` has `TAP_SALT=` with no value. Needed in Phase 3 for tap de-duplication (hashes visitor IP+UA). Any random string of 32+ characters works — doesn't need to be memorable, just set once and left alone (changing it later resets de-duplication).
 
 ## Session log
 One entry per session, newest first. Keep each entry to 2–4 lines.
