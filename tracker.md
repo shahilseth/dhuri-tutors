@@ -7,7 +7,7 @@
 ## Current status
 
 - **Current phase:** Phase 3 — contact buttons and tap counting
-- **Current task:** P3.1
+- **Current task:** P3.2
 - **Last updated:** 2026-10-29
 - **Blocked on owner:** —
 
@@ -39,7 +39,7 @@
 
 ## Phase 3: Contact buttons and tap counting
 - [x] P3.1 /api/tap
-- [ ] P3.2 ContactButtons
+- [x] P3.2 ContactButtons
 - [ ] P3.3 Wire into listing page with ref code message
 - [ ] P3.4 Share on WhatsApp button
 
