@@ -102,6 +102,12 @@ export default async function AdminDashboard() {
                       </button>
                     </form>
                     <a
+                      href={`/api/qr/${listing.slug}`}
+                      className="flex h-9 items-center rounded-md border border-rule px-3 text-[14px] text-blue"
+                    >
+                      Download QR
+                    </a>
+                    <a
                       href={`/t/${listing.slug}`}
                       target="_blank"
                       rel="noreferrer"

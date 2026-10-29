@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import AdminHeader from "@/components/AdminHeader";
 import CopyLinkButton from "@/components/CopyLinkButton";
@@ -52,6 +53,23 @@ export default async function EditListingPage({
             {publicUrl}
           </a>
           <CopyLinkButton url={publicUrl} />
+        </div>
+
+        <div className="mt-4 flex items-center gap-4 rounded-md border border-rule bg-paper p-3">
+          <Image
+            src={`/api/qr/${listing.slug}`}
+            alt="QR code linking to the public listing page"
+            width={96}
+            height={96}
+            unoptimized
+            className="rounded-sm"
+          />
+          <a
+            href={`/api/qr/${listing.slug}`}
+            className="flex h-9 items-center rounded-md border border-rule px-3 text-[14px] text-blue"
+          >
+            Download QR
+          </a>
         </div>
 
         <div className="mt-6">
