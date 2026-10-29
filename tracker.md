@@ -6,10 +6,10 @@
 
 ## Current status
 
-- **Current phase:** Phase 6 — in progress
-- **Current task:** P6.4
+- **Current phase:** Phase 6 — P6.1–P6.4 done; P6.5–P6.8 blocked on owner
+- **Current task:** —
 - **Last updated:** 2026-10-29
-- **Blocked on owner:** —
+- **Blocked on owner:** P6.5 (Supabase prod project), P6.6 (GitHub + Vercel deploy), P6.7 (enter real teachers), P6.8 (test on real phones) — see numbered steps in session log below
 
 ## Phase 0: Project setup
 - [x] P0.1 Create Next.js 15 app
@@ -62,11 +62,11 @@
 - [x] P6.1 Accessibility pass
 - [x] P6.2 Performance pass
 - [x] P6.3 Vercel Analytics
-- [ ] P6.4 README
-- [ ] P6.5 OWNER: Supabase prod project
-- [ ] P6.6 OWNER: GitHub + Vercel deploy
-- [ ] P6.7 OWNER: enter 5–10 real teachers
-- [ ] P6.8 Launch checklist on real phones
+- [x] P6.4 README
+- [!] P6.5 OWNER: Supabase prod project
+- [!] P6.6 OWNER: GitHub + Vercel deploy
+- [!] P6.7 OWNER: enter 5–10 real teachers
+- [!] P6.8 Launch checklist on real phones (blocked on P6.5–P6.7: needs a live production URL and real phones)
 
 ## Phase 7–9
 Not started. Do not begin without the owner's go-ahead.
@@ -129,6 +129,13 @@ One entry per session, newest first. Keep each entry to 2–4 lines.
 - Next: P6.3 (Vercel Analytics).
 - Done: P6.3 Vercel Web Analytics. Installed `@vercel/analytics` (per tech_spec.md §1's stack table, which already names it — no extra approval needed) and added `<Analytics />` from `@vercel/analytics/next` to the root layout (`app/layout.tsx`), inside `<body>` after the footer. It's a no-op until the site is actually deployed on Vercel (P6.6); locally it mounts with zero console errors and no failed requests, confirmed with a headless-browser check against the production build. `npm audit` flagged 2 pre-existing vulnerabilities in `postcss` (a transitive dependency of `next`, nothing to do with this change) that need a Next.js major-version bump to fix — out of scope here per rules.md §3, noting for awareness only, not acting on it.
 - Next: P6.4 (README: local setup, Supabase setup, env vars, deploy steps, how to onboard a teacher).
+- Done: P6.4 README.md, replacing the stock `create-next-app` boilerplate. Covers local setup, Supabase dev-project setup (clarifies `supabase/seed.sql` is dev-only and must never run against production, per rules.md §2's "no demo listings in production"), every env var and what it's for, the four-step Vercel deploy (per tech_spec.md §11), and "How to onboard a teacher" written from `app_flow.md`'s Flow 3/4 (visit → consent → fill form → publish → copy link + QR → send to teacher; later, the 60-day re-confirm cycle). Ends with a pointer to the rest of the project docs and the order to read them in (rules.md §1).
+- P6.5–P6.8 are next and all need the owner (rules.md §10) — marked `[!]`, stopping here at the end of Phase 6 as instructed. Numbered steps for each:
+  - **P6.5 — Supabase production project:** 1) Go to supabase.com → New project → name it something like "dhuri-tutors-prod" (keep it separate from the dev project used so far). 2) Once it's ready, open the SQL Editor and paste in the contents of `supabase/migrations/0001_init.sql`, then run it. 3) **Do not run `supabase/seed.sql` here** — that's fake test data for development only; production starts empty and P6.7 fills it with real teachers. 4) Under Settings → API, copy the Project URL and the `service_role` key (not `anon`) — you'll need both for P6.6.
+  - **P6.6 — GitHub + Vercel deploy:** 1) Push this repo to a GitHub repo (ask me to do this part if you'd like — I can create the repo and push once you confirm). 2) Go to vercel.com → Add New Project → import that GitHub repo (Vercel auto-detects Next.js, no settings to change). 3) Before the first deploy, go to Settings → Environment Variables and add every variable from `.env.example`, using the **production** Supabase URL/key from P6.5, a real `ADMIN_PASSWORD`, a fresh random `TAP_SALT` (e.g. run `openssl rand -hex 16` in a terminal), and `NEXT_PUBLIC_SITE_URL` set to your real domain (or the `*.vercel.app` URL Vercel gives you if you don't have a domain yet). 4) Deploy. 5) In the Vercel dashboard's Analytics tab, turn on Web Analytics for the project (the code is already wired in from P6.3, nothing else to do).
+  - **P6.7 — Enter 5–10 real teachers:** Once P6.6 is live, log into `/admin/new` on the production site and follow the README's "How to onboard a teacher" section for each one — visit in person, get their yes, fill the form, tick consent, Save and publish, then send them their link and QR code on WhatsApp.
+  - **P6.8 — Launch checklist on real phones:** Can only happen once P6.5–P6.7 are done (needs a live production URL with real listings). Go through every item in `implementation_plan.md`'s Phase 6 "Launch checklist" on an actual Android phone (and iPhone if you have one) — search filters, WhatsApp/Call buttons, tap counts, Not found page, admin login, QR scan, Add to home screen. Come back and tell me which items pass/fail; I'll fix anything that doesn't.
+- Next: owner to work through P6.5 → P6.6 → P6.7 → P6.8 in order. I'm stopping here at the end of Phase 6 per the owner's "stop at the end of the phase" instruction — Phase 7+ needs an explicit go-ahead either way (rules.md §2).
 
 ### 2026-10-29 (session 7)
 - Done: all of Phase 5. P5.1 `app/api/qr/[slug]/route.ts`: checks `isAdmin()` directly (not `requireAdmin()`, which redirects — tech_spec.md §3.1 calls for a plain `401`, and a redirect would break an `<img src>` fetch) → `401` if not signed in; looks the listing up by slug via a new `getListingBySlugForAdmin()` in `lib/data.ts` (published or not, unlike the public page's published-only `getListingBySlug` — admin needs a QR before a listing goes live) → `404` if the slug doesn't exist; `qrcode`'s `toBuffer` with `width: 600, margin: 2`; `Content-Type: image/png` and `Content-Disposition: attachment; filename="<slug>-qr.png"`. P5.2: edit page (`/admin/[id]`) gets a bordered box under the public-link box with a live QR preview (`next/image`, `unoptimized` — required, since Next's image optimizer fetches server-side without the browser's admin cookie and would get a `401`) and a "Download QR" link; dashboard rows get a "Download QR" link in the action row next to "View page", per design.md §7's listed secondary buttons.
