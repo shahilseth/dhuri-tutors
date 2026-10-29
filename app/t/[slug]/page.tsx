@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import ContactButtons from "@/components/ContactButtons";
 import { APP_NAME, CITY, SITE_URL } from "@/lib/config";
 import { getListingBySlug } from "@/lib/data";
 import {
@@ -52,14 +53,6 @@ export async function generateMetadata({
       type: "website",
     },
   };
-}
-
-function PhoneIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
-      <path d="M6.6 10.8c1.4 2.8 3.8 5.2 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.4 21 3 13.6 3 4.5c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z" />
-    </svg>
-  );
 }
 
 function CheckIcon() {
@@ -128,21 +121,7 @@ export default async function ListingPage({
         </p>
       )}
 
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <a
-          href={waUrl}
-          className="flex h-12 items-center justify-center rounded-md bg-wa text-[16px] font-semibold text-white"
-        >
-          WhatsApp
-        </a>
-        <a
-          href={callUrl}
-          className="flex h-12 items-center justify-center gap-1.5 rounded-md bg-blue text-[16px] font-semibold text-white"
-        >
-          <PhoneIcon />
-          Call
-        </a>
-      </div>
+      <ContactButtons slug={listing.slug} whatsappUrl={waUrl} callUrl={callUrl} />
 
       <div className="relative mt-6 overflow-hidden rounded-r-md border border-rule bg-paper">
         <div className="absolute inset-y-0 left-0 w-[2px] bg-margin" />
