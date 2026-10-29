@@ -10,6 +10,7 @@ import {
   feeText,
   isStale,
   modeLabel,
+  shareUrl,
   subjectLabel,
   telUrl,
   whatsappMessage,
@@ -95,6 +96,7 @@ export default async function ListingPage({
   const waUrl = whatsappUrl(waNumber, whatsappMessage(listing.ref_code));
   const callUrl = telUrl(listing.phone);
   const area = [listing.address, listing.area, CITY].filter(Boolean).join(", ");
+  const shareWaUrl = shareUrl(listing.name, `${SITE_URL}/t/${listing.slug}`);
 
   return (
     <div className="mx-auto max-w-[42rem] px-4 py-6">
@@ -168,6 +170,13 @@ export default async function ListingPage({
         </p>
       )}
       <p className="mt-1 text-[13px] text-ink-3">Ref {listing.ref_code}</p>
+
+      <a
+        href={shareWaUrl}
+        className="mt-6 flex h-12 items-center justify-center rounded-md border border-rule bg-paper text-[16px] font-semibold text-blue"
+      >
+        Share this page on WhatsApp
+      </a>
     </div>
   );
 }

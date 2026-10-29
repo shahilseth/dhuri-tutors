@@ -110,6 +110,11 @@ export function telUrl(phone: string): string {
   return `tel:+${intl(phone)}`;
 }
 
+/** Share-to-any-chat link (tech_spec.md §3.3): no phone number, opens WhatsApp's chat picker. */
+export function shareUrl(name: string, listingUrl: string): string {
+  return `https://wa.me/?text=${encodeURIComponent(`${name} - ${listingUrl}`)}`;
+}
+
 /** Lowercase, hyphenated slug candidate from a name. Uniqueness suffixes are added by the caller. */
 export function slugify(name: string): string {
   return name
