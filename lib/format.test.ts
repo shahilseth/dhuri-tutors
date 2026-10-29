@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   ago,
   classesText,
+  daysSince,
   feeText,
   intl,
   isStale,
@@ -100,6 +101,10 @@ describe("ago and isStale", () => {
 
   it("is stale past STALE_AFTER_DAYS", () => {
     expect(isStale(new Date("2026-08-01T00:00:00Z").toISOString())).toBe(true);
+  });
+
+  it("daysSince counts whole days, for the admin dashboard's raw day count", () => {
+    expect(daysSince(new Date("2026-08-16T00:00:00Z"))).toBe(74);
   });
 });
 

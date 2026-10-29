@@ -68,7 +68,8 @@ export function modeLabel(mode: string): string {
   return MODE_LABELS[mode] ?? mode;
 }
 
-function daysSince(date: string | Date): number {
+/** Whole days elapsed. Used directly for the admin dashboard's "Not confirmed for N days" (design.md §7). */
+export function daysSince(date: string | Date): number {
   const then = typeof date === "string" ? new Date(date) : date;
   return Math.floor((Date.now() - then.getTime()) / 86_400_000);
 }
