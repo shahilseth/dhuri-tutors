@@ -6,8 +6,8 @@
 
 ## Current status
 
-- **Current phase:** Phase 3 — contact buttons and tap counting
-- **Current task:** P3.4
+- **Current phase:** Phase 3 — complete, awaiting go-ahead for Phase 4
+- **Current task:** —
 - **Last updated:** 2026-10-29
 - **Blocked on owner:** —
 
@@ -110,6 +110,11 @@ One entry per session, newest first. Keep each entry to 2–4 lines.
 - Done: all of Phase 2. P2.1 `components/ListingCard.tsx` (result row per design.md §6); added `subjectLabel` to `lib/format.ts` with tests (needed to show subject display labels, not stored values, on cards and the listing page — same pattern as the existing `classLabel`). P2.2 `app/page.tsx`: GET filter form (Subject/Class/Area/Mode/Name), params validated against `lib/config.ts` lists server-side, unknown values dropped. P2.3 `app/t/[slug]/page.tsx`: full S2 layout (details sheet with red margin line, WhatsApp/Call as plain `wa.me`/`tel:` links — no tap counting yet, that's Phase 3), 404s via `notFound()` for unpublished/unknown slugs. P2.4 `generateMetadata` on the listing page (title, description, Open Graph). P2.5 `app/not-found.tsx`. P2.6 `app/manifest.ts`, `public/icon.svg`, `app/robots.ts` (disallows `/admin`, `/api`), favicon wired into `app/layout.tsx` metadata.
 - Notes: verified every task live against the real seeded Supabase dev data (not just typecheck/build) — all 5 published seed listings show and the 1 unpublished one doesn't; each filter (subject, class, area, mode, q) narrows correctly and unknown params are ignored; empty-state and "Clear filters" both checked; listing page checked for a normal, a stale (70-day), a never-verified (null `last_verified_at`), an unpublished, and a nonexistent slug; confirmed no horizontal overflow at 320px with a headless-browser screenshot; robots.txt, manifest.webmanifest and favicon all confirmed served with correct content. The "Share on WhatsApp" button from the S2 mock in `design.md` is intentionally not in `app/t/[slug]/page.tsx` yet — it's `P3.4`, not part of P2.3's scope.
 - Next: owner go-ahead to start Phase 3 (contact buttons and tap counting). `TAP_SALT` is now filled in `.env.local` (owner confirmed) — no blocker left for P3.1.
+
+### 2026-10-29 (session 5)
+- Done: all of Phase 3. P3.1 `app/api/tap/route.ts` (tech_spec.md §3.1: validates `{slug, channel}`, ignores bot/crawler user agents, 404s on unknown/unpublished slug, visitor = first 24 hex chars of `sha256(TAP_SALT|ip|user-agent)`, inserts via `lib/data.ts`'s `logTap`). P3.2 `components/ContactButtons.tsx` (client): WhatsApp/Call as real `wa.me`/`tel:` `<a href>`s; `onClick` fires `navigator.sendBeacon` (fallback `fetch keepalive`) wrapped in try/catch so a logging failure never blocks the link; moved `PhoneIcon` here from the listing page. P3.3 wired `ContactButtons` into `app/t/[slug]/page.tsx` in place of the plain anchors (ref-code WhatsApp message was already in place from Phase 2). P3.4 added `shareUrl()` to `lib/format.ts` (`https://wa.me/?text=<name> - <link>`, no phone number) and the full-width outline "Share this page on WhatsApp" button at the bottom of the listing page per design.md §listing page mock.
+- Notes: verified live, not just typecheck/build — `curl`'d `/api/tap` against the real Supabase dev project: valid taps return 204 and insert a row; bad JSON and bad channel return 400; unknown slug returns 404; a bot-like user agent (including curl's own default UA, which matches the `curl` bot pattern — worth knowing when testing with plain `curl`) returns 204 but inserts nothing. Queried `taps` and `listing_tap_counts` directly via the Supabase REST API: three raw taps (1 call, 2 whatsapp same day) correctly de-duplicate to `whatsapp_total: 1, call_total: 1` in the view. Headless-browser check of the rendered listing page confirmed all three link hrefs (WhatsApp with ref code, tel:, share) and zero console errors. Hit one unrelated dev-server hot-reload glitch (Next DevTools RSC bundler error) from rapid file edits during testing — resolved with a clean `.next` + restart, not a code bug; production `npm run build` was clean throughout.
+- Next: owner go-ahead to start Phase 4 (admin). No new blockers.
 
 <!--
 ### YYYY-MM-DD
