@@ -26,7 +26,7 @@
 - [x] P1.2 seed.sql (fake data, dev only)
 - [!] P1.3 OWNER: Supabase dev project + keys in .env.local
 - [x] P1.4 lib/data.ts
-- [ ] P1.5 lib/format.ts
+- [x] P1.5 lib/format.ts
 - [ ] P1.6 Tests for lib/format.ts
 
 ## Phase 2: Public search and listing pages
