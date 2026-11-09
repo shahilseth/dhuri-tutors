@@ -1,5 +1,5 @@
 /** Turns raw listing data into the plain-English text design.md specifies. */
-import { APP_NAME, CLASSES, STALE_AFTER_DAYS, SUBJECTS } from "./config";
+import { APP_NAME, AREAS, CLASSES, STALE_AFTER_DAYS, SUBJECTS } from "./config";
 
 function rupees(amount: number): string {
   return `₹${amount.toLocaleString("en-IN")}`;
@@ -125,6 +125,45 @@ export function telUrl(phone: string): string {
 /** Share-to-any-chat link (tech_spec.md §3.3): no phone number, opens WhatsApp's chat picker. */
 export function shareUrl(name: string, listingUrl: string): string {
   return `https://wa.me/?text=${encodeURIComponent(`${name} - ${listingUrl}`)}`;
+}
+
+/** wa.me link for an already-international number, e.g. ADMIN_WHATSAPP ("91XXXXXXXXXX") — unlike intl(), doesn't add a "91" prefix. */
+export function waUrlForNumber(internationalPhone: string, message: string): string {
+  return `https://wa.me/${internationalPhone}?text=${encodeURIComponent(message)}`;
+}
+
+/** Display label for a stored area value, or the free-text village name when "Other village" was picked. */
+export function areaLabel(area: string | null, areaOther: string | null): string {
+  if (areaOther) return areaOther;
+  if (!area) return "";
+  for (const group of AREAS) {
+    const option = group.options.find((o) => o.value === area);
+    if (option) return option.label;
+  }
+  return area;
+}
+
+/** One-line recap of a /request's "What" + "Where" fields — the "key details" in R4's WhatsApp message (app_flow.md R4). */
+export function requestSummary(input: {
+  classValue: string | null;
+  subjects: string[];
+  allSubjects: boolean;
+  mode: string | null;
+  area: string | null;
+  areaOther: string | null;
+}): string {
+  const classText = input.classValue ? classesText([input.classValue]) : "any class";
+  const subjectText = input.allSubjects
+    ? "all subjects"
+    : input.subjects.map(subjectLabel).join(", ") || "no subject chosen";
+  const modeText = input.mode ? modeLabel(input.mode) : "any mode";
+  const areaText = areaLabel(input.area, input.areaOther) || "any area";
+  return `${classText}, ${subjectText}, ${modeText}, ${areaText}`;
+}
+
+/** The admin's WhatsApp message for a new /request (design.md §11: "reference code and key details"). */
+export function requestWhatsappMessage(refCode: string, summary: string): string {
+  return `New request on ${APP_NAME} (ref ${refCode}): ${summary}`;
 }
 
 /** Lowercase, hyphenated slug candidate from a name. Uniqueness suffixes are added by the caller. */

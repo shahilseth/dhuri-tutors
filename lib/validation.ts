@@ -4,7 +4,7 @@
  * (rules.md §4: every write is validated server-side regardless of the client).
  */
 import { AREAS, BOARDS, CLASSES, MODES, OTHER_AREA, SUBJECTS, TIMINGS } from "./config";
-import type { Listing, ListingKind } from "./types";
+import type { Listing, ListingKind, RequestDraft } from "./types";
 
 export type ListingFormInput = {
   kind: string;
@@ -402,6 +402,28 @@ export function validateRequestInput(input: RequestFormInput): RequestValidation
       budget_max: budgetMax.value,
       notes: notes.value,
     },
+  };
+}
+
+/** Reads the client-side /request draft (lib/types.ts) into validateRequestInput's input shape (R4 Send, Phase 7). */
+export function requestDraftToFormInput(draft: RequestDraft): RequestFormInput {
+  return {
+    class: draft.class,
+    subjects: draft.subjects,
+    all_subjects: draft.all_subjects ? "yes" : "",
+    board: draft.board,
+    mode: draft.mode,
+    area: draft.area,
+    area_other: draft.area_other,
+    timings: draft.timings,
+    budget_min: draft.budget_min,
+    budget_max: draft.budget_max,
+    is_adult: draft.is_adult,
+    name: draft.name,
+    student_name: draft.student_name,
+    phone: draft.phone,
+    notes: draft.notes,
+    consent: draft.consent ? "yes" : "",
   };
 }
 

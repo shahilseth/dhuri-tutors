@@ -5,6 +5,7 @@ import { useCallback } from "react";
 import { parseStep } from "@/lib/stepForm";
 import type { RequestDraft } from "@/lib/types";
 import { useStepDraft } from "@/lib/useStepDraft";
+import RequestStepSend from "./RequestStepSend";
 import RequestStepWhat from "./RequestStepWhat";
 import RequestStepWhereWhen from "./RequestStepWhereWhen";
 import RequestStepYourDetails from "./RequestStepYourDetails";
@@ -13,8 +14,7 @@ import StepFormLayout from "./StepFormLayout";
 import WhatsNextBox from "./WhatsNextBox";
 
 const STEP_LABELS = ["What", "Where and when", "Your details", "Send"];
-// Raised to 4 as P7.7 lands. A later ?step= than this falls back to the last built step.
-const BUILT_STEPS = 3;
+const BUILT_STEPS = 4;
 
 const emptyDraft: RequestDraft = {
   class: "",
@@ -33,6 +33,8 @@ const emptyDraft: RequestDraft = {
   phone: "",
   notes: "",
   consent: false,
+  ref_code: "",
+  whatsapp_url: "",
 };
 
 const WHATS_NEXT_POINTS = [
@@ -44,7 +46,7 @@ const WHATS_NEXT_POINTS = [
 export default function RequestForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { draft, setDraft } = useStepDraft<RequestDraft>("dhuri-request-draft", emptyDraft);
+  const { draft, setDraft, loaded } = useStepDraft<RequestDraft>("dhuri-request-draft", emptyDraft);
 
   const requestedStep = parseStep(searchParams.get("step") ?? undefined, STEP_LABELS.length);
   const step = Math.min(requestedStep, BUILT_STEPS);
@@ -79,6 +81,9 @@ export default function RequestForm() {
             backHref="/request?step=2"
             onContinue={() => goToStep(4)}
           />
+        )}
+        {step === 4 && (
+          <RequestStepSend draft={draft} setDraft={setDraft} loaded={loaded} backHref="/request?step=3" />
         )}
       </div>
     </StepFormLayout>

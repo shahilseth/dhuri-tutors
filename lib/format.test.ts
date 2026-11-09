@@ -6,11 +6,15 @@ import {
   feeText,
   intl,
   isStale,
+  areaLabel,
   modeLabel,
+  requestSummary,
+  requestWhatsappMessage,
   slugify,
   subjectLabel,
   telUrl,
   timingLabel,
+  waUrlForNumber,
   whatsappMessage,
   whatsappUrl,
 } from "./format";
@@ -144,6 +148,60 @@ describe("whatsappMessage, whatsappUrl, telUrl", () => {
 
   it("builds a tel: URL", () => {
     expect(telUrl("9988776655")).toBe("tel:+919988776655");
+  });
+});
+
+describe("waUrlForNumber", () => {
+  it("builds a wa.me URL without adding a country-code prefix", () => {
+    expect(waUrlForNumber("919988776655", "Hi there")).toBe("https://wa.me/919988776655?text=Hi%20there");
+  });
+});
+
+describe("areaLabel", () => {
+  it("maps a stored area value to its display label", () => {
+    expect(areaLabel("dhuri-town", null)).toBe("Dhuri town");
+  });
+
+  it("prefers the free-text village name when given", () => {
+    expect(areaLabel("other", "Mohabbatpur")).toBe("Mohabbatpur");
+  });
+
+  it("falls back to an empty string when neither is set", () => {
+    expect(areaLabel(null, null)).toBe("");
+  });
+});
+
+describe("requestSummary and requestWhatsappMessage", () => {
+  it("lists class, subjects, mode and area in plain English", () => {
+    expect(
+      requestSummary({
+        classValue: "10",
+        subjects: ["maths", "science"],
+        allSubjects: false,
+        mode: "home",
+        area: "dhuri-town",
+        areaOther: null,
+      }),
+    ).toBe("Class 10, Maths, Science, home tuition, Dhuri town");
+  });
+
+  it("falls back to plain-English defaults for unset fields", () => {
+    expect(
+      requestSummary({
+        classValue: null,
+        subjects: [],
+        allSubjects: true,
+        mode: null,
+        area: null,
+        areaOther: null,
+      }),
+    ).toBe("any class, all subjects, any mode, any area");
+  });
+
+  it("includes the ref code and summary in the WhatsApp message", () => {
+    const message = requestWhatsappMessage("R5", "Class 10, Maths, home tuition, Dhuri town");
+    expect(message).toContain("R5");
+    expect(message).toContain("Class 10, Maths, home tuition, Dhuri town");
   });
 });
 

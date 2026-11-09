@@ -107,6 +107,7 @@ Two Supabase projects: **dev** (seeded with fake sample data) and **prod** (real
 | `SUPABASE_SERVICE_ROLE_KEY` | server | `eyJ...` | Secret. Never prefixed `NEXT_PUBLIC_` |
 | `ADMIN_PASSWORD` | server | 16+ random chars | Secret |
 | `TAP_SALT` | server | 32 random chars | Secret; changing it resets de-duplication |
+| `ADMIN_WHATSAPP` | server | `91XXXXXXXXXX` | Phase 7/8: destination for the `/request` and `/join` "Send on WhatsApp" buttons. Not secret, but never hard-coded (design.md §11) |
 | `NEXT_PUBLIC_APP_NAME` | public | `Dhuri Tutors` | |
 | `NEXT_PUBLIC_CITY` | public | `Dhuri` | Filters listings by `city` |
 | `NEXT_PUBLIC_SITE_URL` | public | `https://dhuritutors.in` | Used in QR codes, share links, OG tags |

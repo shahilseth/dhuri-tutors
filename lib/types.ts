@@ -56,6 +56,37 @@ export type RequestDraft = {
   phone: string;
   notes: string;
   consent: boolean;
+  /** Set by RequestStepSend once the request is saved, so a reload of step 4 doesn't save it twice. */
+  ref_code: string;
+  /** Persisted alongside ref_code — ADMIN_WHATSAPP is server-only, so it can't be rebuilt on the client after a reload. */
+  whatsapp_url: string;
+};
+
+/** Mirrors the `requests` table in schema.md §3 (migration 0002, Phase 7). */
+export type RequestStatus = "new" | "contacted" | "matched" | "closed";
+
+export type RequestRecord = {
+  id: string;
+  ref_code: string;
+  is_adult: boolean;
+  name: string;
+  student_name: string | null;
+  phone: string;
+  class: string | null;
+  subjects: string[];
+  all_subjects: boolean;
+  board: string | null;
+  mode: string | null;
+  area: string | null;
+  area_other: string | null;
+  timings: string[];
+  budget_min: number | null;
+  budget_max: number | null;
+  notes: string | null;
+  consent_at: string;
+  status: RequestStatus;
+  created_at: string;
+  updated_at: string;
 };
 
 export type Channel = "whatsapp" | "call";

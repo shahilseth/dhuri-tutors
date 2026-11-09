@@ -6,7 +6,7 @@
 import "server-only";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { CITY } from "./config";
-import type { Channel, Listing, SearchFilters, TapCounts } from "./types";
+import type { Channel, Listing, RequestRecord, SearchFilters, TapCounts } from "./types";
 
 let client: SupabaseClient | null = null;
 
@@ -135,6 +135,28 @@ export async function updateListing(id: string, input: ListingUpdate): Promise<L
   const { data, error } = await getClient().from("listings").update(input).eq("id", id).select().single();
   if (error) throw error;
   return data as Listing;
+}
+
+/** "R" + next free number, e.g. "R12". Never reused once assigned (schema.md §3). */
+export async function nextRequestRefCode(): Promise<string> {
+  const { data, error } = await getClient().from("requests").select("ref_code").like("ref_code", "R%");
+  if (error) throw error;
+
+  const highest = (data ?? []).reduce((max, row) => {
+    const match = /^R(\d+)$/.exec(row.ref_code as string);
+    const n = match ? parseInt(match[1], 10) : 0;
+    return n > max ? n : max;
+  }, 0);
+
+  return `R${highest + 1}`;
+}
+
+export type NewRequest = Omit<RequestRecord, "id" | "created_at" | "updated_at">;
+
+export async function createRequest(input: NewRequest): Promise<RequestRecord> {
+  const { data, error } = await getClient().from("requests").insert(input).select().single();
+  if (error) throw error;
+  return data as RequestRecord;
 }
 
 export async function logTap(listingId: string, channel: Channel, visitor: string | null): Promise<void> {
