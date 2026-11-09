@@ -169,6 +169,11 @@ export default async function Home({
             <Link href="/" className="mt-2 inline-block text-[15px] text-blue underline">
               Clear filters
             </Link>
+            <p className="mt-4 text-[15px] text-ink-2">
+              <Link href="/request" className="text-blue underline">
+                Can&apos;t find the right teacher? Tell us what you need
+              </Link>
+            </p>
           </div>
         ) : (
           <div className="divide-y divide-rule">

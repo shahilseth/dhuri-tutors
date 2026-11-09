@@ -26,7 +26,12 @@ export default function RootLayout({
           <Link href="/" className="text-blue font-bold text-lg">
             {APP_NAME}
           </Link>
-          <span className="text-ink-2 text-[15px]">{CITY}</span>
+          <div className="flex items-center gap-4">
+            <Link href="/join" className="text-blue text-[13px] font-medium">
+              Join as a teacher
+            </Link>
+            <span className="text-ink-2 text-[15px]">{CITY}</span>
+          </div>
         </header>
         <main className="flex-1">{children}</main>
         <footer className="px-4 pt-6 pb-6 text-ink-3 text-[13px]">

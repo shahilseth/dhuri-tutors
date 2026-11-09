@@ -200,7 +200,7 @@ One white container with 1px `rule` border and 6px radius; each result is a row 
 Disabled: 50% opacity. While a form submits: label changes to "Saving…" and the button disables.
 
 ### Empty state
-Centered text in the result-list container, 24px padding: "No teachers match these filters yet." and a text link "Clear filters". No illustration.
+Centered text in the result-list container, 24px padding: "No teachers match these filters yet." and a text link "Clear filters", then (Phase 7) a second line, text link "Can't find the right teacher? Tell us what you need" to `/request`. No illustration.
 
 ### Not found page
 "This page isn't available. The teacher may no longer be listed." + primary button "See all teachers".
