@@ -4,8 +4,18 @@ import { redirect } from "next/navigation";
 import type { ListingFormState } from "@/components/ListingForm";
 import { CITY } from "@/lib/config";
 import { logIn, logOut, requireAdmin } from "@/lib/auth";
-import { createListing, getListingById, nextRefCode, slugTaken, updateListing } from "@/lib/data";
+import {
+  createListing,
+  getListingById,
+  nextRefCode,
+  slugTaken,
+  updateListing,
+  updateRequestStatus,
+} from "@/lib/data";
+import type { RequestStatus } from "@/lib/types";
 import { parseListingFormData, validateListingInput } from "@/lib/validation";
+
+const REQUEST_STATUSES: RequestStatus[] = ["new", "contacted", "matched", "closed"];
 
 export async function loginAction(formData: FormData): Promise<void> {
   const password = formData.get("password");
@@ -59,6 +69,8 @@ export async function createListingAction(
     slug,
     ref_code: refCode,
     city: CITY,
+    // Only set from the Phase 8 self-sign-up form; the admin form has no field for it yet.
+    serves_areas: [],
     published: publish,
     consent_at: consentGiven ? new Date().toISOString() : null,
     last_verified_at: null,
@@ -136,4 +148,16 @@ export async function togglePublishedAction(id: string): Promise<void> {
 
   await updateListing(id, { published: !listing.published });
   redirect("/admin");
+}
+
+/** Bound with the request id (app_flow.md A5: "change status"). */
+export async function updateRequestStatusAction(id: string, formData: FormData): Promise<void> {
+  await requireAdmin();
+
+  const status = formData.get("status");
+  if (typeof status === "string" && REQUEST_STATUSES.includes(status as RequestStatus)) {
+    await updateRequestStatus(id, status as RequestStatus);
+  }
+
+  redirect("/admin/requests");
 }

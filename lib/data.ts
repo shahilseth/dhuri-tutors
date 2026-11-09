@@ -6,7 +6,7 @@
 import "server-only";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { CITY } from "./config";
-import type { Channel, Listing, RequestRecord, SearchFilters, TapCounts } from "./types";
+import type { Channel, Listing, RequestRecord, RequestStatus, SearchFilters, TapCounts } from "./types";
 
 let client: SupabaseClient | null = null;
 
@@ -157,6 +157,36 @@ export async function createRequest(input: NewRequest): Promise<RequestRecord> {
   const { data, error } = await getClient().from("requests").insert(input).select().single();
   if (error) throw error;
   return data as RequestRecord;
+}
+
+/** Every /request submission, newest first — for /admin/requests (app_flow.md A5). */
+export async function listAllRequests(): Promise<RequestRecord[]> {
+  const { data, error } = await getClient().from("requests").select("*").order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as RequestRecord[];
+}
+
+export async function updateRequestStatus(id: string, status: RequestStatus): Promise<RequestRecord> {
+  const { data, error } = await getClient().from("requests").update({ status }).eq("id", id).select().single();
+  if (error) throw error;
+  return data as RequestRecord;
+}
+
+/** New-request count for the admin dashboard (app_flow.md A2). */
+export async function countNewRequests(): Promise<number> {
+  const { count, error } = await getClient()
+    .from("requests")
+    .select("*", { count: "exact", head: true })
+    .eq("status", "new");
+  if (error) throw error;
+  return count ?? 0;
+}
+
+/** Published listings in the current city, unfiltered — for matching against /admin/requests. */
+export async function listPublishedListings(): Promise<Listing[]> {
+  const { data, error } = await getClient().from("listings").select("*").eq("city", CITY).eq("published", true);
+  if (error) throw error;
+  return (data ?? []) as Listing[];
 }
 
 export async function logTap(listingId: string, channel: Channel, visitor: string | null): Promise<void> {

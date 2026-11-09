@@ -166,6 +166,15 @@ export function requestWhatsappMessage(refCode: string, summary: string): string
   return `New request on ${APP_NAME} (ref ${refCode}): ${summary}`;
 }
 
+/**
+ * /admin/requests "Send to teacher" message (app_flow.md A5). Includes the parent's contact
+ * details — the one consent checkbox collected at R3 is what covers sharing them with a
+ * matched teacher, there's no separate "agreed to share number" flag (tracker.md decision log).
+ */
+export function requestOutreachMessage(refCode: string, summary: string, contactName: string, phone: string): string {
+  return `Hi, a parent is looking for ${summary} (ref ${refCode}). Contact: ${contactName}, ${phone}.`;
+}
+
 /** Lowercase, hyphenated slug candidate from a name. Uniqueness suffixes are added by the caller. */
 export function slugify(name: string): string {
   return name

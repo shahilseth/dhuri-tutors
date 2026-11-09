@@ -8,6 +8,7 @@ import {
   isStale,
   areaLabel,
   modeLabel,
+  requestOutreachMessage,
   requestSummary,
   requestWhatsappMessage,
   slugify,
@@ -202,6 +203,16 @@ describe("requestSummary and requestWhatsappMessage", () => {
     const message = requestWhatsappMessage("R5", "Class 10, Maths, home tuition, Dhuri town");
     expect(message).toContain("R5");
     expect(message).toContain("Class 10, Maths, home tuition, Dhuri town");
+  });
+});
+
+describe("requestOutreachMessage", () => {
+  it("includes the ref code, summary and the parent's contact details", () => {
+    const message = requestOutreachMessage("R5", "Class 10, Maths, Dhuri town", "Sample Parent", "9988776655");
+    expect(message).toContain("R5");
+    expect(message).toContain("Class 10, Maths, Dhuri town");
+    expect(message).toContain("Sample Parent");
+    expect(message).toContain("9988776655");
   });
 });
 

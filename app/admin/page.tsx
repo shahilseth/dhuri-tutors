@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import AdminHeader from "@/components/AdminHeader";
 import { requireAdmin } from "@/lib/auth";
-import { getTapCounts, listAllListings } from "@/lib/data";
+import { countNewRequests, getTapCounts, listAllListings } from "@/lib/data";
 import { ago, daysSince, isStale } from "@/lib/format";
 import { markVerifiedAction, togglePublishedAction } from "./actions";
 
@@ -11,7 +11,11 @@ export const metadata: Metadata = { title: "Dashboard" };
 export default async function AdminDashboard() {
   await requireAdmin();
 
-  const [listings, tapCounts] = await Promise.all([listAllListings(), getTapCounts()]);
+  const [listings, tapCounts, newRequestCount] = await Promise.all([
+    listAllListings(),
+    getTapCounts(),
+    countNewRequests(),
+  ]);
   const tapsByListing = new Map(tapCounts.map((t) => [t.listing_id, t]));
 
   const liveCount = listings.filter((l) => l.published).length;
@@ -32,7 +36,8 @@ export default async function AdminDashboard() {
           </Link>
         </div>
         <p className="mt-2 text-[15px] text-ink-2">
-          {liveCount} live, {hiddenCount} hidden, {staleCount} need re-confirming
+          {liveCount} live, {hiddenCount} hidden, {staleCount} need re-confirming, {newRequestCount} new{" "}
+          {newRequestCount === 1 ? "request" : "requests"}
         </p>
 
         <div className="mt-4 divide-y divide-rule rounded-md border border-rule bg-paper">

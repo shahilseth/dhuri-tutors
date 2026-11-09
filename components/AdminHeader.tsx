@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { logoutAction } from "@/app/admin/actions";
 
-/** design.md §7: "Admin" in ink, links "Listings", "Add listing", "Log out" in blue. */
+/** design.md §7: "Admin" in ink, links "Listings", "Add listing", "Requests", "Log out" in blue (Requests added P7.9). */
 export default function AdminHeader() {
   return (
     <div className="flex items-center justify-between border-b border-rule px-4 py-3">
@@ -12,6 +12,9 @@ export default function AdminHeader() {
         </Link>
         <Link href="/admin/new" className="underline-offset-2 hover:underline">
           Add listing
+        </Link>
+        <Link href="/admin/requests" className="underline-offset-2 hover:underline">
+          Requests
         </Link>
         <form action={logoutAction}>
           <button type="submit" className="underline-offset-2 hover:underline">

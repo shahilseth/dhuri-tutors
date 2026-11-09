@@ -15,6 +15,8 @@ export type Listing = {
   boards: string[];
   modes: string[];
   area: string;
+  /** Villages a home tutor also travels to, beyond `area` (migration 0002, Phase 8). Used by P7.9's request matching. */
+  serves_areas: string[];
   address: string | null;
   city: string;
   fee_min: number | null;
