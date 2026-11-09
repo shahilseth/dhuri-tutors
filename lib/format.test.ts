@@ -10,6 +10,7 @@ import {
   slugify,
   subjectLabel,
   telUrl,
+  timingLabel,
   whatsappMessage,
   whatsappUrl,
 } from "./format";
@@ -56,6 +57,19 @@ describe("modeLabel", () => {
 
   it("falls back to the raw value for an unknown mode", () => {
     expect(modeLabel("carrier-pigeon")).toBe("carrier-pigeon");
+  });
+});
+
+describe("timingLabel", () => {
+  it("maps known timings to their display word", () => {
+    expect(timingLabel("morning")).toBe("Morning");
+    expect(timingLabel("afternoon")).toBe("Afternoon");
+    expect(timingLabel("evening")).toBe("Evening");
+    expect(timingLabel("weekends")).toBe("Weekends");
+  });
+
+  it("falls back to the raw value for an unknown timing", () => {
+    expect(timingLabel("midnight")).toBe("midnight");
   });
 });
 

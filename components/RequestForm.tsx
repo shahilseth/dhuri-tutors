@@ -6,13 +6,14 @@ import { parseStep } from "@/lib/stepForm";
 import type { RequestDraft } from "@/lib/types";
 import { useStepDraft } from "@/lib/useStepDraft";
 import RequestStepWhat from "./RequestStepWhat";
+import RequestStepWhereWhen from "./RequestStepWhereWhen";
 import StepBar from "./StepBar";
 import StepFormLayout from "./StepFormLayout";
 import WhatsNextBox from "./WhatsNextBox";
 
 const STEP_LABELS = ["What", "Where and when", "Your details", "Send"];
-// Raised to 2, 3, then 4 as P7.5–P7.7 land. A later ?step= than this falls back to the last built step.
-const BUILT_STEPS = 1;
+// Raised to 3, then 4 as P7.6–P7.7 land. A later ?step= than this falls back to the last built step.
+const BUILT_STEPS = 2;
 
 const emptyDraft: RequestDraft = {
   class: "",
@@ -62,6 +63,14 @@ export default function RequestForm() {
 
       <div className="mt-6">
         {step === 1 && <RequestStepWhat draft={draft} setDraft={setDraft} onContinue={() => goToStep(2)} />}
+        {step === 2 && (
+          <RequestStepWhereWhen
+            draft={draft}
+            setDraft={setDraft}
+            backHref="/request?step=1"
+            onContinue={() => goToStep(3)}
+          />
+        )}
       </div>
     </StepFormLayout>
   );

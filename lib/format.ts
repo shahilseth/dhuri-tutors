@@ -68,6 +68,17 @@ export function modeLabel(mode: string): string {
   return MODE_LABELS[mode] ?? mode;
 }
 
+const TIMING_LABELS: Record<string, string> = {
+  morning: "Morning",
+  afternoon: "Afternoon",
+  evening: "Evening",
+  weekends: "Weekends",
+};
+
+export function timingLabel(timing: string): string {
+  return TIMING_LABELS[timing] ?? timing;
+}
+
 /** Whole days elapsed. Used directly for the admin dashboard's "Not confirmed for N days" (design.md §7). */
 export function daysSince(date: string | Date): number {
   const then = typeof date === "string" ? new Date(date) : date;
