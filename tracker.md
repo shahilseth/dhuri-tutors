@@ -7,7 +7,7 @@
 ## Current status
 
 - **Current phase:** Phase 7 (Parent request form) — owner said "start with part b" on 2026-11-09; P0.9 is now done, Phase 7 is next. Phase 6's P6.5–P6.8 remain blocked on owner in parallel.
-- **Current task:** P7.1 (migration 0002)
+- **Current task:** P7.2 (shared multi-step form shell)
 - **Last updated:** 2026-11-09
 - **Blocked on owner:** P6.5 (Supabase prod project), P6.6 (GitHub + Vercel deploy), P6.7 (enter real teachers), P6.8 (test on real phones) — see numbered steps in session log below. Also: the **dev Supabase project** (`mhwtkhsxsapxabbgeilx.supabase.co`) is returning NXDOMAIN as of 2026-11-09 — looks paused or deleted; blocks live verification against real data until the owner recreates it or confirms the URL. `ADMIN_WHATSAPP` env var still needs a real number before P7.7 can be verified (same number the footer's "Message us on WhatsApp" link has been waiting on).
 
@@ -71,7 +71,7 @@
 
 ## Phase 7: Parent request form
 Not started. Do not begin without the owner's explicit go-ahead to start building (scope/docs were approved 2026-11-09; building was not).
-- [ ] P7.1 Migration 0002_requests_teacher_signup.sql
+- [x] P7.1 Migration 0002_requests_teacher_signup.sql
 - [ ] P7.2 Shared multi-step form shell
 - [ ] P7.3 lib/validation.ts request validation
 - [ ] P7.4 /request step 1 "What"
