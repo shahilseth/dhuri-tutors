@@ -125,6 +125,9 @@ export const BOARDS: string[] = ["PSEB", "CBSE", "ICSE"];
 /** How a listing teaches. Flat list; display phrasing lives in lib/format.ts. */
 export const MODES: string[] = ["academy", "home", "online"];
 
+/** Preferred timings on the /request form (Phase 7). Flat list; display phrasing lives in lib/format.ts. */
+export const TIMINGS: string[] = ["morning", "afternoon", "evening", "weekends"];
+
 /** Dhuri town and the nearby villages a listing can be based in. Grouped for <optgroup>. */
 export const AREAS: ConfigGroup[] = [
   {

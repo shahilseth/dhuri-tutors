@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { type ListingFormInput, validateListingInput } from "./validation";
+import { type ListingFormInput, type RequestFormInput, validateListingInput, validateRequestInput } from "./validation";
 
 function validInput(overrides: Partial<ListingFormInput> = {}): ListingFormInput {
   return {
@@ -220,5 +220,158 @@ describe("validateListingInput: other fields", () => {
     const result = validateListingInput(validInput({ about: "a".repeat(601) }));
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.errors.about).toBeDefined();
+  });
+});
+
+function validAdultRequest(overrides: Partial<RequestFormInput> = {}): RequestFormInput {
+  return {
+    class: "10",
+    subjects: ["maths"],
+    all_subjects: "",
+    board: "",
+    mode: "home",
+    area: "bamal",
+    area_other: "",
+    timings: ["evening"],
+    budget_min: "",
+    budget_max: "",
+    is_adult: "yes",
+    name: "Sample Parent",
+    student_name: "",
+    phone: "9876543210",
+    notes: "",
+    consent: "yes",
+    ...overrides,
+  };
+}
+
+describe("validateRequestInput: happy path", () => {
+  it("accepts a fully valid adult submission", () => {
+    const result = validateRequestInput(validAdultRequest());
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.is_adult).toBe(true);
+      expect(result.value.student_name).toBeNull();
+      expect(result.value.area).toBe("bamal");
+      expect(result.value.area_other).toBeNull();
+    }
+  });
+
+  it("accepts 'All subjects for this class' instead of a subjects list", () => {
+    const result = validateRequestInput(validAdultRequest({ subjects: [], all_subjects: "yes" }));
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.all_subjects).toBe(true);
+      expect(result.value.subjects).toEqual([]);
+    }
+  });
+
+  it("accepts 'Other village' with free text, saved to area_other not area", () => {
+    const result = validateRequestInput(validAdultRequest({ area: "other", area_other: "Chotti Nagri" }));
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.area).toBeNull();
+      expect(result.value.area_other).toBe("Chotti Nagri");
+    }
+  });
+});
+
+describe("validateRequestInput: adult vs minor branching", () => {
+  it("requires the student's first name when under 18", () => {
+    const result = validateRequestInput(
+      validAdultRequest({ is_adult: "no", name: "Sample Parent", student_name: "" }),
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.student_name).toBeDefined();
+  });
+
+  it("accepts a minor's request with a student name and a parent's name/phone", () => {
+    const result = validateRequestInput(
+      validAdultRequest({ is_adult: "no", name: "Sample Parent", student_name: "Sample Child" }),
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.is_adult).toBe(false);
+      expect(result.value.name).toBe("Sample Parent");
+      expect(result.value.student_name).toBe("Sample Child");
+    }
+  });
+
+  it("rejects when 18-or-older isn't answered", () => {
+    const result = validateRequestInput(validAdultRequest({ is_adult: "" }));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.is_adult).toBeDefined();
+  });
+});
+
+describe("validateRequestInput: budget", () => {
+  it("accepts both budgets unset", () => {
+    const result = validateRequestInput(validAdultRequest({ budget_min: "", budget_max: "" }));
+    expect(result.ok).toBe(true);
+  });
+
+  it("accepts min <= max", () => {
+    const result = validateRequestInput(validAdultRequest({ budget_min: "1000", budget_max: "2000" }));
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.budget_min).toBe(1000);
+      expect(result.value.budget_max).toBe(2000);
+    }
+  });
+
+  it("rejects min greater than max", () => {
+    const result = validateRequestInput(validAdultRequest({ budget_min: "2000", budget_max: "1000" }));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.budget_max).toBeDefined();
+  });
+});
+
+describe("validateRequestInput: other fields", () => {
+  it("requires at least one subject when 'all subjects' isn't ticked", () => {
+    const result = validateRequestInput(validAdultRequest({ subjects: [], all_subjects: "" }));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.subjects).toBeDefined();
+  });
+
+  it("requires a class from the list", () => {
+    const result = validateRequestInput(validAdultRequest({ class: "13" }));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.class).toBeDefined();
+  });
+
+  it("requires an area, 'other' with text, from the list", () => {
+    const result = validateRequestInput(validAdultRequest({ area: "mars-colony" }));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.area).toBeDefined();
+  });
+
+  it("requires village text when 'Other village' is picked without typing one", () => {
+    const result = validateRequestInput(validAdultRequest({ area: "other", area_other: "" }));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.area_other).toBeDefined();
+  });
+
+  it("requires at least one timing", () => {
+    const result = validateRequestInput(validAdultRequest({ timings: [] }));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.timings).toBeDefined();
+  });
+
+  it("rejects an invalid phone", () => {
+    const result = validateRequestInput(validAdultRequest({ phone: "12345" }));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.phone).toBeDefined();
+  });
+
+  it("requires consent", () => {
+    const result = validateRequestInput(validAdultRequest({ consent: "" }));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.consent).toBeDefined();
+  });
+
+  it("rejects notes longer than 300 characters", () => {
+    const result = validateRequestInput(validAdultRequest({ notes: "a".repeat(301) }));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.notes).toBeDefined();
   });
 });

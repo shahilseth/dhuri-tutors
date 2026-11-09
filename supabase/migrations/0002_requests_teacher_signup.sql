@@ -46,9 +46,9 @@ create table requests (
   id uuid primary key default gen_random_uuid(),
   ref_code text not null unique,          -- "R1", "R2", ...; never reused
   is_adult boolean not null,
-  name text,                              -- set when is_adult
-  student_name text,                      -- set when not is_adult
-  phone text not null,                    -- the adult's own mobile, or the parent's
+  name text not null,                     -- the adult being contacted: the requester, or their parent
+  student_name text,                      -- student's first name; set only when not is_adult
+  phone text not null,                    -- the same adult's mobile (their own, or the parent's)
   class text,
   subjects text[] not null default '{}',
   all_subjects boolean not null default false,

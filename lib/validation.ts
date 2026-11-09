@@ -3,7 +3,7 @@
  * can run the same on the client's first check and the server's real one
  * (rules.md §4: every write is validated server-side regardless of the client).
  */
-import { AREAS, BOARDS, CLASSES, MODES, SUBJECTS } from "./config";
+import { AREAS, BOARDS, CLASSES, MODES, OTHER_AREA, SUBJECTS, TIMINGS } from "./config";
 import type { Listing, ListingKind } from "./types";
 
 export type ListingFormInput = {
@@ -248,3 +248,178 @@ export function parseListingFormData(formData: FormData): ListingFormInput {
     slug: str("slug"),
   };
 }
+
+/**
+ * /request form input (app_flow.md R1–R3, Phase 7). One validator for the whole form —
+ * the only server write is at R4 Send (schema.md §4.7); earlier steps call this too, for
+ * the parent's immediate feedback, before the draft is allowed to advance.
+ */
+export type RequestFormInput = {
+  class: string;
+  subjects: string[];
+  all_subjects: string; // checkbox: "yes" or ""
+  board: string;
+  mode: string;
+  area: string;
+  area_other: string;
+  timings: string[];
+  budget_min: string;
+  budget_max: string;
+  is_adult: string; // "yes" or "no"
+  name: string; // the adult being contacted: the requester, or their parent
+  student_name: string; // only when is_adult is "no"
+  phone: string;
+  notes: string;
+  consent: string; // checkbox: "yes" or ""
+};
+
+export type RequestFormErrors = Partial<Record<keyof RequestFormInput, string>>;
+
+export type ValidatedRequestFields = {
+  is_adult: boolean;
+  name: string;
+  student_name: string | null;
+  phone: string;
+  class: string | null;
+  subjects: string[];
+  all_subjects: boolean;
+  board: string | null;
+  mode: string | null;
+  area: string | null;
+  area_other: string | null;
+  timings: string[];
+  budget_min: number | null;
+  budget_max: number | null;
+  notes: string | null;
+};
+
+export type RequestValidationResult =
+  | { ok: true; value: ValidatedRequestFields }
+  | { ok: false; errors: RequestFormErrors };
+
+const timingValues = new Set(TIMINGS);
+
+export function validateRequestInput(input: RequestFormInput): RequestValidationResult {
+  const errors: RequestFormErrors = {};
+
+  const classValue = input.class.trim();
+  if (!classValue || !classValues.has(classValue)) {
+    errors.class = "Choose a class from the list.";
+  }
+
+  const allSubjects = input.all_subjects === "yes";
+  if (!allSubjects) {
+    if (input.subjects.length === 0) {
+      errors.subjects = "Choose at least one subject, or 'All subjects for this class'.";
+    } else if (!input.subjects.every((s) => subjectValues.has(s))) {
+      errors.subjects = "Choose subjects from the list.";
+    }
+  }
+
+  const board = trimmedOrNull(input.board, 40).value;
+  if (board && !boardValues.has(board)) errors.board = "Choose a board from the list.";
+
+  if (!input.mode || !modeValues.has(input.mode)) {
+    errors.mode = "Choose how you'd like tuition.";
+  }
+
+  const isOtherArea = input.area === OTHER_AREA.value;
+  let areaOther: string | null = null;
+  if (isOtherArea) {
+    const other = trimmedOrNull(input.area_other, 80);
+    if (!other.value) errors.area_other = "Type the village name.";
+    else if (other.tooLong) errors.area_other = "Village name must be 80 characters or fewer.";
+    areaOther = other.value;
+  } else if (!input.area || !areaValues.has(input.area)) {
+    errors.area = "Choose an area from the list.";
+  }
+
+  if (input.timings.length === 0) {
+    errors.timings = "Choose at least one timing.";
+  } else if (!input.timings.every((t) => timingValues.has(t))) {
+    errors.timings = "Choose timings from the list.";
+  }
+
+  const budgetMin = parseFee(input.budget_min);
+  if (budgetMin.invalid) errors.budget_min = "Budget must be a whole number between 0 and 100,000.";
+
+  const budgetMax = parseFee(input.budget_max);
+  if (budgetMax.invalid) errors.budget_max = "Budget must be a whole number between 0 and 100,000.";
+
+  if (
+    !budgetMin.invalid &&
+    !budgetMax.invalid &&
+    budgetMin.value != null &&
+    budgetMax.value != null &&
+    budgetMin.value > budgetMax.value
+  ) {
+    errors.budget_max = "Maximum budget can't be less than the minimum budget.";
+  }
+
+  const isAdult = input.is_adult === "yes" ? true : input.is_adult === "no" ? false : null;
+  if (isAdult === null) errors.is_adult = "Tell us if you're 18 or older.";
+
+  const name = trimmedOrNull(input.name, 80);
+  if (!name.value) errors.name = isAdult === false ? "Enter your parent's name." : "Enter your name.";
+  else if (name.tooLong) errors.name = "Name must be 80 characters or fewer.";
+
+  let studentName: string | null = null;
+  if (isAdult === false) {
+    const student = trimmedOrNull(input.student_name, 50);
+    if (!student.value) errors.student_name = "Enter the student's first name.";
+    else if (student.tooLong) errors.student_name = "Student's first name must be 50 characters or fewer.";
+    studentName = student.value;
+  }
+
+  const phone = normalizePhone(input.phone);
+  if (!phone) errors.phone = PHONE_ERROR;
+
+  const notes = trimmedOrNull(input.notes, 300);
+  if (notes.tooLong) errors.notes = "Notes must be 300 characters or fewer.";
+
+  if (input.consent !== "yes") {
+    errors.consent = "Please agree to share this request with matching teachers.";
+  }
+
+  if (Object.keys(errors).length > 0) return { ok: false, errors };
+
+  return {
+    ok: true,
+    value: {
+      is_adult: isAdult as boolean,
+      name: name.value as string,
+      student_name: studentName,
+      phone: phone as string,
+      class: classValue || null,
+      subjects: allSubjects ? [] : input.subjects,
+      all_subjects: allSubjects,
+      board,
+      mode: input.mode,
+      area: isOtherArea ? null : input.area,
+      area_other: areaOther,
+      timings: input.timings,
+      budget_min: budgetMin.value,
+      budget_max: budgetMax.value,
+      notes: notes.value,
+    },
+  };
+}
+
+export const emptyRequestFormInput: RequestFormInput = {
+  class: "",
+  subjects: [],
+  all_subjects: "",
+  board: "",
+  mode: "",
+  area: "",
+  area_other: "",
+  timings: [],
+  budget_min: "",
+  budget_max: "",
+  is_adult: "",
+  name: "",
+  student_name: "",
+  phone: "",
+  notes: "",
+  consent: "",
+};

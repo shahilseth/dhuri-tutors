@@ -198,9 +198,9 @@ One row per `/request` submission. No foreign key to `listings` — a request is
 | id | uuid | no | `gen_random_uuid()` | PK |
 | ref_code | text | no | | Unique, `R1`, `R2`, … — never reused |
 | is_adult | boolean | no | | |
-| name | text | yes | | Set when `is_adult` |
-| student_name | text | yes | | Set when not `is_adult` |
-| phone | text | no | | The adult's own mobile, or the parent's |
+| name | text | no | | Name of the adult being contacted — the requester themselves if `is_adult`, otherwise their parent |
+| student_name | text | yes | | Student's first name; set only when not `is_adult` |
+| phone | text | no | | The same adult's 10-digit mobile (their own, or the parent's) |
 | class | text | yes | | Value from `lib/config.ts` CLASSES |
 | subjects | text[] | no | `'{}'` | |
 | all_subjects | boolean | no | `false` | "All subjects for this class" |
