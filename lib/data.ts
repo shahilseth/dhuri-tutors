@@ -46,6 +46,31 @@ export async function searchListings(filters: SearchFilters): Promise<Listing[]>
   return (data ?? []) as Listing[];
 }
 
+/**
+ * Count of published listings matching a subset of filters — the /request step 1 live
+ * "N teachers match" line (app_flow.md R1, Phase 7). `subjects` matches any overlap,
+ * since a parent can tick more than one.
+ */
+export async function countMatchingListings(filters: {
+  class?: string;
+  subjects?: string[];
+  mode?: string;
+}): Promise<number> {
+  let query = getClient()
+    .from("listings")
+    .select("*", { count: "exact", head: true })
+    .eq("city", CITY)
+    .eq("published", true);
+
+  if (filters.class) query = query.contains("classes", [filters.class]);
+  if (filters.mode) query = query.contains("modes", [filters.mode]);
+  if (filters.subjects && filters.subjects.length > 0) query = query.overlaps("subjects", filters.subjects);
+
+  const { count, error } = await query;
+  if (error) throw error;
+  return count ?? 0;
+}
+
 /** A single published listing for the public listing page. */
 export async function getListingBySlug(slug: string): Promise<Listing | null> {
   const { data, error } = await getClient()

@@ -38,6 +38,26 @@ export type SearchFilters = {
   q?: string;
 };
 
+/** Client-side draft for the /request multi-step form (app_flow.md R1–R4, Phase 7). */
+export type RequestDraft = {
+  class: string;
+  subjects: string[];
+  all_subjects: boolean;
+  board: string;
+  mode: string;
+  area: string;
+  area_other: string;
+  timings: string[];
+  budget_min: string;
+  budget_max: string;
+  is_adult: string;
+  name: string;
+  student_name: string;
+  phone: string;
+  notes: string;
+  consent: boolean;
+};
+
 export type Channel = "whatsapp" | "call";
 
 /** Mirrors the `listing_tap_counts` view in schema.md §2. */
