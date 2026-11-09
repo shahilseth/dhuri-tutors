@@ -1,7 +1,7 @@
 # Implementation Plan: Dhuri Tutors
 
 > Build order for Claude Code. Do phases in order; finish a phase's "Done when" checks before starting the next.
-> Task IDs here match `tracker.md`. Phases 0–6 = V0 (launch). Phases 7–8 = V1. Phase 9 = V2 (only after the owner decides).
+> Task IDs here match `tracker.md`. Phases 0–6 = V0 (launch). Phases 7–8 = parent requests and teacher sign-up (new scope, owner go-ahead 2026-11-09 — see `tracker.md` Decisions log; wait for an explicit "start building" before beginning). Phases 9–10 = V1 (photos; teacher stats and reminders). Phase 11 = V2 (only after the owner decides).
 
 ---
 
@@ -19,8 +19,9 @@
 | P0.6 | Create `lib/config.ts` (app name, city, site URL, SUBJECTS, CLASSES, BOARDS, MODES, AREAS, STALE_AFTER_DAYS) and `lib/types.ts` |
 | P0.7 | Basic `app/layout.tsx` (header with app name + city, footer) and placeholder home page |
 | P0.8 | `git init`, first commit |
+| P0.9 | Update `lib/config.ts` AREAS to the final Dhuri town + nearby villages list (two `<optgroup>` groups: "Dhuri", "Nearby villages"), plus the "Other village (type name)" free-text pattern; update `schema.md`, `supabase/seed.sql` and every doc example to match. Added 2026-11-09, out of original Phase 0 order — do this **first**, before any Phase 7/8 work, since the area dropdown is used everywhere |
 
-**Done when:** `npm run typecheck` and `npm run build` pass; `npm run dev` shows the placeholder page.
+**Done when:** `npm run typecheck` and `npm run build` pass; `npm run dev` shows the placeholder page. (P0.9 re-done when Phase 7 starts.)
 
 ---
 
@@ -131,31 +132,69 @@
 
 ---
 
-## Phase 7: V1 — teacher self-submit and edit links
+## Phase 7: Parent request form
 
-Start only after V0 has run for a few weeks and the owner confirms.
-
-| ID | Task |
-|---|---|
-| P7.1 | Migration `0002`: `edit_tokens`, `pending_changes` per `schema.md` §3 |
-| P7.2 | `/join` short public form → creates `pending_changes` (`new_listing`), rate-limited, consent required |
-| P7.3 | `/admin/approvals` queue: approve (creates listing, unpublished until admin publishes) / reject |
-| P7.4 | Edit token issue/revoke in admin; message template with private link |
-| P7.5 | `/edit/[token]`: teacher edits own listing; name/phone changes go to `pending_changes` (`identity_change`) |
-| P7.6 | Photos on listings (Supabase Storage, max 3, compressed, admin-approved) |
-
----
-
-## Phase 8: V1 — teacher stats and reminders
+**Goal:** a parent who can't find a match through search can leave their details for the admin to work, with no account, in under 3 minutes. Added 2026-11-09 (owner go-ahead); wait for an explicit "start building" before beginning. Start only after P0.9.
 
 | ID | Task |
 |---|---|
-| P8.1 | Admin "copy monthly stats message" per listing (views, WhatsApp taps, calls, last 30 days) |
-| P8.2 | Page-view counting per listing (same de-duplication approach as taps) |
-| P8.3 | Re-confirm reminder list: listings due for re-confirmation with a prefilled WhatsApp message |
+| P7.1 | Migration `0002_requests_teacher_signup.sql` per `schema.md` §3: `teaching_entries`, `requests`, `edit_tokens` tables; new `listings` columns (`serves_areas`, `area_other`, `experience_years`, `qualification_level`, `qualification`, `languages`, `headline`, `source`) + GIN index on `serves_areas` |
+| P7.2 | Shared multi-step form shell: step bar component, `?step=N` routing, `localStorage` draft (try/catch), "Your progress is saved on this phone" note, "What happens next" box (bordered on mobile, right column ≥1024px) per `design.md` §11 — used by both `/request` and `/join` |
+| P7.3 | `lib/validation.ts`: request form validation (what / where and when / your details steps) |
+| P7.4 | `/request` step 1 "What": class, subjects (search-as-you-type + "All subjects for this class"), board, mode; live "N teachers match" line linking to search |
+| P7.5 | `/request` step 2 "Where and when": area dropdown (optgroups + "Other village"), timings, budget min/max |
+| P7.6 | `/request` step 3 "Your details": adult/minor branching, notes (≤300 chars), consent checkbox |
+| P7.7 | `/request` step 4 "Send": summary with per-section Edit links; `createRequestAction` (ref `R`-code); WhatsApp button to `ADMIN_WHATSAPP`; "We'll reply on WhatsApp within 24 hours" |
+| P7.8 | Home page: "Can't find the right teacher? Tell us what you need" link on the no-results message; header "Join as a teacher" link (secondary button) on all public pages |
+| P7.9 | `/admin/requests`: list by status, newest first; matching published teachers per request (`area` or `serves_areas`); "Send to teacher" WhatsApp button (parent number only if "Parent agreed to share" ticked); new-request count on dashboard; "No teacher found" report grouped by subject/class/village |
+
+**Done when:** a parent can submit a request end to end on a phone and it appears correctly in `/admin/requests` with matches.
 
 ---
 
-## Phase 9: V2 — paid options (only on owner's decision)
+## Phase 8: Teacher sign-up form
+
+**Goal:** a teacher or academy can list themselves from their own phone, with no account, in under 10 minutes. Added 2026-11-09 (owner go-ahead); wait for an explicit "start building" before beginning. Replaces the old Phase 7 self-submit/approval-queue design (P7.2–P7.5 in the previous plan) but keeps the private edit link.
+
+| ID | Task |
+|---|---|
+| P8.1 | `/join` step 1 "About you": teacher/academy option boxes, name, academy name, mobile, WhatsApp, area dropdown, address/landmark note |
+| P8.2 | Shared teaching-list component: tabs (School / Entrance and competitive exams / Skills and activities), "Add to teaching list" box per tab, "Your teaching list" with Remove, keeps each tab's unfinished selection when switching — used by `/join` and the admin listing form |
+| P8.3 | `/join` step 2 "Teaching": the P8.2 component; boards chosen once; mode option boxes; "Villages I can travel to" (multi-select AREAS) when Home tuition is ticked |
+| P8.4 | `/join` step 3 "Profile": years teaching, qualification dropdown + details, languages, fee min/max + note, timings, headline (≤80 chars, optional), about (≤600 chars) |
+| P8.5 | `/join` step 4 "Review": real public listing preview, Edit link per step, consent checkbox |
+| P8.6 | `/join` step 5 "Send": `createSignupAction` (saves unpublished, `source='self'`); WhatsApp button with ref `J`-code; "We'll check your details and publish your page within 2 days" |
+| P8.7 | Private edit link: `edit_tokens` issued on admin Approve; `/edit/[token]` page for the teacher to update their own listing (no approval step for routine edits — simpler than the original V1 approval-queue design) |
+| P8.8 | Admin: "New sign-ups" section on the dashboard (Approve → publish + issue edit link; Reject); admin listing form (`ListingForm.tsx`) updated to use the P8.2 teaching-list component and the `serves_areas` field |
+
+**Done when:** a teacher can sign up end to end on a phone, and the admin can approve or reject from the dashboard; an approved teacher's private edit link works.
+
+---
+
+## Phase 9: V1 — photos
+
+Renumbered from the previous plan's Phase 7 (P7.6). Start only after V0 has run for a few weeks and the owner confirms.
+
+| ID | Task |
+|---|---|
+| P9.1 | Photos on listings (Supabase Storage, max 3, compressed, admin-approved) |
+
+---
+
+## Phase 10: V1 — teacher stats and reminders
+
+Renumbered from the previous plan's Phase 8.
+
+| ID | Task |
+|---|---|
+| P10.1 | Admin "copy monthly stats message" per listing (views, WhatsApp taps, calls, last 30 days) |
+| P10.2 | Page-view counting per listing (same de-duplication approach as taps) |
+| P10.3 | Re-confirm reminder list: listings due for re-confirmation with a prefilled WhatsApp message |
+
+---
+
+## Phase 11: V2 — paid options (only on owner's decision)
+
+Renumbered from the previous plan's Phase 9.
 
 Featured listings, admission-season boost, sponsor slots (labelled "Sponsored", max 3). Spec to be written when traffic and tap data justify it.

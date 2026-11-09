@@ -103,11 +103,11 @@ Rules:
 ## 6. Components
 
 ### Header (all public pages)
-White bar, 1px `rule` bottom border, 56px tall. App name left in `blue`, 18px/700. City name right in `ink-2`, 15px. No menu, no logo graphic in V0.
+White bar, 1px `rule` bottom border, 56px tall. App name left in `blue`, 18px/700. On the right, in order: a "Join as a teacher" link (secondary-button style, small — 13px, same look as a Secondary button in the table below but no border, just `blue` text) then the city name in `ink-2`, 15px. No menu, no logo graphic in V0.
 
 ```
 ┌──────────────────────────────────────┐
-│ Dhuri Tutors                   Dhuri │
+│ Dhuri Tutors      Join as a teacher  Dhuri │
 └──────────────────────────────────────┘
 ```
 
@@ -170,6 +170,7 @@ One white container with 1px `rule` border and 6px radius; each result is a row 
 │ ┃ Mode      At academy, home tuition │
 │ ┃ Area      Near bus stand, Main     │
 │ ┃           Bazaar, Dhuri            │
+│ ┃ Comes to  Bamal, Kaheru            │
 │                                      │
 │ About                                │  h2
 │ Teaching maths for 12 years...       │
@@ -182,7 +183,7 @@ One white container with 1px `rule` border and 6px radius; each result is a row 
 ```
 
 - **WhatsApp** button: `wa` background, white text. **Call** button: `blue` background, white text, phone icon. Equal width, side by side, placed **above** the details so contact is one tap from arriving.
-- **Details sheet:** white, 1px `rule` border, 6px radius on the right corners only, and a **2px `margin` red line on the left edge** (the exercise-book margin). Rows: label column 96px wide in `ink-2`, value in `ink`, 1px `rule` line between rows, 12px vertical padding.
+- **Details sheet:** white, 1px `rule` border, 6px radius on the right corners only, and a **2px `margin` red line on the left edge** (the exercise-book margin). Rows: label column 96px wide in `ink-2`, value in `ink`, 1px `rule` line between rows, 12px vertical padding. The "Comes to" row only appears when `serves_areas` is set (Phase 8) — same label/value styling as every other row.
 - "Details confirmed X ago" with a check icon in `ink-3`. If older than 60 days, show it in `amber` without the check: "Details last confirmed 3 months ago. Please confirm with the teacher."
 - Share button: white background, 1px `rule` border, `blue` text, full width.
 
@@ -250,3 +251,23 @@ Same tokens, denser layout; admin is used by one person on a phone or laptop.
 - Buttons are `<button>` or `<a>`, never clickable `<div>`s.
 - `lang="en"` on `<html>`; teacher names in Punjabi/Hindi render via the Noto fallbacks.
 - Usable at 200% zoom and at 320px width without horizontal scrolling.
+
+## 11. Multi-step forms
+
+Used by `/request` (Phase 7) and `/join` (Phase 8). Screens and fields for each step are defined in `app_flow.md`; this section is the shared look and behaviour.
+
+**Step bar**, top of every step: numbered circles, 24px, `blue` border. Completed = `blue` fill, white number; current = white fill, `blue` border, `blue` number; upcoming = white fill, `rule` border, `ink-3` number. Circles are joined by a 2px line — `blue` for the completed portion, `rule` for the rest. A short label sits under each circle, 13px `ink-2` (13px/600 `blue` for the current step).
+
+**One step per screen.** "Back" is a text link (`blue`, underline on press/hover, same as other text links in §6). "Continue" is a Primary button (§6): `blue` background, white text, full width, 48px tall.
+
+**URL and persistence.** Each step is reachable directly at `?step=N`. The in-progress answers are kept in `localStorage`, read and written inside `try/catch` so a storage failure (private browsing, quota) never blocks the form. Directly under the Continue button: "Your progress is saved on this phone" in 13px `ink-3`.
+
+**Validation.** Client-side checks are for convenience only. Every step is re-validated on the server with `lib/validation.ts` before the next step — or the final save — proceeds.
+
+**No accounts, ever.** No SMS codes, PINs or passwords in either form. The last step saves the record, then shows a summary and one large WhatsApp button (same `wa`-background style as the listing page's WhatsApp button) that opens `wa.me/<ADMIN_WHATSAPP>` with a prefilled message containing the reference code and key details. Tapping Send on WhatsApp is what confirms the person's number — there is no separate verification step. The number comes only from the `ADMIN_WHATSAPP` env var; it is never hard-coded.
+
+**"What happens next" box.** Three short points. Plain white box, 1px `rule` border, 6px radius — never a dark panel. On phones it sits directly under the form; at ≥1024px it moves into a right-hand column beside the form, so it's visible without scrolling.
+
+**Option boxes.** Radios and checkboxes presented as choices (teacher/academy, mode, timings, and similar) are bordered boxes, ≥48px tall, white background, 1px `rule` border, 6px radius. Selected: 2px `blue` border + `blue-tint` background. (Denser than the admin form's checkbox grid in §7 — these need to be comfortably tappable with one thumb.)
+
+**Nothing new.** Only the tokens in §3 — `blue` stays the one accent colour. No gradients, no ALL-CAPS labels, no `→` arrows on buttons, no shadows; the §9 "don't do this" list applies here too.

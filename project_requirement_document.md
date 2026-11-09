@@ -26,7 +26,7 @@ The app gives each teacher one shareable page with their subjects, classes, fees
 - In-app chat, bookings or payments (people will use WhatsApp).
 - A Play Store app (the website opens from a link and can be added to the home screen).
 - Any paid feature or monetisation (decided later, once traffic and tap data exist).
-- Teacher self-sign-up (comes in V1; in V0 the admin enters listings).
+- Teacher self-sign-up (not part of V0; the V0 admin enters every listing — see F9 and Phase 8, which start after V0 launches).
 - Photos on listings (V1).
 
 ## 4. Target users
@@ -82,11 +82,28 @@ Each feature lists what "done" means.
 ### F7. Installable web app
 - Web app manifest and icon so the site can be added to the home screen.
 
+### F8. Parent request form
+- Public multi-step form at `/request` for parents who can't find the right teacher through search; no login, no account — ever.
+- Steps: what they need (class, subjects, board, mode), where and when (area, timings, budget), their details (adult, or on behalf of a student, with a parent's name and number), then send.
+- Shows a live "N teachers match" count linked straight to search before the parent ever submits — the form never hides results behind itself.
+- Ends by sending a WhatsApp message to the admin with a reference code (e.g. `R12`); no SMS code, no phone verification step.
+- Admin can match each request to published teachers (by area or by `serves_areas`) and forward it to a teacher on WhatsApp, without exposing the parent's number unless they agreed to share it.
+- **Built in:** Phase 7, after V0 launches.
+- **Done when:** a parent can submit a request from a phone in under 3 minutes, and every request appears in `/admin/requests` with its matching teachers.
+
+### F9. Teacher sign-up form
+- Public multi-step form at `/join` for teachers and academies to list themselves; no account, password, PIN or SMS code — ever.
+- Steps: about you, teaching (school classes / entrance exams / skills, each its own list), profile (experience, qualification, fees, languages), a real preview of the public listing page, then send.
+- Saved unpublished (`source='self'`) until the admin reviews it; replaces the old "approval queue" idea — sign-ups land straight in the normal listings table instead of a separate queue.
+- Admin approves (publishes the listing and issues a private edit link) or rejects, from the dashboard.
+- **Built in:** Phase 8, after V0 launches.
+- **Done when:** a teacher can sign up from their own phone in under 10 minutes, and the admin can approve or reject every sign-up from the dashboard.
+
 ## 6. Later versions (for context, not built in V0)
 
 | Version | Adds |
 |---|---|
-| **V1** | Teacher self-submit form; admin approval queue; private edit link per teacher (no password); name or phone changes need admin approval; photos; monthly stats message to teachers; monthly WhatsApp re-confirm reminder |
+| **V1** | Photos on listings; monthly stats message to teachers; monthly WhatsApp re-confirm reminder. (Teacher self-submit and the private edit link moved earlier — see F9 and Phase 8.) |
 | **V2** | Paid options only after steady traffic: featured listings, admission-season boost, up to 3 labelled sponsor slots |
 | **V3** | Second town (e.g. Sangrur, Malerkotla, Barnala) using the same codebase via the `city` field |
 
@@ -102,6 +119,8 @@ Each feature lists what "done" means.
 - Unique contact taps per listing.
 - Teacher-confirmed enquiries: ask each teacher monthly how many enquiries mentioned the app or a ref code.
 - Number of live listings (target 20–30 before sharing widely with parents).
+- Parent requests submitted per month (from `/request`), and how many were matched to a teacher.
+- Subject, class and village combinations with no matching teacher, from the admin's "No teacher found" report.
 
 **Stop / rethink condition** (to be fixed by the owner before launch): e.g. *"If after 8 weeks fewer than N teachers confirm at least one enquiry from the app, rethink the approach."*
 
@@ -126,7 +145,8 @@ Each feature lists what "done" means.
 ## 10. Open questions (owner to answer)
 
 1. Final app name and domain.
-2. Real list of Dhuri localities for the area filter.
-3. Final subject and class lists.
-4. The stop condition numbers in section 7.
-5. Should the UI include Hindi or Punjabi labels in V0?
+2. Final subject and class lists.
+3. The stop condition numbers in section 7.
+4. Should the UI include Hindi or Punjabi labels in V0?
+
+(Resolved 2026-11-09: full list of Dhuri town + nearby villages for the area filter — see `tracker.md` Decisions log and `implementation_plan.md` P0.9.)

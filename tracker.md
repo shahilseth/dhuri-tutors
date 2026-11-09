@@ -6,10 +6,10 @@
 
 ## Current status
 
-- **Current phase:** Phase 6 — P6.1–P6.4 done; P6.5–P6.8 blocked on owner
-- **Current task:** —
-- **Last updated:** 2026-10-29
-- **Blocked on owner:** P6.5 (Supabase prod project), P6.6 (GitHub + Vercel deploy), P6.7 (enter real teachers), P6.8 (test on real phones) — see numbered steps in session log below
+- **Current phase:** Phase 6 — P6.1–P6.4 done; P6.5–P6.8 blocked on owner. Phases 7 and 8 (parent requests, teacher sign-up) added 2026-11-09 with the owner's go-ahead for docs only — **do not start building Phase 7/8 (or P0.9) without an explicit "start building" from the owner**, per the owner's own instruction in that session.
+- **Current task:** — (next task, once building resumes, is P0.9 — it's a prerequisite for all of Phase 7/8)
+- **Last updated:** 2026-11-09
+- **Blocked on owner:** P6.5 (Supabase prod project), P6.6 (GitHub + Vercel deploy), P6.7 (enter real teachers), P6.8 (test on real phones) — see numbered steps in session log below. Also: `ADMIN_WHATSAPP` env var needs a real number before P7.7 can be verified (same number the footer's "Message us on WhatsApp" link has been waiting on).
 
 ## Phase 0: Project setup
 - [x] P0.1 Create Next.js 15 app
@@ -20,6 +20,7 @@
 - [x] P0.6 lib/config.ts + lib/types.ts
 - [x] P0.7 Layout + placeholder home
 - [x] P0.8 git init + first commit
+- [ ] P0.9 Update areas list (final Dhuri town + nearby villages AREAS, "Other village" pattern) — do first, before any Phase 7/8 task
 
 ## Phase 1: Database and data layer
 - [x] P1.1 Migration 0001_init.sql
@@ -68,8 +69,41 @@
 - [!] P6.7 OWNER: enter 5–10 real teachers
 - [!] P6.8 Launch checklist on real phones (blocked on P6.5–P6.7: needs a live production URL and real phones)
 
-## Phase 7–9
-Not started. Do not begin without the owner's go-ahead.
+## Phase 7: Parent request form
+Not started. Do not begin without the owner's explicit go-ahead to start building (scope/docs were approved 2026-11-09; building was not).
+- [ ] P7.1 Migration 0002_requests_teacher_signup.sql
+- [ ] P7.2 Shared multi-step form shell
+- [ ] P7.3 lib/validation.ts request validation
+- [ ] P7.4 /request step 1 "What"
+- [ ] P7.5 /request step 2 "Where and when"
+- [ ] P7.6 /request step 3 "Your details"
+- [ ] P7.7 /request step 4 "Send"
+- [ ] P7.8 Home page link + header "Join as a teacher" link
+- [ ] P7.9 /admin/requests
+
+## Phase 8: Teacher sign-up form
+Not started. Do not begin without the owner's explicit go-ahead to start building.
+- [ ] P8.1 /join step 1 "About you"
+- [ ] P8.2 Shared teaching-list component
+- [ ] P8.3 /join step 2 "Teaching"
+- [ ] P8.4 /join step 3 "Profile"
+- [ ] P8.5 /join step 4 "Review"
+- [ ] P8.6 /join step 5 "Send"
+- [ ] P8.7 Private edit link + /edit/[token]
+- [ ] P8.8 Admin "New sign-ups" + ListingForm update
+
+## Phase 9: V1 — photos
+Not started. Renumbered from the old Phase 7 (P7.6). Do not begin without the owner's go-ahead.
+- [ ] P9.1 Photos on listings
+
+## Phase 10: V1 — teacher stats and reminders
+Not started. Renumbered from the old Phase 8. Do not begin without the owner's go-ahead.
+- [ ] P10.1 Copy monthly stats message
+- [ ] P10.2 Page-view counting
+- [ ] P10.3 Re-confirm reminder list
+
+## Phase 11: V2 — paid options
+Not started. Renumbered from the old Phase 9. Only on the owner's decision.
 
 ---
 
@@ -78,6 +112,7 @@ Record any decision that changes or adds to the spec docs. Newest first.
 
 | Date | Decision | Why | Docs updated |
 |---|---|---|---|
+| 2026-11-09 | Scope added: parent request form (F8, new Phase 7) and teacher sign-up form (F9, new Phase 8), both multi-step, no accounts, ending in a WhatsApp send. Final AREAS list set (Dhuri town + 14 nearby villages, "Other village" free text) as P0.9, a prerequisite for both. Old V1 Phase 7 (self-submit + approval queue) is replaced by the new Phase 8 but keeps the private edit link; old photos/stats phases renumbered to 9/10; V2 renumbered to 11. `pending_changes` table dropped — Approve/Reject on the dashboard replaces the separate approval-queue model | Owner decided to bring teacher self-sign-up and a parent-side request form forward, and to resolve the long-open area-list question in the same pass | PRD (F8, F9, non-goals, success metrics, open questions), app_flow.md (R1–R4, J1–J5, A5, Flows 6–8, header link), schema.md (`teaching_entries`, `requests`, `serves_areas` + other `listings` columns, migration 0002, dropped `pending_changes`), implementation_plan.md + tracker.md (P0.9, Phases 7–11), design.md (§11 Multi-step forms, header link, "Comes to" row) |
 | 2026-10-28 | V0 launches with 5–10 real teachers entered by admin; no demo listings in production | Real listings test demand; demo data tests nothing | PRD, plan |
 | 2026-10-28 | Count taps now; monetisation decided later | Need data before pricing | PRD |
 | 2026-10-28 | Ref code in WhatsApp message from day one | Lets taps be checked against real enquiries | PRD, tech spec |
@@ -91,11 +126,16 @@ Record any decision that changes or adds to the spec docs. Newest first.
 ## Blockers and questions for the owner
 Add items here instead of guessing. Remove when answered.
 
-- [ ] Full list of Dhuri localities for the area filter (have 4 so far: Pathshalla Mohalla, Janta Nagar, Shivpuri, Bank Road — more to follow)
-- [ ] Owner's own WhatsApp number for the public footer's "Message us on WhatsApp" link (teachers asking to get listed). Not in `tech_spec.md` §6 env vars yet — footer currently shows this as plain text, not a link, until there's a number and an env var for it
+- [x] Full list of Dhuri localities for the area filter — resolved 2026-11-09, see Decisions log and `implementation_plan.md` P0.9 (Dhuri town + 14 nearby villages, plus "Other village" free text)
+- [ ] The admin WhatsApp number both the footer's "Message us on WhatsApp" link and the new `ADMIN_WHATSAPP` env var (Phase 7/8) need, in format `91XXXXXXXXXX`. Not yet in any env file — needed before P7.7/J5's WhatsApp buttons can be verified
 
 ## Session log
 One entry per session, newest first. Keep each entry to 2–4 lines.
+
+### 2026-11-09 (session 9)
+- Done: docs-only scope update (Part A of the owner's request — Part B, actually building Phase 7/8, explicitly waits for a separate go-ahead). Updated `project_requirement_document.md` (F8 parent request form, F9 teacher sign-up form, adjusted non-goals/V1 table/success metrics/open questions), `app_flow.md` (R1–R4 request screens, J1–J5 sign-up screens, A5 `/admin/requests`, updated A2, "Comes to" on S2, Flows 6–8, header "Join as a teacher" link, multi-step localStorage note), `schema.md` (new `listings` columns incl. `serves_areas`/`area_other`/`source`, new `teaching_entries` and `requests` tables, `edit_tokens` moved to Phase 8, `pending_changes` dropped, migration `0002_requests_teacher_signup.sql`, new data-flow entries 4.7–4.9), `implementation_plan.md` + this file (P0.9 added to Phase 0, new Phase 7 "Parent request form", new Phase 8 "Teacher sign-up form" replacing the old V1 self-submit/approval-queue design but keeping the private edit link, old photos/stats phases renumbered 7→9 and 8→10, V2 renumbered 9→11), and `design.md` (§11 Multi-step forms: step bar, `?step=N`, localStorage draft, "What happens next" box, option-box styling, `ADMIN_WHATSAPP`-only WhatsApp send; header link; "Comes to" row). `rules.md` intentionally left unchanged per the owner's instruction.
+- Notes: resolved the long-open "full area list" blocker — the owner supplied Dhuri town plus 14 named nearby villages, which becomes P0.9 in `lib/config.ts` (not yet touched; this session was docs only). No code, migration `.sql` file, or env var was written — `lib/config.ts`, `lib/validation.ts`, and `supabase/migrations/0002_*.sql` are all still P0.9/P7.1 work for the future building session. Flagged a still-open gap: the `ADMIN_WHATSAPP` number itself isn't set anywhere yet.
+- Next: owner go-ahead to start building, starting with P0.9, then Phase 7.
 
 ### 2026-10-29 (session 2)
 - Done: P1.1 migration `0001_init.sql` (listings, taps, indexes, checks, trigger, RLS, `listing_tap_counts` view — per schema.md §2); P1.2 `seed.sql` (6 fake listings spread across subjects/classes/areas/modes, one left unpublished with no consent to exercise that path); P1.4 `lib/data.ts` (searchListings, getListingBySlug, listAllListings, getListingById, slugTaken, nextRefCode, createListing, updateListing, logTap, getTapCounts); P1.5 `lib/format.ts` (feeText, classesText, modeLabel, ago, isStale, intl, whatsappMessage, whatsappUrl, telUrl, slugify); P1.6 Vitest tests for every `lib/format.ts` function (22 tests, all passing).
