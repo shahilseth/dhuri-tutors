@@ -9,6 +9,7 @@ export const dynamic = "force-dynamic";
 
 const SUBJECT_VALUES = new Set(SUBJECTS.flatMap((g) => g.options.map((o) => o.value)));
 const CLASS_VALUES = new Set(CLASSES.flatMap((g) => g.options.map((o) => o.value)));
+const AREA_VALUES = new Set(AREAS.flatMap((g) => g.options.map((o) => o.value)));
 
 function pick(value: string | string[] | undefined): string | undefined {
   return typeof value === "string" && value.length > 0 ? value : undefined;
@@ -25,7 +26,7 @@ function parseFilters(params: Record<string, string | string[] | undefined>): Se
   return {
     subject: subject && SUBJECT_VALUES.has(subject) ? subject : undefined,
     class: classParam && CLASS_VALUES.has(classParam) ? classParam : undefined,
-    area: area && AREAS.includes(area) ? area : undefined,
+    area: area && AREA_VALUES.has(area) ? area : undefined,
     mode: mode && MODES.includes(mode) ? mode : undefined,
     q: q || undefined,
   };
@@ -106,10 +107,14 @@ export default async function Home({
           <Field label="Area">
             <select name="area" defaultValue={filters.area ?? ""} className={selectClass}>
               <option value="">All areas</option>
-              {AREAS.map((area) => (
-                <option key={area} value={area}>
-                  {area}
-                </option>
+              {AREAS.map((group) => (
+                <optgroup key={group.group} label={group.group}>
+                  {group.options.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </Field>

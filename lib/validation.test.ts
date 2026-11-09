@@ -12,7 +12,7 @@ function validInput(overrides: Partial<ListingFormInput> = {}): ListingFormInput
     classes: ["9", "10"],
     boards: ["PSEB"],
     modes: ["home"],
-    area: "Bank Road",
+    area: "bamal",
     address: "",
     fee_min: "",
     fee_max: "",

@@ -57,7 +57,7 @@ const classValues = new Set(CLASSES.flatMap((g) => g.options.map((o) => o.value)
 const subjectValues = new Set(SUBJECTS.flatMap((g) => g.options.map((o) => o.value)));
 const boardValues = new Set(BOARDS);
 const modeValues = new Set(MODES);
-const areaValues = new Set(AREAS);
+const areaValues = new Set(AREAS.flatMap((g) => g.options.map((o) => o.value)));
 
 /** Strips formatting, drops a leading 91 or 0 country/trunk prefix, then checks 10 digits starting 6–9. */
 function normalizePhone(raw: string): string | null {

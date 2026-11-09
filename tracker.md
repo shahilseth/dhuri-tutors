@@ -6,10 +6,10 @@
 
 ## Current status
 
-- **Current phase:** Phase 6 — P6.1–P6.4 done; P6.5–P6.8 blocked on owner. Phases 7 and 8 (parent requests, teacher sign-up) added 2026-11-09 with the owner's go-ahead for docs only — **do not start building Phase 7/8 (or P0.9) without an explicit "start building" from the owner**, per the owner's own instruction in that session.
-- **Current task:** — (next task, once building resumes, is P0.9 — it's a prerequisite for all of Phase 7/8)
+- **Current phase:** Phase 7 (Parent request form) — owner said "start with part b" on 2026-11-09; P0.9 is now done, Phase 7 is next. Phase 6's P6.5–P6.8 remain blocked on owner in parallel.
+- **Current task:** P7.1 (migration 0002)
 - **Last updated:** 2026-11-09
-- **Blocked on owner:** P6.5 (Supabase prod project), P6.6 (GitHub + Vercel deploy), P6.7 (enter real teachers), P6.8 (test on real phones) — see numbered steps in session log below. Also: `ADMIN_WHATSAPP` env var needs a real number before P7.7 can be verified (same number the footer's "Message us on WhatsApp" link has been waiting on).
+- **Blocked on owner:** P6.5 (Supabase prod project), P6.6 (GitHub + Vercel deploy), P6.7 (enter real teachers), P6.8 (test on real phones) — see numbered steps in session log below. Also: the **dev Supabase project** (`mhwtkhsxsapxabbgeilx.supabase.co`) is returning NXDOMAIN as of 2026-11-09 — looks paused or deleted; blocks live verification against real data until the owner recreates it or confirms the URL. `ADMIN_WHATSAPP` env var still needs a real number before P7.7 can be verified (same number the footer's "Message us on WhatsApp" link has been waiting on).
 
 ## Phase 0: Project setup
 - [x] P0.1 Create Next.js 15 app
@@ -20,7 +20,7 @@
 - [x] P0.6 lib/config.ts + lib/types.ts
 - [x] P0.7 Layout + placeholder home
 - [x] P0.8 git init + first commit
-- [ ] P0.9 Update areas list (final Dhuri town + nearby villages AREAS, "Other village" pattern) — do first, before any Phase 7/8 task
+- [x] P0.9 Update areas list (final Dhuri town + nearby villages AREAS, "Other village" pattern) — do first, before any Phase 7/8 task
 
 ## Phase 1: Database and data layer
 - [x] P1.1 Migration 0001_init.sql

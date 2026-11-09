@@ -223,10 +223,14 @@ export default function ListingForm({
       <Field label="Area" error={errors.area}>
         <select name="area" defaultValue={values.area} className={`${inputBase} ${fieldBorder(!!errors.area)}`}>
           <option value="">Choose an area</option>
-          {AREAS.map((area) => (
-            <option key={area} value={area}>
-              {area}
-            </option>
+          {AREAS.map((group) => (
+            <optgroup key={group.group} label={group.group}>
+              {group.options.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </select>
       </Field>

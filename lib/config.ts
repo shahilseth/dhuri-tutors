@@ -125,10 +125,37 @@ export const BOARDS: string[] = ["PSEB", "CBSE", "ICSE"];
 /** How a listing teaches. Flat list; display phrasing lives in lib/format.ts. */
 export const MODES: string[] = ["academy", "home", "online"];
 
-/** Dhuri localities. Partial list — more to come from the owner. */
-export const AREAS: string[] = [
-  "Pathshalla Mohalla",
-  "Janta Nagar",
-  "Shivpuri",
-  "Bank Road",
+/** Dhuri town and the nearby villages a listing can be based in. Grouped for <optgroup>. */
+export const AREAS: ConfigGroup[] = [
+  {
+    group: "Dhuri",
+    options: [{ value: "dhuri-town", label: "Dhuri town" }],
+  },
+  {
+    group: "Nearby villages",
+    options: [
+      { value: "badshahpur", label: "Badshahpur" },
+      { value: "bamal", label: "Bamal" },
+      { value: "banbhauri", label: "Banbhauri" },
+      { value: "baradwal", label: "Baradwal" },
+      { value: "bhasaur", label: "Bhasaur" },
+      { value: "ghanaur-khurd", label: "Ghanaur Khurd" },
+      { value: "ghanauri-kalan", label: "Ghanauri Kalan" },
+      { value: "jhaloor", label: "Jhaloor" },
+      { value: "kaheru", label: "Kaheru" },
+      { value: "kumbherwal", label: "Kumbherwal" },
+      { value: "mullowal", label: "Mullowal" },
+      { value: "rajomajra", label: "Rajomajra" },
+      { value: "rangian", label: "Rangian" },
+      { value: "sekha", label: "Sekha" },
+    ],
+  },
 ];
+
+/**
+ * "Other village (type name)", offered alongside the AREAS dropdown in the Phase 7/8
+ * forms (`/request`, `/join`). Picking it saves free text to `area_other` instead of
+ * `area` (schema.md §3, migration 0002) — not wired into the V0 admin form, which only
+ * has the `area` column to write to.
+ */
+export const OTHER_AREA: ConfigOption = { value: "other", label: "Other village (type name)" };
