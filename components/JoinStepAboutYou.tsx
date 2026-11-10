@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AREAS, OTHER_AREA } from "@/lib/config";
 import { looksLikePhone } from "@/lib/format";
 import type { JoinDraft } from "@/lib/types";
+import InfoBox from "./InfoBox";
 import OptionBox from "./OptionBox";
 import StepContinueButton from "./StepContinueButton";
 
@@ -48,13 +49,13 @@ export default function JoinStepAboutYou({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       <div>
-        <span className="text-[15px] font-medium text-ink">Are you a teacher or an academy?</span>
+        <span className="text-[15px] font-medium text-ink">I am a</span>
         <div className="mt-1 grid grid-cols-2 gap-2">
           <OptionBox
             type="radio"
             name="kind"
             value="teacher"
-            label="Teacher"
+            label="Teacher / home tutor"
             checked={draft.kind === "teacher"}
             onChange={() => setDraft((d) => ({ ...d, kind: "teacher" }))}
           />
@@ -62,7 +63,7 @@ export default function JoinStepAboutYou({
             type="radio"
             name="kind"
             value="academy"
-            label="Academy"
+            label="Coaching academy"
             checked={isAcademy}
             onChange={() => setDraft((d) => ({ ...d, kind: "academy" }))}
           />
@@ -132,7 +133,7 @@ export default function JoinStepAboutYou({
           <option value={OTHER_AREA.value}>{OTHER_AREA.label}</option>
         </select>
         <span className="mt-1 block text-[13px] text-ink-3">
-          Your exact address is never shown publicly unless you add it.
+          Parents searching for this area will find you.
         </span>
       </label>
 
@@ -157,6 +158,11 @@ export default function JoinStepAboutYou({
           className={inputClass}
         />
       </label>
+
+      <InfoBox lead="Your privacy.">
+        We never show your exact home address. Parents see your village or area, and contact
+        you only through the buttons on your page.
+      </InfoBox>
 
       {error && <p className="text-[14px] text-danger">{error}</p>}
 

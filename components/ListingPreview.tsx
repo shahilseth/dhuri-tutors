@@ -75,6 +75,7 @@ export default function ListingPreview({ draft }: { draft: JoinDraft }) {
         modes={draft.modes}
         areaText={area}
         servesAreasText={servesAreasText}
+        languages={draft.languages}
       />
 
       {draft.about && (

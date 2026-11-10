@@ -12,7 +12,10 @@ import JoinStepSend from "./JoinStepSend";
 import JoinStepTeaching from "./JoinStepTeaching";
 import StepBar from "./StepBar";
 import StepFormLayout from "./StepFormLayout";
+import TrustNotes from "./TrustNotes";
 import WhatsNextBox from "./WhatsNextBox";
+
+const TRUST_NOTES = ["Your progress is saved on this phone", "Free to join", "Checked by our team before publishing"];
 
 const STEP_LABELS = ["About you", "Teaching", "Profile", "Review", "Send"];
 // design.md §6 "Eyebrow + title block": per-step title for /join.
@@ -22,6 +25,13 @@ const STEP_TITLES = [
   "Add your teaching experience",
   "Check your page",
   "Send for approval",
+];
+const STEP_LEDES = [
+  "Add your name, number and where you teach from. Your exact address stays private unless you choose to show it.",
+  "Pick the classes, exams or skills you teach, and the subjects for each.",
+  "Your experience, languages, fees and a short note for parents.",
+  "This is what parents will see when they open your page.",
+  "One more tap and your sign-up is on its way to us.",
 ];
 // Raised as each step lands (same incremental pattern RequestForm.tsx used in Phase 7).
 const BUILT_STEPS = 5;
@@ -78,9 +88,7 @@ export default function JoinForm() {
       <h1 className="mt-2.5 text-[30px] font-extrabold leading-[1.1] tracking-[-0.025em] text-ink md:text-[40px]">
         {STEP_TITLES[step - 1]}
       </h1>
-      <p className="mt-3 max-w-[40rem] text-[16px] leading-[1.55] text-ink-2">
-        It takes about 10 minutes. No account needed.
-      </p>
+      <p className="mt-3 max-w-[40rem] text-[16px] leading-[1.55] text-ink-2">{STEP_LEDES[step - 1]}</p>
 
       <div className="mt-7">
         <StepBar steps={STEP_LABELS} current={step} />
@@ -106,6 +114,8 @@ export default function JoinForm() {
           <JoinStepSend draft={draft} setDraft={setDraft} loaded={loaded} backHref="/join?step=4" />
         )}
       </div>
+
+      <TrustNotes items={TRUST_NOTES} />
     </StepFormLayout>
   );
 }

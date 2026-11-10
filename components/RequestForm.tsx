@@ -11,7 +11,10 @@ import RequestStepWhereWhen from "./RequestStepWhereWhen";
 import RequestStepYourDetails from "./RequestStepYourDetails";
 import StepBar from "./StepBar";
 import StepFormLayout from "./StepFormLayout";
+import TrustNotes from "./TrustNotes";
 import WhatsNextBox from "./WhatsNextBox";
+
+const TRUST_NOTES = ["Your progress is saved on this phone", "Free for parents", "Your number is shared only with your permission"];
 
 const STEP_LABELS = ["What", "Where and when", "Your details", "Send"];
 const BUILT_STEPS = 4;
@@ -98,6 +101,8 @@ export default function RequestForm() {
           <RequestStepSend draft={draft} setDraft={setDraft} loaded={loaded} backHref="/request?step=3" />
         )}
       </div>
+
+      <TrustNotes items={TRUST_NOTES} />
     </StepFormLayout>
   );
 }

@@ -143,6 +143,7 @@ export default async function ListingPage({
         modes={listing.modes}
         areaText={area}
         servesAreasText={servesAreasText}
+        languages={listing.languages ?? []}
       />
 
       {listing.about && (
