@@ -487,12 +487,12 @@ export function validateTeachingEntries(
     if (entry.track === "skill") {
       if (entry.classes.length > 0) return { ok: false, error: "A skills entry doesn't take a class." };
     } else if (entry.track === "exam") {
-      if (entry.classes.length !== 1 || !classValues.has(entry.classes[0])) {
-        return { ok: false, error: "Each exam entry needs exactly one exam from the list." };
+      if (entry.classes.length === 0 || !entry.classes.every((c) => classValues.has(c))) {
+        return { ok: false, error: "Each exam entry needs at least one exam from the list." };
       }
     } else if (entry.track === "school") {
       if (entry.classes.length === 0 || !entry.classes.every((c) => classValues.has(c))) {
-        return { ok: false, error: "Each school entry needs a class range from the list." };
+        return { ok: false, error: "Each school entry needs at least one class from the list." };
       }
     } else {
       return { ok: false, error: "Each teaching list entry needs a valid track." };

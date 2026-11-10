@@ -119,6 +119,83 @@ export const SUBJECTS: ConfigGroup[] = [
   },
 ];
 
+// Values are checked against SCHOOL_SUBJECT_OPTIONS below ("School subjects" group only) —
+// skills like drawing/music live in a separate group and are picked on the Skills tab instead.
+const PRE_PRIMARY_SUBJECTS = ["english", "hindi", "punjabi"];
+const PRIMARY_SUBJECTS = ["maths", "english", "hindi", "punjabi", "computer", "physical-education"];
+const MIDDLE_SUBJECTS = [
+  "maths",
+  "science",
+  "english",
+  "hindi",
+  "punjabi",
+  "sanskrit",
+  "social-science",
+  "computer",
+  "physical-education",
+];
+const SECONDARY_SUBJECTS = [
+  "maths",
+  "science",
+  "english",
+  "hindi",
+  "punjabi",
+  "sanskrit",
+  "social-science",
+  "computer",
+  "home-science",
+  "physical-education",
+];
+const SENIOR_SECONDARY_SUBJECTS = [
+  "english",
+  "hindi",
+  "punjabi",
+  "maths",
+  "physics",
+  "chemistry",
+  "biology",
+  "computer",
+  "economics",
+  "business-studies",
+  "accountancy",
+  "political-science",
+  "history",
+  "geography",
+  "home-science",
+  "physical-education",
+];
+
+/**
+ * Which "School subjects" (above) are normally taught at each school class level — used to
+ * narrow the subject picker on /join and the admin form to a sensible union once a teacher
+ * has picked their classes, instead of showing every subject for every class.
+ */
+export const CLASS_SUBJECTS: Record<string, string[]> = {
+  nursery: PRE_PRIMARY_SUBJECTS,
+  lkg: PRE_PRIMARY_SUBJECTS,
+  ukg: PRE_PRIMARY_SUBJECTS,
+  "1": PRIMARY_SUBJECTS,
+  "2": PRIMARY_SUBJECTS,
+  "3": PRIMARY_SUBJECTS,
+  "4": PRIMARY_SUBJECTS,
+  "5": PRIMARY_SUBJECTS,
+  "6": MIDDLE_SUBJECTS,
+  "7": MIDDLE_SUBJECTS,
+  "8": MIDDLE_SUBJECTS,
+  "9": SECONDARY_SUBJECTS,
+  "10": SECONDARY_SUBJECTS,
+  "11": SENIOR_SECONDARY_SUBJECTS,
+  "12": SENIOR_SECONDARY_SUBJECTS,
+};
+
+const SCHOOL_SUBJECT_OPTIONS = SUBJECTS.find((g) => g.group === "School subjects")!.options;
+
+/** The union of subjects taught across every class picked, in SUBJECTS' display order. */
+export function subjectsForClasses(classes: string[]): ConfigOption[] {
+  const allowed = new Set(classes.flatMap((c) => CLASS_SUBJECTS[c] ?? []));
+  return SCHOOL_SUBJECT_OPTIONS.filter((o) => allowed.has(o.value));
+}
+
 /** Education boards. Flat list — the value is the acronym shown to users. */
 export const BOARDS: string[] = ["PSEB", "CBSE", "ICSE"];
 

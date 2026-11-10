@@ -434,9 +434,19 @@ describe("validateTeachingEntries", () => {
     expect(result.ok).toBe(false);
   });
 
-  it("rejects an exam entry with more than one class", () => {
+  it("accepts an exam entry with more than one exam", () => {
     const result = validateTeachingEntries([{ ...examEntry, classes: ["jee", "neet"] }]);
+    expect(result.ok).toBe(true);
+  });
+
+  it("rejects an exam entry with no exams", () => {
+    const result = validateTeachingEntries([{ ...examEntry, classes: [] }]);
     expect(result.ok).toBe(false);
+  });
+
+  it("accepts a school entry with a non-contiguous combination of classes", () => {
+    const result = validateTeachingEntries([{ ...schoolEntry, classes: ["1", "5", "8"] }]);
+    expect(result.ok).toBe(true);
   });
 
   it("rejects a skill entry that has classes", () => {

@@ -1,32 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { CLASSES, SUBJECTS } from "@/lib/config";
+import { CLASSES, SUBJECTS, subjectsForClasses } from "@/lib/config";
 import { classesText, subjectLabel } from "@/lib/format";
 import type { TeachingEntry, TeachingTrack } from "@/lib/types";
-import OptionBox from "./OptionBox";
+import ChipToggle from "./ChipToggle";
+import SubjectPicker from "./SubjectPicker";
 
 // "College" (bcom/ba/bsc/bca/other-college) isn't offered here: teaching_entries.track is
 // constrained to school/exam/skill (migration 0002), owner-confirmed 2026-11-10 — see
 // tracker.md Blockers. Only the three groups below are reachable from this component.
 const SCHOOL_CLASSES = CLASSES.find((g) => g.group === "School")!.options;
 const EXAM_CLASSES = CLASSES.find((g) => g.group === "Entrance and competitive exams")!.options;
-const SCHOOL_SUBJECTS = SUBJECTS.find((g) => g.group === "School subjects")!.options;
 const EXAM_PREP_SUBJECTS = SUBJECTS.find((g) => g.group === "Exam preparation")!.options;
 const SKILL_SUBJECTS = SUBJECTS.find((g) => g.group === "Skills and extra classes")!.options;
-// Exam-track subjects cover both academic exams (JEE/NEET need Physics, Maths, ...) and
-// non-academic ones (SSC/Banking/Police need Reasoning, GK, ...), so the options are the
-// union of "School subjects" and "Exam preparation" rather than either group alone.
-const EXAM_SUBJECTS = [...SCHOOL_SUBJECTS, ...EXAM_PREP_SUBJECTS];
 
 const TABS: { track: TeachingTrack; label: string }[] = [
   { track: "school", label: "School" },
   { track: "exam", label: "Entrance and competitive exams" },
   { track: "skill", label: "Skills and activities" },
 ];
-
-const selectClass =
-  "mt-1 block h-[54px] w-full rounded-md border-[1.5px] border-line bg-white px-4 text-[16px] text-ink placeholder:text-ink-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-600/15";
 
 function entrySummary(entry: TeachingEntry): string {
   const subjects = entry.subjects.map(subjectLabel).join(", ") || "No subjects";
@@ -35,8 +28,8 @@ function entrySummary(entry: TeachingEntry): string {
   return `School: ${classesText(entry.classes)} — ${subjects}`;
 }
 
-function toggleValue(list: string[], value: string, checked: boolean): string[] {
-  return checked ? [...list, value] : list.filter((v) => v !== value);
+function toggleValue(list: string[], value: string): string[] {
+  return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
 }
 
 /**
@@ -44,6 +37,10 @@ function toggleValue(list: string[], value: string, checked: boolean): string[] 
  * Used by /join (P8.3) and the admin listing form (P8.8). Each tab keeps its own unfinished
  * selection in local state so switching tabs doesn't lose it — only finished entries live in
  * the `entries` prop, which is what's persisted (draft localStorage, or the admin form state).
+ *
+ * Classes and exams are both any combination the teacher picks (e.g. Class 1 to 8, or Class
+ * 9 and 11 without 10) rather than a forced contiguous range or a single exam — `classes` is
+ * already a plain array column (schema.md §3), so this is a UI choice, not a schema change.
  */
 export default function TeachingList({
   entries,
@@ -55,14 +52,21 @@ export default function TeachingList({
   const [tab, setTab] = useState<TeachingTrack>("school");
   const [error, setError] = useState<string | null>(null);
 
-  const [schoolFrom, setSchoolFrom] = useState("");
-  const [schoolTo, setSchoolTo] = useState("");
+  const [schoolClasses, setSchoolClasses] = useState<string[]>([]);
   const [schoolSubjects, setSchoolSubjects] = useState<string[]>([]);
 
-  const [examValue, setExamValue] = useState("");
+  const [examClasses, setExamClasses] = useState<string[]>([]);
   const [examSubjects, setExamSubjects] = useState<string[]>([]);
 
   const [skillSubjects, setSkillSubjects] = useState<string[]>([]);
+
+  // Narrows live as classes are (de)selected — e.g. picking Class 1 to 8 offers Maths/English/
+  // Science/... but not Physics/Economics, which only show once an 11 or 12 is picked too.
+  const schoolSubjectPool = subjectsForClasses(schoolClasses);
+  // Exam-track subjects cover both academic exams (JEE/NEET need Physics, Maths, ...) and
+  // non-academic ones (SSC/Banking/Police need Reasoning, GK, ...), so the pool is every
+  // school subject plus exam-prep subjects, regardless of which exam(s) are picked.
+  const examSubjectPool = [...subjectsForClasses(SCHOOL_CLASSES.map((o) => o.value)), ...EXAM_PREP_SUBJECTS];
 
   function addEntry(entry: TeachingEntry) {
     onChange([...entries, entry]);
@@ -73,24 +77,30 @@ export default function TeachingList({
     onChange(entries.filter((_, i) => i !== index));
   }
 
+  function toggleSchoolClass(value: string) {
+    setSchoolClasses((current) => {
+      const next = toggleValue(current, value);
+      const pool = new Set(subjectsForClasses(next).map((o) => o.value));
+      setSchoolSubjects((subjects) => subjects.filter((s) => pool.has(s)));
+      return next;
+    });
+  }
+
   function addSchool() {
-    if (!schoolFrom || !schoolTo) return setError("Choose a class range.");
+    if (schoolClasses.length === 0) return setError("Choose at least one class.");
     if (schoolSubjects.length === 0) return setError("Choose at least one subject.");
-    const fromIndex = SCHOOL_CLASSES.findIndex((o) => o.value === schoolFrom);
-    const toIndex = SCHOOL_CLASSES.findIndex((o) => o.value === schoolTo);
-    const [lo, hi] = fromIndex <= toIndex ? [fromIndex, toIndex] : [toIndex, fromIndex];
-    const classes = SCHOOL_CLASSES.slice(lo, hi + 1).map((o) => o.value);
-    addEntry({ track: "school", classes, subjects: schoolSubjects });
-    setSchoolFrom("");
-    setSchoolTo("");
+    const orderedClasses = SCHOOL_CLASSES.filter((o) => schoolClasses.includes(o.value)).map((o) => o.value);
+    addEntry({ track: "school", classes: orderedClasses, subjects: schoolSubjects });
+    setSchoolClasses([]);
     setSchoolSubjects([]);
   }
 
   function addExam() {
-    if (!examValue) return setError("Choose an exam.");
+    if (examClasses.length === 0) return setError("Choose at least one exam.");
     if (examSubjects.length === 0) return setError("Choose at least one subject.");
-    addEntry({ track: "exam", classes: [examValue], subjects: examSubjects });
-    setExamValue("");
+    const orderedExams = EXAM_CLASSES.filter((o) => examClasses.includes(o.value)).map((o) => o.value);
+    addEntry({ track: "exam", classes: orderedExams, subjects: examSubjects });
+    setExamClasses([]);
     setExamSubjects([]);
   }
 
@@ -150,42 +160,31 @@ export default function TeachingList({
 
         {tab === "school" && (
           <div className="mt-3 flex flex-col gap-3">
-            <div className="grid grid-cols-2 gap-3">
-              <label className="block">
-                <span className="text-[14px] text-ink-2">From class</span>
-                <select value={schoolFrom} onChange={(e) => setSchoolFrom(e.target.value)} className={selectClass}>
-                  <option value="">Choose</option>
-                  {SCHOOL_CLASSES.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="block">
-                <span className="text-[14px] text-ink-2">To class</span>
-                <select value={schoolTo} onChange={(e) => setSchoolTo(e.target.value)} className={selectClass}>
-                  <option value="">Choose</option>
-                  {SCHOOL_CLASSES.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
+            <div>
+              <span className="text-[14px] text-ink-2">
+                Classes — pick any combination, e.g. Class 1 to 8, or just 9 and 11
+              </span>
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                {SCHOOL_CLASSES.map((o) => (
+                  <ChipToggle
+                    key={o.value}
+                    label={o.label}
+                    selected={schoolClasses.includes(o.value)}
+                    onClick={() => toggleSchoolClass(o.value)}
+                  />
+                ))}
+              </div>
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              {SCHOOL_SUBJECTS.map((o) => (
-                <OptionBox
-                  key={o.value}
-                  type="checkbox"
-                  name="school-subjects"
-                  value={o.value}
-                  label={o.label}
-                  checked={schoolSubjects.includes(o.value)}
-                  onChange={(checked) => setSchoolSubjects((s) => toggleValue(s, o.value, checked))}
+            <div>
+              <span className="text-[14px] text-ink-2">Subjects</span>
+              <div className="mt-1.5">
+                <SubjectPicker
+                  pool={schoolSubjectPool}
+                  selected={schoolSubjects}
+                  onChange={setSchoolSubjects}
+                  emptyHint="Choose at least one class above to see the subjects taught there."
                 />
-              ))}
+              </div>
             </div>
             <button
               type="button"
@@ -199,29 +198,24 @@ export default function TeachingList({
 
         {tab === "exam" && (
           <div className="mt-3 flex flex-col gap-3">
-            <label className="block">
-              <span className="text-[14px] text-ink-2">Exam</span>
-              <select value={examValue} onChange={(e) => setExamValue(e.target.value)} className={selectClass}>
-                <option value="">Choose an exam</option>
+            <div>
+              <span className="text-[14px] text-ink-2">Exams — pick as many as you teach for</span>
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {EXAM_CLASSES.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
+                  <ChipToggle
+                    key={o.value}
+                    label={o.label}
+                    selected={examClasses.includes(o.value)}
+                    onClick={() => setExamClasses((current) => toggleValue(current, o.value))}
+                  />
                 ))}
-              </select>
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              {EXAM_SUBJECTS.map((o) => (
-                <OptionBox
-                  key={o.value}
-                  type="checkbox"
-                  name="exam-subjects"
-                  value={o.value}
-                  label={o.label}
-                  checked={examSubjects.includes(o.value)}
-                  onChange={(checked) => setExamSubjects((s) => toggleValue(s, o.value, checked))}
-                />
-              ))}
+              </div>
+            </div>
+            <div>
+              <span className="text-[14px] text-ink-2">Subjects</span>
+              <div className="mt-1.5">
+                <SubjectPicker pool={examSubjectPool} selected={examSubjects} onChange={setExamSubjects} />
+              </div>
             </div>
             <button
               type="button"
@@ -235,19 +229,7 @@ export default function TeachingList({
 
         {tab === "skill" && (
           <div className="mt-3 flex flex-col gap-3">
-            <div className="grid grid-cols-2 gap-2">
-              {SKILL_SUBJECTS.map((o) => (
-                <OptionBox
-                  key={o.value}
-                  type="checkbox"
-                  name="skill-subjects"
-                  value={o.value}
-                  label={o.label}
-                  checked={skillSubjects.includes(o.value)}
-                  onChange={(checked) => setSkillSubjects((s) => toggleValue(s, o.value, checked))}
-                />
-              ))}
-            </div>
+            <SubjectPicker pool={SKILL_SUBJECTS} selected={skillSubjects} onChange={setSkillSubjects} />
             <button
               type="button"
               onClick={addSkill}
