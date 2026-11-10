@@ -213,6 +213,7 @@ One row per `/request` submission. No foreign key to `listings` — a request is
 | budget_max | integer | yes | | |
 | notes | text | yes | | ≤ 300 chars |
 | consent_at | timestamptz | no | | Set when the consent checkbox is ticked; required before Send |
+| share_number_consent | boolean | no | `false` | Ticked by the **admin** on `/admin/requests` (migration 0003), after confirming with the parent — not collected at R3. "Send to teacher" only includes `phone` in the WhatsApp message when this is `true` |
 | status | text | no | `'new'` | `check (status in ('new','contacted','matched','closed'))` |
 | created_at | timestamptz | no | `now()` | |
 | updated_at | timestamptz | no | `now()` | |
@@ -318,5 +319,6 @@ Admin taps Approve on A2 → approveSignupAction(id)
 |---|---|---|
 | `0001_init.sql` | `pgcrypto`, `listings`, `taps`, indexes, checks, RLS, `set_updated_at` trigger, `listing_tap_counts` view | 1 |
 | `0002_requests_teacher_signup.sql` | `teaching_entries`, `requests`, `edit_tokens` tables; new `listings` columns (`serves_areas`, `area_other`, `experience_years`, `qualification_level`, `qualification`, `languages`, `headline`, `source`) + GIN index on `serves_areas` | 7 (introduced here; `teaching_entries`/`edit_tokens` aren't used until Phase 8) |
+| `0003_requests_share_number_consent.sql` | `requests.share_number_consent` (admin-ticked, gates whether "Send to teacher" includes the parent's phone) | 7 |
 
 `supabase/seed.sql` holds clearly fake sample listings (names starting with "Sample", phones `99999000xx`) and is run **only on the dev project**.

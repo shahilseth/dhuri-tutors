@@ -14,7 +14,7 @@ import {
   whatsappUrl,
 } from "@/lib/format";
 import type { Listing, RequestRecord, RequestStatus } from "@/lib/types";
-import { updateRequestStatusAction } from "../actions";
+import { toggleShareNumberConsentAction, updateRequestStatusAction } from "../actions";
 
 export const metadata: Metadata = { title: "Requests" };
 
@@ -146,6 +146,17 @@ export default async function AdminRequests() {
 
                   <p className="mt-1 text-[13px] text-ink-3">{ago(request.created_at)}</p>
 
+                  <form action={toggleShareNumberConsentAction.bind(null, request.id)} className="mt-3">
+                    <button
+                      type="submit"
+                      className={`h-11 rounded-md border px-3 text-[14px] ${
+                        request.share_number_consent ? "border-blue text-blue" : "border-rule text-ink-2"
+                      }`}
+                    >
+                      {request.share_number_consent ? "✓ Parent agreed to share number" : "Parent agreed to share number?"}
+                    </button>
+                  </form>
+
                   <div className="mt-3">
                     <h3 className="text-[14px] font-medium text-ink">Matching teachers</h3>
                     {matches.length === 0 ? (
@@ -157,7 +168,12 @@ export default async function AdminRequests() {
                             key={listing.id}
                             href={whatsappUrl(
                               listing.whatsapp ?? listing.phone,
-                              requestOutreachMessage(request.ref_code, summary, request.name, request.phone),
+                              requestOutreachMessage(
+                                request.ref_code,
+                                summary,
+                                request.name,
+                                request.share_number_consent ? request.phone : null,
+                              ),
                             )}
                             target="_blank"
                             rel="noreferrer"

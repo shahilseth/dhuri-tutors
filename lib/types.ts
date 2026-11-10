@@ -86,6 +86,8 @@ export type RequestRecord = {
   budget_max: number | null;
   notes: string | null;
   consent_at: string;
+  /** Admin-ticked on /admin/requests (migration 0003) — not collected from the parent. */
+  share_number_consent: boolean;
   status: RequestStatus;
   created_at: string;
   updated_at: string;

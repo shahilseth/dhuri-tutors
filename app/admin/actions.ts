@@ -7,7 +7,9 @@ import { logIn, logOut, requireAdmin } from "@/lib/auth";
 import {
   createListing,
   getListingById,
+  getRequestById,
   nextRefCode,
+  setShareNumberConsent,
   slugTaken,
   updateListing,
   updateRequestStatus,
@@ -159,5 +161,16 @@ export async function updateRequestStatusAction(id: string, formData: FormData):
     await updateRequestStatus(id, status as RequestStatus);
   }
 
+  redirect("/admin/requests");
+}
+
+/** Bound with the request id (app_flow.md A5: admin ticks this after confirming with the parent directly). */
+export async function toggleShareNumberConsentAction(id: string): Promise<void> {
+  await requireAdmin();
+
+  const request = await getRequestById(id);
+  if (!request) redirect("/admin/requests");
+
+  await setShareNumberConsent(id, !request.share_number_consent);
   redirect("/admin/requests");
 }

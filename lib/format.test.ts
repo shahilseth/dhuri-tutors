@@ -207,12 +207,18 @@ describe("requestSummary and requestWhatsappMessage", () => {
 });
 
 describe("requestOutreachMessage", () => {
-  it("includes the ref code, summary and the parent's contact details", () => {
+  it("includes the ref code, summary and the parent's name and number when share_number_consent is given", () => {
     const message = requestOutreachMessage("R5", "Class 10, Maths, Dhuri town", "Sample Parent", "9988776655");
     expect(message).toContain("R5");
     expect(message).toContain("Class 10, Maths, Dhuri town");
     expect(message).toContain("Sample Parent");
     expect(message).toContain("9988776655");
+  });
+
+  it("omits the phone number when it's null (admin hasn't ticked share_number_consent)", () => {
+    const message = requestOutreachMessage("R5", "Class 10, Maths, Dhuri town", "Sample Parent", null);
+    expect(message).toContain("Sample Parent");
+    expect(message).not.toContain("9988776655");
   });
 });
 

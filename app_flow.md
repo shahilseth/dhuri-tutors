@@ -92,7 +92,7 @@ Linked from the home page and the no-results message ("Can't find the right teac
 | A2 | Dashboard | `/admin` | Top: counts (live listings, unpublished, needing re-confirm, new requests). "New sign-ups" section (from `/join`). Table/cards per listing: name, ref code, Live/Hidden badge, last confirmed (red if > 60 days), WhatsApp taps (30d / total), Call taps (30d / total). Buttons: New listing, Requests, Log out | Edit; Mark verified today; Publish/Unpublish; Download QR; Open public page; Approve/Reject sign-up |
 | A3 | New listing | `/admin/new` | Listing form (all fields, see below) | Save as hidden; Save and publish |
 | A4 | Edit listing | `/admin/[id]` | Same form, prefilled; read-only ref code; public link with Copy button; QR preview + Download | Save; Publish/Unpublish; Mark verified |
-| A5 | Requests | `/admin/requests` | List of parent requests, newest first, status (new/contacted/matched/closed); each shows matching published teachers (area or `serves_areas`); "No teacher found" report grouped by subject, class and village | Send to teacher (WhatsApp, includes the parent's number — the one consent checkbox collected at R3 is what covers sharing it with a matched teacher); change status |
+| A5 | Requests | `/admin/requests` | List of parent requests, newest first, status (new/contacted/matched/closed); each shows matching published teachers (area or `serves_areas`); "No teacher found" report grouped by subject, class and village | Send to teacher (WhatsApp; includes the parent's number only if the admin has ticked "Parent agreed to share number" for that request); change status; toggle "Parent agreed to share number" |
 
 **Listing form fields (A3/A4), in this order:** Type (teacher/academy) · Name · Contact person · Phone · WhatsApp (if different) · teaching list (Phase 8's shared component: School/Exam/Skill tabs) · Boards (checkboxes) · Mode (checkboxes) · Area (dropdown) · Villages I can travel to (`serves_areas`, if Home tuition) · Address/landmark · Fee min · Fee max · Fee note · Timings · About · Slug (prefilled from name, editable) · "Teacher agreed to be listed" checkbox (shows date once given).
 
@@ -179,7 +179,7 @@ Edge cases: refreshing mid-form restores the draft from `localStorage`; closing 
 
 1. Admin opens A5 (`/admin/requests`), sees new requests newest first.
 2. Opens a request, sees its matching published teachers (by area or `serves_areas`).
-3. Taps "Send to teacher" for a match → WhatsApp opens to that teacher with the request's details, including the parent's number.
+3. Taps "Send to teacher" for a match → WhatsApp opens to that teacher with the request's details (the parent's number is included only if the admin has ticked "Parent agreed to share number" for that request, after confirming with them directly).
 4. Admin updates the request's status (contacted / matched / closed).
 5. Requests with zero matches appear in the "No teacher found" report, grouped by subject, class and village — used to recruit teachers for the gaps.
 

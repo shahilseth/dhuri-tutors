@@ -167,12 +167,18 @@ export function requestWhatsappMessage(refCode: string, summary: string): string
 }
 
 /**
- * /admin/requests "Send to teacher" message (app_flow.md A5). Includes the parent's contact
- * details — the one consent checkbox collected at R3 is what covers sharing them with a
- * matched teacher, there's no separate "agreed to share number" flag (tracker.md decision log).
+ * /admin/requests "Send to teacher" message (app_flow.md A5). `phone` is only included when
+ * the admin has ticked "Parent agreed to share number" for this request (migration 0003) —
+ * pass `null` otherwise, and the parent's name is sent on its own with no number.
  */
-export function requestOutreachMessage(refCode: string, summary: string, contactName: string, phone: string): string {
-  return `Hi, a parent is looking for ${summary} (ref ${refCode}). Contact: ${contactName}, ${phone}.`;
+export function requestOutreachMessage(
+  refCode: string,
+  summary: string,
+  contactName: string,
+  phone: string | null,
+): string {
+  const contact = phone ? `${contactName}, ${phone}` : contactName;
+  return `Hi, a parent is looking for ${summary} (ref ${refCode}). Contact: ${contact}.`;
 }
 
 /** Lowercase, hyphenated slug candidate from a name. Uniqueness suffixes are added by the caller. */

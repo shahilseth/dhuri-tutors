@@ -172,6 +172,24 @@ export async function updateRequestStatus(id: string, status: RequestStatus): Pr
   return data as RequestRecord;
 }
 
+export async function getRequestById(id: string): Promise<RequestRecord | null> {
+  const { data, error } = await getClient().from("requests").select("*").eq("id", id).maybeSingle();
+  if (error) throw error;
+  return (data as RequestRecord | null) ?? null;
+}
+
+/** Admin-ticked on /admin/requests (migration 0003) — gates whether "Send to teacher" includes the phone. */
+export async function setShareNumberConsent(id: string, value: boolean): Promise<RequestRecord> {
+  const { data, error } = await getClient()
+    .from("requests")
+    .update({ share_number_consent: value })
+    .eq("id", id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data as RequestRecord;
+}
+
 /** New-request count for the admin dashboard (app_flow.md A2). */
 export async function countNewRequests(): Promise<number> {
   const { count, error } = await getClient()

@@ -57,6 +57,8 @@ export async function createRequestAction(draft: RequestDraft): Promise<CreateRe
     budget_max: v.budget_max,
     notes: v.notes,
     consent_at: new Date().toISOString(),
+    // Separate from consent_at: the admin ticks this later, after confirming with the parent (migration 0003).
+    share_number_consent: false,
     status: "new",
   });
 
