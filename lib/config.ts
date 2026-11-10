@@ -128,6 +128,19 @@ export const MODES: string[] = ["academy", "home", "online"];
 /** Preferred timings on the /request form (Phase 7). Flat list; display phrasing lives in lib/format.ts. */
 export const TIMINGS: string[] = ["morning", "afternoon", "evening", "weekends"];
 
+/** Languages a listing can teach in (Phase 8, schema.md §3 `listings.languages`). */
+export const LANGUAGES: string[] = ["punjabi", "hindi", "english"];
+
+/** Highest qualification dropdown on /join step 3 (Phase 8, schema.md §3 `listings.qualification_level`). */
+export const QUALIFICATIONS: ConfigOption[] = [
+  { value: "undergraduate", label: "Undergraduate" },
+  { value: "graduate", label: "Graduate" },
+  { value: "postgraduate", label: "Postgraduate" },
+  { value: "phd", label: "PhD" },
+  { value: "diploma", label: "Diploma" },
+  { value: "other", label: "Other" },
+];
+
 /** Dhuri town and the nearby villages a listing can be based in. Grouped for <optgroup>. */
 export const AREAS: ConfigGroup[] = [
   {

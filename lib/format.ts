@@ -1,5 +1,5 @@
 /** Turns raw listing data into the plain-English text design.md specifies. */
-import { APP_NAME, AREAS, CLASSES, STALE_AFTER_DAYS, SUBJECTS } from "./config";
+import { APP_NAME, AREAS, CLASSES, QUALIFICATIONS, STALE_AFTER_DAYS, SUBJECTS } from "./config";
 
 function rupees(amount: number): string {
   return `₹${amount.toLocaleString("en-IN")}`;
@@ -77,6 +77,21 @@ const TIMING_LABELS: Record<string, string> = {
 
 export function timingLabel(timing: string): string {
   return TIMING_LABELS[timing] ?? timing;
+}
+
+const LANGUAGE_LABELS: Record<string, string> = {
+  punjabi: "Punjabi",
+  hindi: "Hindi",
+  english: "English",
+};
+
+export function languageLabel(language: string): string {
+  return LANGUAGE_LABELS[language] ?? language;
+}
+
+/** Display label for a stored qualification_level value, e.g. "postgraduate" -> "Postgraduate". */
+export function qualificationLabel(value: string): string {
+  return QUALIFICATIONS.find((o) => o.value === value)?.label ?? value;
 }
 
 /** Whole days elapsed. Used directly for the admin dashboard's "Not confirmed for N days" (design.md §7). */
