@@ -5,6 +5,7 @@
  */
 import "server-only";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createHash, randomBytes } from "node:crypto";
 import { CITY } from "./config";
 import { slugify } from "./format";
 import type { Channel, Listing, RequestRecord, RequestStatus, SearchFilters, TapCounts, TeachingEntry } from "./types";
@@ -230,6 +231,49 @@ export async function createSignup(input: NewSignup): Promise<Listing> {
   await replaceTeachingEntries(listing.id, input.teaching_entries);
 
   return listing;
+}
+
+function hashToken(rawToken: string): string {
+  return createHash("sha256").update(rawToken).digest("hex");
+}
+
+/**
+ * Issues a fresh private edit link (app_flow.md Flow 8 step 3/5, schema.md §4.9): revokes
+ * any still-active tokens for this listing first, so "issue a new link" is also how a
+ * lost/leaked one gets cut off. Returns the raw token — only ever shown once, in the
+ * WhatsApp message to the teacher; only its hash is stored.
+ */
+export async function createEditToken(listingId: string): Promise<string> {
+  const client = getClient();
+
+  const { error: revokeError } = await client
+    .from("edit_tokens")
+    .update({ revoked_at: new Date().toISOString() })
+    .eq("listing_id", listingId)
+    .is("revoked_at", null);
+  if (revokeError) throw revokeError;
+
+  const rawToken = randomBytes(24).toString("hex");
+  const { error: insertError } = await client
+    .from("edit_tokens")
+    .insert({ listing_id: listingId, token_hash: hashToken(rawToken) });
+  if (insertError) throw insertError;
+
+  return rawToken;
+}
+
+/** /edit/[token] (Phase 8): looks the listing up by an un-revoked token's hash. No admin auth — this is the teacher's own no-password link. */
+export async function getListingByEditToken(rawToken: string): Promise<Listing | null> {
+  const { data: tokenRow, error: tokenError } = await getClient()
+    .from("edit_tokens")
+    .select("listing_id")
+    .eq("token_hash", hashToken(rawToken))
+    .is("revoked_at", null)
+    .maybeSingle();
+  if (tokenError) throw tokenError;
+  if (!tokenRow) return null;
+
+  return getListingById(tokenRow.listing_id as string);
 }
 
 /** "R" + next free number, e.g. "R12". Never reused once assigned (schema.md §3). */

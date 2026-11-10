@@ -87,8 +87,10 @@ export default async function ListingPage({
   const waUrl = whatsappUrl(waNumber, whatsappMessage(listing.ref_code));
   const callUrl = telUrl(listing.phone);
   const area = [listing.address, listing.area, CITY].filter(Boolean).join(", ");
-  const servesAreasText =
-    listing.serves_areas.length > 0 ? listing.serves_areas.map((a) => areaLabel(a, null)).join(", ") : null;
+  // Defensive: `serves_areas` is a migration-0002 column, not yet applied on the dev
+  // project as of 2026-11-10 (tracker.md) — guards against a row missing it entirely.
+  const servesAreas = listing.serves_areas ?? [];
+  const servesAreasText = servesAreas.length > 0 ? servesAreas.map((a) => areaLabel(a, null)).join(", ") : null;
   const shareWaUrl = shareUrl(listing.name, `${SITE_URL}/t/${listing.slug}`);
 
   return (

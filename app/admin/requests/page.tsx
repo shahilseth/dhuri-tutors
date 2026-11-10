@@ -37,7 +37,10 @@ function matchingListings(request: RequestRecord, listings: Listing[]): Listing[
     }
 
     if (request.area) {
-      const areaMatches = listing.area === request.area || listing.serves_areas.includes(request.area);
+      // Defensive: `serves_areas` is a migration-0002 column that may be missing on a row
+      // if the migration hasn't been applied yet (tracker.md) — found crashing live in
+      // app/t/[slug]/page.tsx during P8.7's verification, same root cause here.
+      const areaMatches = listing.area === request.area || (listing.serves_areas ?? []).includes(request.area);
       if (!areaMatches) return false;
     }
 
