@@ -7,6 +7,7 @@ import type { JoinDraft } from "@/lib/types";
 import { useStepDraft } from "@/lib/useStepDraft";
 import JoinStepAboutYou from "./JoinStepAboutYou";
 import JoinStepProfile from "./JoinStepProfile";
+import JoinStepReview from "./JoinStepReview";
 import JoinStepTeaching from "./JoinStepTeaching";
 import StepBar from "./StepBar";
 import StepFormLayout from "./StepFormLayout";
@@ -14,7 +15,7 @@ import WhatsNextBox from "./WhatsNextBox";
 
 const STEP_LABELS = ["About you", "Teaching", "Profile", "Review", "Send"];
 // Raised as each step lands (same incremental pattern RequestForm.tsx used in Phase 7).
-const BUILT_STEPS = 3;
+const BUILT_STEPS = 4;
 
 const emptyDraft: JoinDraft = {
   kind: "",
@@ -81,6 +82,9 @@ export default function JoinForm() {
         )}
         {step === 3 && (
           <JoinStepProfile draft={draft} setDraft={setDraft} backHref="/join?step=2" onContinue={() => goToStep(4)} />
+        )}
+        {step === 4 && (
+          <JoinStepReview draft={draft} setDraft={setDraft} backHref="/join?step=3" onContinue={() => goToStep(5)} />
         )}
       </div>
     </StepFormLayout>

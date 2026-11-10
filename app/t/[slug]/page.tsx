@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ContactButtons from "@/components/ContactButtons";
+import ListingDetailsSheet from "@/components/ListingDetailsSheet";
 import { APP_NAME, CITY, SITE_URL } from "@/lib/config";
 import { getListingBySlug } from "@/lib/data";
 import {
   ago,
+  areaLabel,
   classesText,
-  feeText,
   isStale,
-  modeLabel,
   shareUrl,
   subjectLabel,
   telUrl,
@@ -74,15 +74,6 @@ function CheckIcon() {
   );
 }
 
-function Row({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="flex gap-3 px-4 py-3">
-      <dt className="w-24 shrink-0 text-[15px] text-ink-2">{label}</dt>
-      <dd className="text-[16px] leading-[24px] text-ink">{value}</dd>
-    </div>
-  );
-}
-
 export default async function ListingPage({
   params,
 }: {
@@ -96,6 +87,8 @@ export default async function ListingPage({
   const waUrl = whatsappUrl(waNumber, whatsappMessage(listing.ref_code));
   const callUrl = telUrl(listing.phone);
   const area = [listing.address, listing.area, CITY].filter(Boolean).join(", ");
+  const servesAreasText =
+    listing.serves_areas.length > 0 ? listing.serves_areas.map((a) => areaLabel(a, null)).join(", ") : null;
   const shareWaUrl = shareUrl(listing.name, `${SITE_URL}/t/${listing.slug}`);
 
   return (
@@ -125,27 +118,17 @@ export default async function ListingPage({
 
       <ContactButtons slug={listing.slug} whatsappUrl={waUrl} callUrl={callUrl} />
 
-      <div className="relative mt-6 overflow-hidden rounded-r-md border border-rule bg-paper">
-        <div className="absolute inset-y-0 left-0 w-[2px] bg-margin" />
-        <dl className="divide-y divide-rule">
-          <Row label="Classes" value={classesText(listing.classes)} />
-          {listing.boards.length > 0 && <Row label="Board" value={listing.boards.join(", ")} />}
-          <Row
-            label="Fees"
-            value={
-              <>
-                <span className="tabular-nums">{feeText(listing.fee_min, listing.fee_max)}</span>
-                {listing.fee_note && (
-                  <span className="block text-[15px] text-ink-2">{listing.fee_note}</span>
-                )}
-              </>
-            }
-          />
-          {listing.timings && <Row label="Timings" value={listing.timings} />}
-          <Row label="Mode" value={`At ${listing.modes.map(modeLabel).join(", ")}`} />
-          <Row label="Area" value={area} />
-        </dl>
-      </div>
+      <ListingDetailsSheet
+        classes={listing.classes}
+        boards={listing.boards}
+        feeMin={listing.fee_min}
+        feeMax={listing.fee_max}
+        feeNote={listing.fee_note}
+        timings={listing.timings}
+        modes={listing.modes}
+        areaText={area}
+        servesAreasText={servesAreasText}
+      />
 
       {listing.about && (
         <>
