@@ -3,8 +3,8 @@
  * can run the same on the client's first check and the server's real one
  * (rules.md §4: every write is validated server-side regardless of the client).
  */
-import { AREAS, BOARDS, CLASSES, MODES, OTHER_AREA, SUBJECTS, TIMINGS } from "./config";
-import type { Listing, ListingKind, RequestDraft, TeachingEntry } from "./types";
+import { AREAS, BOARDS, CLASSES, LANGUAGES, MODES, OTHER_AREA, QUALIFICATIONS, SUBJECTS, TIMINGS } from "./config";
+import type { JoinDraft, Listing, ListingKind, RequestDraft, TeachingEntry } from "./types";
 
 export type ListingFormInput = {
   kind: string;
@@ -58,6 +58,8 @@ const subjectValues = new Set(SUBJECTS.flatMap((g) => g.options.map((o) => o.val
 const boardValues = new Set(BOARDS);
 const modeValues = new Set(MODES);
 const areaValues = new Set(AREAS.flatMap((g) => g.options.map((o) => o.value)));
+const languageValues = new Set(LANGUAGES);
+const qualificationValues = new Set(QUALIFICATIONS.map((o) => o.value));
 
 /** Strips formatting, drops a leading 91 or 0 country/trunk prefix, then checks 10 digits starting 6–9. */
 function normalizePhone(raw: string): string | null {
@@ -485,5 +487,223 @@ export function teachingEntriesUnion(entries: TeachingEntry[]): { subjects: stri
   return {
     subjects: Array.from(new Set(entries.flatMap((e) => e.subjects))),
     classes: Array.from(new Set(entries.flatMap((e) => e.classes))),
+  };
+}
+
+/**
+ * /join form input (app_flow.md J1–J4, Phase 8). One validator for the whole form — the
+ * only server write is at J5 Send (schema.md §4.8), same pattern as /request's R4.
+ */
+export type JoinFormInput = {
+  kind: string;
+  name: string;
+  academy_name: string;
+  phone: string;
+  whatsapp: string;
+  area: string;
+  area_other: string;
+  address: string;
+  teaching_entries: TeachingEntry[];
+  boards: string[];
+  modes: string[];
+  serves_areas: string[];
+  experience_years: string;
+  qualification_level: string;
+  qualification: string;
+  languages: string[];
+  fee_min: string;
+  fee_max: string;
+  fee_note: string;
+  timings: string;
+  headline: string;
+  about: string;
+  consent: string; // checkbox: "yes" or ""
+};
+
+export type JoinFormErrors = Partial<Record<keyof JoinFormInput, string>>;
+
+/** Ready for lib/data.ts's createSignup, minus fields the action layer owns (city, slug, ref_code, published, consent_at, source). */
+export type ValidatedJoinFields = {
+  kind: ListingKind;
+  name: string;
+  contact_person: string | null;
+  phone: string;
+  whatsapp: string | null;
+  area: string;
+  area_other: string | null;
+  address: string | null;
+  teaching_entries: TeachingEntry[];
+  boards: string[];
+  modes: string[];
+  serves_areas: string[];
+  experience_years: number;
+  qualification_level: string;
+  qualification: string | null;
+  languages: string[];
+  fee_min: number | null;
+  fee_max: number | null;
+  fee_note: string | null;
+  timings: string | null;
+  headline: string | null;
+  about: string;
+};
+
+export type JoinValidationResult =
+  | { ok: true; value: ValidatedJoinFields }
+  | { ok: false; errors: JoinFormErrors };
+
+export function validateJoinInput(input: JoinFormInput): JoinValidationResult {
+  const errors: JoinFormErrors = {};
+
+  const kind = input.kind === "teacher" || input.kind === "academy" ? input.kind : null;
+  if (!kind) errors.kind = "Choose teacher or academy.";
+
+  const name = trimmedOrNull(input.name, 100);
+  if (!name.value) errors.name = "Enter your full name.";
+  else if (name.tooLong) errors.name = "Name must be 100 characters or fewer.";
+
+  let academyName: string | null = null;
+  if (kind === "academy") {
+    const a = trimmedOrNull(input.academy_name, 100);
+    if (!a.value) errors.academy_name = "Enter the academy's name.";
+    academyName = a.value;
+  }
+
+  const phone = normalizePhone(input.phone);
+  if (!phone) errors.phone = PHONE_ERROR;
+
+  let whatsapp: string | null = null;
+  if (input.whatsapp.trim().length > 0) {
+    whatsapp = normalizePhone(input.whatsapp);
+    if (!whatsapp) errors.whatsapp = PHONE_ERROR;
+  }
+
+  // listings.area is not nullable (unlike requests.area): when "Other village" is picked,
+  // the "other" sentinel itself is stored in area, with the real name in area_other.
+  const isOtherArea = input.area === OTHER_AREA.value;
+  let areaOther: string | null = null;
+  if (isOtherArea) {
+    const other = trimmedOrNull(input.area_other, 80);
+    if (!other.value) errors.area_other = "Type the village name.";
+    else if (other.tooLong) errors.area_other = "Village name must be 80 characters or fewer.";
+    areaOther = other.value;
+  } else if (!input.area || !areaValues.has(input.area)) {
+    errors.area = "Choose an area from the list.";
+  }
+
+  const address = trimmedOrNull(input.address, 120);
+  if (address.tooLong) errors.address = "Address must be 120 characters or fewer.";
+
+  const teachingResult = validateTeachingEntries(input.teaching_entries);
+  if (!teachingResult.ok) errors.teaching_entries = teachingResult.error;
+
+  if (!input.boards.every((b) => boardValues.has(b))) errors.boards = "Choose boards from the list.";
+
+  if (input.modes.length === 0) errors.modes = "Choose how you teach.";
+  else if (!input.modes.every((m) => modeValues.has(m))) errors.modes = "Choose from the list.";
+
+  if (!input.serves_areas.every((a) => areaValues.has(a))) errors.serves_areas = "Choose villages from the list.";
+
+  const yearsRaw = input.experience_years.trim();
+  const years = Number(yearsRaw);
+  if (!yearsRaw || !Number.isInteger(years) || years < 0 || years > 60) {
+    errors.experience_years = "Enter years of teaching experience (0 to 60).";
+  }
+
+  if (!input.qualification_level || !qualificationValues.has(input.qualification_level)) {
+    errors.qualification_level = "Choose your highest qualification.";
+  }
+
+  const qualification = trimmedOrNull(input.qualification, 140).value;
+
+  if (input.languages.length === 0) errors.languages = "Choose at least one teaching language.";
+  else if (!input.languages.every((l) => languageValues.has(l))) errors.languages = "Choose from the list.";
+
+  const feeMin = parseFee(input.fee_min);
+  if (feeMin.invalid) errors.fee_min = "Fee must be a whole number between 0 and 100,000.";
+
+  const feeMax = parseFee(input.fee_max);
+  if (feeMax.invalid) errors.fee_max = "Fee must be a whole number between 0 and 100,000.";
+
+  if (!feeMin.invalid && !feeMax.invalid) {
+    if ((feeMin.value == null) !== (feeMax.value == null)) {
+      errors.fee_max = "Enter both a minimum and a maximum fee, or leave both blank.";
+    } else if (feeMin.value != null && feeMax.value != null && feeMin.value > feeMax.value) {
+      errors.fee_max = "Maximum fee can't be less than the minimum fee.";
+    }
+  }
+
+  const feeNote = trimmedOrNull(input.fee_note, 80);
+  if (feeNote.tooLong) errors.fee_note = "Fee note must be 80 characters or fewer.";
+
+  const timings = trimmedOrNull(input.timings, 120);
+  if (timings.tooLong) errors.timings = "Timings must be 120 characters or fewer.";
+
+  const headline = trimmedOrNull(input.headline, 80);
+  if (headline.tooLong) errors.headline = "Headline must be 80 characters or fewer.";
+
+  const about = trimmedOrNull(input.about, 600);
+  if (!about.value) errors.about = "Tell parents a little about yourself.";
+  else if (about.tooLong) errors.about = "About must be 600 characters or fewer.";
+
+  if (input.consent !== "yes") errors.consent = "Please agree to be listed before continuing.";
+
+  if (Object.keys(errors).length > 0) return { ok: false, errors };
+
+  return {
+    ok: true,
+    value: {
+      kind: kind as ListingKind,
+      name: kind === "academy" ? (academyName as string) : (name.value as string),
+      contact_person: kind === "academy" ? (name.value as string) : null,
+      phone: phone as string,
+      whatsapp,
+      area: input.area,
+      area_other: areaOther,
+      address: address.value,
+      teaching_entries: teachingResult.ok ? teachingResult.value : [],
+      boards: input.boards,
+      modes: input.modes,
+      serves_areas: input.serves_areas,
+      experience_years: years,
+      qualification_level: input.qualification_level,
+      qualification,
+      languages: input.languages,
+      fee_min: feeMin.value,
+      fee_max: feeMax.value,
+      fee_note: feeNote.value,
+      timings: timings.value,
+      headline: headline.value,
+      about: about.value as string,
+    },
+  };
+}
+
+/** Reads the client-side /join draft (lib/types.ts) into validateJoinInput's input shape (J5 Send, Phase 8). */
+export function joinDraftToFormInput(draft: JoinDraft): JoinFormInput {
+  return {
+    kind: draft.kind,
+    name: draft.name,
+    academy_name: draft.academy_name,
+    phone: draft.phone,
+    whatsapp: draft.whatsapp,
+    area: draft.area,
+    area_other: draft.area_other,
+    address: draft.address,
+    teaching_entries: draft.teaching_entries,
+    boards: draft.boards,
+    modes: draft.modes,
+    serves_areas: draft.serves_areas,
+    experience_years: draft.experience_years,
+    qualification_level: draft.qualification_level,
+    qualification: draft.qualification,
+    languages: draft.languages,
+    fee_min: draft.fee_min,
+    fee_max: draft.fee_max,
+    fee_note: draft.fee_note,
+    timings: draft.timings,
+    headline: draft.headline,
+    about: draft.about,
+    consent: draft.consent ? "yes" : "",
   };
 }

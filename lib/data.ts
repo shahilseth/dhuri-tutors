@@ -6,7 +6,9 @@
 import "server-only";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { CITY } from "./config";
-import type { Channel, Listing, RequestRecord, RequestStatus, SearchFilters, TapCounts } from "./types";
+import { slugify } from "./format";
+import type { Channel, Listing, RequestRecord, RequestStatus, SearchFilters, TapCounts, TeachingEntry } from "./types";
+import { teachingEntriesUnion } from "./validation";
 
 let client: SupabaseClient | null = null;
 
@@ -110,6 +112,14 @@ export async function slugTaken(slug: string): Promise<boolean> {
   return data !== null;
 }
 
+/** Appends -2, -3, ... until the slug is free (tech_spec.md §8). Shared by the admin form and /join. */
+export async function uniqueSlug(candidate: string): Promise<string> {
+  if (!(await slugTaken(candidate))) return candidate;
+  let n = 2;
+  while (await slugTaken(`${candidate}-${n}`)) n++;
+  return `${candidate}-${n}`;
+}
+
 /** City initial + next free number, e.g. "D12". Never reused once assigned. */
 export async function nextRefCode(): Promise<string> {
   const prefix = CITY.charAt(0).toUpperCase();
@@ -135,6 +145,91 @@ export async function updateListing(id: string, input: ListingUpdate): Promise<L
   const { data, error } = await getClient().from("listings").update(input).eq("id", id).select().single();
   if (error) throw error;
   return data as Listing;
+}
+
+/**
+ * listings.subjects/classes stay the union of a listing's teaching_entries, rewritten on
+ * every save (schema.md §3) — delete then re-insert is simpler and safe here since no other
+ * table references teaching_entries rows by id.
+ */
+export async function replaceTeachingEntries(listingId: string, entries: TeachingEntry[]): Promise<void> {
+  const client = getClient();
+  const { error: deleteError } = await client.from("teaching_entries").delete().eq("listing_id", listingId);
+  if (deleteError) throw deleteError;
+
+  if (entries.length === 0) return;
+  const rows = entries.map((entry, sort) => ({ listing_id: listingId, track: entry.track, classes: entry.classes, subjects: entry.subjects, sort }));
+  const { error: insertError } = await client.from("teaching_entries").insert(rows);
+  if (insertError) throw insertError;
+}
+
+export type NewSignup = {
+  kind: Listing["kind"];
+  name: string;
+  contact_person: string | null;
+  phone: string;
+  whatsapp: string | null;
+  area: string;
+  area_other: string | null;
+  address: string | null;
+  serves_areas: string[];
+  boards: string[];
+  modes: string[];
+  experience_years: number;
+  qualification_level: string;
+  qualification: string | null;
+  languages: string[];
+  fee_min: number | null;
+  fee_max: number | null;
+  fee_note: string | null;
+  timings: string | null;
+  headline: string | null;
+  about: string;
+  teaching_entries: TeachingEntry[];
+};
+
+/** J5 "Send" (app_flow.md, schema.md §4.8): saves unpublished, source='self'. */
+export async function createSignup(input: NewSignup): Promise<Listing> {
+  const slug = await uniqueSlug(slugify(input.name));
+  const refCode = await nextRefCode();
+  const { subjects, classes } = teachingEntriesUnion(input.teaching_entries);
+
+  const listing = await createListing({
+    slug,
+    ref_code: refCode,
+    kind: input.kind,
+    name: input.name,
+    contact_person: input.contact_person,
+    phone: input.phone,
+    whatsapp: input.whatsapp,
+    subjects,
+    classes,
+    boards: input.boards,
+    modes: input.modes,
+    area: input.area,
+    area_other: input.area_other,
+    serves_areas: input.serves_areas,
+    address: input.address,
+    city: CITY,
+    fee_min: input.fee_min,
+    fee_max: input.fee_max,
+    fee_note: input.fee_note,
+    timings: input.timings,
+    about: input.about,
+    published: false,
+    consent_at: new Date().toISOString(),
+    last_verified_at: null,
+    experience_years: input.experience_years,
+    qualification_level: input.qualification_level,
+    qualification: input.qualification,
+    languages: input.languages,
+    headline: input.headline,
+    source: "self",
+  });
+
+  await replaceTeachingEntries(listing.id, input.teaching_entries);
+
+  return listing;
 }
 
 /** "R" + next free number, e.g. "R12". Never reused once assigned (schema.md §3). */

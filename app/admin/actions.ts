@@ -10,7 +10,7 @@ import {
   getRequestById,
   nextRefCode,
   setShareNumberConsent,
-  slugTaken,
+  uniqueSlug,
   updateListing,
   updateRequestStatus,
 } from "@/lib/data";
@@ -29,14 +29,6 @@ export async function loginAction(formData: FormData): Promise<void> {
 export async function logoutAction(): Promise<void> {
   await logOut();
   redirect("/admin/login");
-}
-
-/** Appends -2, -3, ... until the slug is free (tech_spec.md §8). */
-async function uniqueSlug(candidate: string): Promise<string> {
-  if (!(await slugTaken(candidate))) return candidate;
-  let n = 2;
-  while (await slugTaken(`${candidate}-${n}`)) n++;
-  return `${candidate}-${n}`;
 }
 
 export async function createListingAction(

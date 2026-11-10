@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { TeachingEntry } from "./types";
 import {
+  type JoinFormInput,
   type ListingFormInput,
   type RequestFormInput,
   teachingEntriesUnion,
+  validateJoinInput,
   validateListingInput,
   validateRequestInput,
   validateTeachingEntries,
@@ -439,5 +441,124 @@ describe("teachingEntriesUnion", () => {
 
   it("returns empty arrays for no entries", () => {
     expect(teachingEntriesUnion([])).toEqual({ subjects: [], classes: [] });
+  });
+});
+
+function validJoinInput(overrides: Partial<JoinFormInput> = {}): JoinFormInput {
+  return {
+    kind: "teacher",
+    name: "Sample Sharma",
+    academy_name: "",
+    phone: "9876543210",
+    whatsapp: "",
+    area: "bamal",
+    area_other: "",
+    address: "",
+    teaching_entries: [{ track: "school", classes: ["9", "10"], subjects: ["maths"] }],
+    boards: ["PSEB"],
+    modes: ["home"],
+    serves_areas: [],
+    experience_years: "5",
+    qualification_level: "graduate",
+    qualification: "",
+    languages: ["punjabi"],
+    fee_min: "",
+    fee_max: "",
+    fee_note: "",
+    timings: "",
+    headline: "",
+    about: "Teaching maths for 5 years.",
+    consent: "yes",
+    ...overrides,
+  };
+}
+
+describe("validateJoinInput: happy path", () => {
+  it("accepts a fully valid teacher submission", () => {
+    const result = validateJoinInput(validJoinInput());
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.name).toBe("Sample Sharma");
+      expect(result.value.contact_person).toBeNull();
+    }
+  });
+
+  it("maps an academy submission's name/contact_person (academy name as listing name)", () => {
+    const result = validateJoinInput(validJoinInput({ kind: "academy", academy_name: "Sample Academy" }));
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.name).toBe("Sample Academy");
+      expect(result.value.contact_person).toBe("Sample Sharma");
+    }
+  });
+
+  it("stores the 'other' sentinel in area, not null, when Other village is picked", () => {
+    const result = validateJoinInput(validJoinInput({ area: "other", area_other: "Chotti Nagri" }));
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.area).toBe("other");
+      expect(result.value.area_other).toBe("Chotti Nagri");
+    }
+  });
+});
+
+describe("validateJoinInput: other fields", () => {
+  it("requires the academy name when kind is academy", () => {
+    const result = validateJoinInput(validJoinInput({ kind: "academy", academy_name: "" }));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.academy_name).toBeDefined();
+  });
+
+  it("requires at least one teaching-list entry", () => {
+    const result = validateJoinInput(validJoinInput({ teaching_entries: [] }));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.teaching_entries).toBeDefined();
+  });
+
+  it("requires at least one mode", () => {
+    const result = validateJoinInput(validJoinInput({ modes: [] }));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.modes).toBeDefined();
+  });
+
+  it("requires both a min and a max fee, not just one", () => {
+    const result = validateJoinInput(validJoinInput({ fee_min: "800", fee_max: "" }));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.fee_max).toBeDefined();
+  });
+
+  it("accepts both fees unset", () => {
+    const result = validateJoinInput(validJoinInput({ fee_min: "", fee_max: "" }));
+    expect(result.ok).toBe(true);
+  });
+
+  it("requires at least one teaching language", () => {
+    const result = validateJoinInput(validJoinInput({ languages: [] }));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.languages).toBeDefined();
+  });
+
+  it("requires a qualification from the list", () => {
+    const result = validateJoinInput(validJoinInput({ qualification_level: "astrologer" }));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.qualification_level).toBeDefined();
+  });
+
+  it("requires a non-empty about", () => {
+    const result = validateJoinInput(validJoinInput({ about: "" }));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.about).toBeDefined();
+  });
+
+  it("requires consent", () => {
+    const result = validateJoinInput(validJoinInput({ consent: "" }));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.consent).toBeDefined();
+  });
+
+  it("rejects an invalid phone", () => {
+    const result = validateJoinInput(validJoinInput({ phone: "12345" }));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.phone).toBeDefined();
   });
 });

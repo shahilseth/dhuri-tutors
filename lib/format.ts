@@ -192,6 +192,11 @@ export function requestWhatsappMessage(refCode: string, summary: string): string
   return `New request on ${APP_NAME} (ref ${refCode}): ${summary}`;
 }
 
+/** The admin's WhatsApp message for a new /join sign-up (design.md §11: "reference code and key details"). */
+export function signupWhatsappMessage(refCode: string, name: string): string {
+  return `New sign-up on ${APP_NAME} (ref ${refCode}): ${name}`;
+}
+
 /**
  * /admin/requests "Send to teacher" message (app_flow.md A5). `phone` is only included when
  * the admin has ticked "Parent agreed to share number" for this request (migration 0003) —
