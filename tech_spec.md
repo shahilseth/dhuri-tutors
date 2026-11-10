@@ -164,7 +164,7 @@ The same validation runs on the server for every write; client-side checks are o
 
 ## 9. Non-functional requirements
 
-- **Performance:** home and listing pages ~107 KB JS transferred (Next.js 15 App Router framework baseline — react-dom, scheduler, RSC/hydration runtime; no app code adds to it); Lighthouse mobile performance ≥ 90 is the binding target. No web fonts (system font stack); no images in V0.
+- **Performance:** home and listing pages ~107 KB JS transferred (Next.js 15 App Router framework baseline — react-dom, scheduler, RSC/hydration runtime; no app code adds to it); Lighthouse mobile performance ≥ 90 is the binding target. One self-hosted web font (Inter, via `next/font/google`, `display: "swap"`) per design.md §4 — about 30–40 KB, cached after first visit; no images in V0.
 - **Accessibility:** tap targets ≥ 44 px, labels on all inputs, colour contrast AA, works at 320 px width.
 - **No-JS fallback:** search and contact links work with JavaScript off (taps just aren't counted).
 - **SEO / sharing:** Open Graph title and description per listing; `robots` allows public pages, disallows `/admin` and `/api`.

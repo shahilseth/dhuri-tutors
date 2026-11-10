@@ -32,14 +32,14 @@ export default function JoinStepReview({
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       <StepBackLink href={backHref} />
 
-      <div className="flex flex-wrap gap-3 text-[14px]">
-        <Link href="/join?step=1" className="text-blue underline">
+      <div className="flex flex-wrap gap-3 text-[14px] font-semibold">
+        <Link href="/join?step=1" className="text-blue-700 underline">
           Edit about you
         </Link>
-        <Link href="/join?step=2" className="text-blue underline">
+        <Link href="/join?step=2" className="text-blue-700 underline">
           Edit teaching
         </Link>
-        <Link href="/join?step=3" className="text-blue underline">
+        <Link href="/join?step=3" className="text-blue-700 underline">
           Edit profile
         </Link>
       </div>
@@ -47,13 +47,15 @@ export default function JoinStepReview({
       <ListingPreview draft={draft} />
 
       <label
-        className={`flex items-start gap-2 rounded-md border border-rule p-3 ${draft.consent ? "" : "bg-amber-tint"}`}
+        className={`flex items-start gap-2 rounded-md border-[1.5px] p-4 ${
+          draft.consent ? "border-line bg-white" : "border-tint-2 bg-amber-tint"
+        }`}
       >
         <input
           type="checkbox"
           checked={draft.consent}
           onChange={(e) => setDraft((d) => ({ ...d, consent: e.target.checked }))}
-          className="mt-0.5 h-5 w-5"
+          className="mt-0.5 h-5 w-5 accent-blue-700"
         />
         <span className="text-[15px] text-ink">
           I agree to be listed publicly on Dhuri Tutors with these details.

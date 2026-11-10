@@ -54,7 +54,7 @@
 ## 7. Performance and phones
 
 - Mobile first. Test layouts at 320 px and 390 px widths.
-- No web fonts, no images in V0, no client-side data fetching on public pages.
+- One self-hosted web font (Inter, via `next/font/google`, `display: "swap"`, design.md §4) — no other web fonts, no images in V0, no client-side data fetching on public pages.
 - Public pages must work with JavaScript disabled (search via GET form; contact via plain links).
 - Keep client JS small: don't make pages client components to save effort.
 

@@ -21,15 +21,15 @@ export default async function LoginPage({
             name="password"
             required
             autoFocus
-            className={`h-11 rounded-md border px-3 text-ink ${
-              error ? "border-danger" : "border-rule"
+            className={`h-[54px] rounded-md border-[1.5px] px-4 text-ink ${
+              error ? "border-danger" : "border-line"
             }`}
           />
           {error && <span className="text-danger text-sm">Wrong password.</span>}
         </label>
         <button
           type="submit"
-          className="h-12 rounded-md bg-blue text-white font-medium hover:bg-blue-hover"
+          className="h-[54px] rounded-md bg-gradient-to-b from-blue-600 to-blue-700 font-bold text-white shadow-btn active:from-blue-800 active:to-blue-800 active:shadow-none"
         >
           Log in
         </button>

@@ -15,6 +15,13 @@ import WhatsNextBox from "./WhatsNextBox";
 
 const STEP_LABELS = ["What", "Where and when", "Your details", "Send"];
 const BUILT_STEPS = 4;
+// design.md §6 "Eyebrow + title block": per-step title for /request.
+const STEP_TITLES = [
+  "Tell us what your child needs",
+  "Where and when",
+  "Your details",
+  "Send your request",
+];
 
 const emptyDraft: RequestDraft = {
   class: "",
@@ -55,16 +62,21 @@ export default function RequestForm() {
 
   return (
     <StepFormLayout whatsNext={<WhatsNextBox points={WHATS_NEXT_POINTS} />}>
-      <h1 className="text-[22px] font-bold leading-[28px] text-ink">Tell us what you need</h1>
-      <p className="mt-2 text-[15px] leading-[22px] text-ink-2">
+      <p className="text-[12.5px] font-bold uppercase tracking-[0.14em] text-blue-600">
+        Find the right teacher
+      </p>
+      <h1 className="mt-2.5 text-[30px] font-extrabold leading-[1.1] tracking-[-0.025em] text-ink md:text-[40px]">
+        {STEP_TITLES[step - 1]}
+      </h1>
+      <p className="mt-3 max-w-[40rem] text-[16px] leading-[1.55] text-ink-2">
         We&apos;ll pass this on to matching teachers on WhatsApp.
       </p>
 
-      <div className="mt-6">
+      <div className="mt-7">
         <StepBar steps={STEP_LABELS} current={step} />
       </div>
 
-      <div className="mt-6">
+      <div className="mt-7 rounded-lg border border-line bg-white p-5 shadow-card md:rounded-xl md:p-9">
         {step === 1 && <RequestStepWhat draft={draft} setDraft={setDraft} onContinue={() => goToStep(2)} />}
         {step === 2 && (
           <RequestStepWhereWhen

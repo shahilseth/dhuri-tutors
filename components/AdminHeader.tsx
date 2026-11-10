@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { logoutAction } from "@/app/admin/actions";
 
-/** design.md §7: "Admin" in ink, links "Listings", "Add listing", "Requests", "Log out" in blue (Requests added P7.9). */
+/** design.md §6 "Admin": "Admin" in ink, links "Listings", "Add listing", "Requests", "Log out" in blue-700 (Requests added P7.9). */
 export default function AdminHeader() {
   return (
-    <div className="flex items-center justify-between border-b border-rule px-4 py-3">
+    <div className="flex items-center justify-between border-b border-line bg-white px-4 py-3">
       <span className="font-bold text-ink">Admin</span>
-      <nav className="flex items-center gap-4 text-[15px] text-blue">
+      <nav className="flex items-center gap-4 text-[15px] font-semibold text-blue-700">
         <Link href="/admin" className="underline-offset-2 hover:underline">
           Listings
         </Link>

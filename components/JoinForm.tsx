@@ -15,6 +15,14 @@ import StepFormLayout from "./StepFormLayout";
 import WhatsNextBox from "./WhatsNextBox";
 
 const STEP_LABELS = ["About you", "Teaching", "Profile", "Review", "Send"];
+// design.md §6 "Eyebrow + title block": per-step title for /join.
+const STEP_TITLES = [
+  "Tell us about yourself",
+  "What and how do you teach?",
+  "Add your teaching experience",
+  "Check your page",
+  "Send for approval",
+];
 // Raised as each step lands (same incremental pattern RequestForm.tsx used in Phase 7).
 const BUILT_STEPS = 5;
 
@@ -64,14 +72,21 @@ export default function JoinForm() {
 
   return (
     <StepFormLayout whatsNext={<WhatsNextBox points={WHATS_NEXT_POINTS} />}>
-      <h1 className="text-[22px] font-bold leading-[28px] text-ink">List yourself on Dhuri Tutors</h1>
-      <p className="mt-2 text-[15px] leading-[22px] text-ink-2">It takes about 10 minutes. No account needed.</p>
+      <p className="text-[12.5px] font-bold uppercase tracking-[0.14em] text-blue-600">
+        Build your teacher profile
+      </p>
+      <h1 className="mt-2.5 text-[30px] font-extrabold leading-[1.1] tracking-[-0.025em] text-ink md:text-[40px]">
+        {STEP_TITLES[step - 1]}
+      </h1>
+      <p className="mt-3 max-w-[40rem] text-[16px] leading-[1.55] text-ink-2">
+        It takes about 10 minutes. No account needed.
+      </p>
 
-      <div className="mt-6">
+      <div className="mt-7">
         <StepBar steps={STEP_LABELS} current={step} />
       </div>
 
-      <div className="mt-6">
+      <div className="mt-7 rounded-lg border border-line bg-white p-5 shadow-card md:rounded-xl md:p-9">
         {step === 1 && <JoinStepAboutYou draft={draft} setDraft={setDraft} onContinue={() => goToStep(2)} />}
         {step === 2 && (
           <JoinStepTeaching

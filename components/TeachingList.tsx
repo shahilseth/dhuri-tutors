@@ -26,7 +26,7 @@ const TABS: { track: TeachingTrack; label: string }[] = [
 ];
 
 const selectClass =
-  "mt-1 block h-12 w-full rounded-md border border-rule bg-paper px-3 text-[16px] text-ink focus:border-blue focus:outline-none focus:ring-2 focus:ring-blue/25";
+  "mt-1 block h-[54px] w-full rounded-md border-[1.5px] border-line bg-white px-4 text-[16px] text-ink placeholder:text-ink-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-600/15";
 
 function entrySummary(entry: TeachingEntry): string {
   const subjects = entry.subjects.map(subjectLabel).join(", ") || "No subjects";
@@ -104,18 +104,18 @@ export default function TeachingList({
     <div className="flex flex-col gap-4">
       {entries.length > 0 && (
         <div>
-          <span className="text-[15px] font-medium text-ink">Your teaching list</span>
-          <ul className="mt-1 flex flex-col gap-1">
+          <span className="text-[15px] font-semibold text-ink">Your teaching list</span>
+          <ul className="mt-1 flex flex-col gap-1.5">
             {entries.map((entry, i) => (
               <li
                 key={`${entry.track}-${i}`}
-                className="flex items-center justify-between gap-3 rounded-md border border-rule bg-paper px-3 py-2 text-[14px] text-ink"
+                className="flex min-h-[54px] items-center justify-between gap-3 rounded-md border-[1.5px] border-line bg-white px-4 py-2 text-[14px] text-ink"
               >
                 <span>{entrySummary(entry)}</span>
                 <button
                   type="button"
                   onClick={() => removeEntry(i)}
-                  className="shrink-0 text-[14px] text-blue underline"
+                  className="shrink-0 text-[14px] font-semibold text-danger underline"
                 >
                   Remove
                 </button>
@@ -125,17 +125,19 @@ export default function TeachingList({
         </div>
       )}
 
-      <div className="flex gap-1 border-b border-rule">
+      <div className="flex gap-1.5 rounded-[14px] border-[1.5px] border-line bg-white p-1.5" role="tablist">
         {TABS.map(({ track, label }) => (
           <button
             key={track}
             type="button"
+            role="tab"
+            aria-selected={tab === track}
             onClick={() => {
               setTab(track);
               setError(null);
             }}
-            className={`h-11 flex-1 px-2 text-[14px] font-medium ${
-              tab === track ? "border-b-2 border-blue text-blue" : "text-ink-2"
+            className={`h-[46px] flex-1 rounded-[10px] px-2 text-[15px] font-bold ${
+              tab === track ? "bg-blue-700 text-white" : "text-blue-700"
             }`}
           >
             {label}
@@ -143,8 +145,8 @@ export default function TeachingList({
         ))}
       </div>
 
-      <div className="rounded-md border border-rule bg-paper p-3">
-        <h3 className="text-[15px] font-semibold text-ink">Add to teaching list</h3>
+      <div className="rounded-[16px] bg-bg p-4">
+        <h3 className="text-[15px] font-bold text-ink">Add to teaching list</h3>
 
         {tab === "school" && (
           <div className="mt-3 flex flex-col gap-3">
@@ -188,7 +190,7 @@ export default function TeachingList({
             <button
               type="button"
               onClick={addSchool}
-              className="h-11 rounded-md border border-rule text-[14px] font-semibold text-blue"
+              className="h-[46px] rounded-md border-[1.5px] border-line bg-white text-[14px] font-bold text-blue-700"
             >
               Add to teaching list
             </button>
@@ -224,7 +226,7 @@ export default function TeachingList({
             <button
               type="button"
               onClick={addExam}
-              className="h-11 rounded-md border border-rule text-[14px] font-semibold text-blue"
+              className="h-[46px] rounded-md border-[1.5px] border-line bg-white text-[14px] font-bold text-blue-700"
             >
               Add to teaching list
             </button>
@@ -249,7 +251,7 @@ export default function TeachingList({
             <button
               type="button"
               onClick={addSkill}
-              className="h-11 rounded-md border border-rule text-[14px] font-semibold text-blue"
+              className="h-[46px] rounded-md border-[1.5px] border-line bg-white text-[14px] font-bold text-blue-700"
             >
               Add to teaching list
             </button>

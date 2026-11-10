@@ -60,8 +60,8 @@ function CheckIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
-      width="18"
-      height="18"
+      width="14"
+      height="14"
       fill="none"
       stroke="currentColor"
       strokeWidth="2.5"
@@ -94,31 +94,44 @@ export default async function ListingPage({
   const shareWaUrl = shareUrl(listing.name, `${SITE_URL}/t/${listing.slug}`);
 
   return (
-    <div className="mx-auto max-w-[42rem] px-4 py-6">
-      <Link href="/" className="text-[15px] text-blue">
+    <div className="mx-auto max-w-[42rem] px-4 pb-[96px] pt-6 md:px-6">
+      <Link href="/" className="text-[15px] font-semibold text-blue-700">
         ‹ All teachers
       </Link>
 
-      <h1 className="mt-4 text-[24px] leading-[30px] font-bold text-ink">{listing.name}</h1>
+      <h1 className="mt-4 text-[28px] font-extrabold leading-[1.15] tracking-[-0.025em] text-ink md:text-[36px]">
+        {listing.name}
+      </h1>
       <p className="mt-1 text-[15px] leading-[22px] text-ink-2">
         {KIND_LABELS[listing.kind]}
         {listing.contact_person ? `, run by ${listing.contact_person}` : ""}
       </p>
 
+      {listing.last_verified_at !== null && !isStale(listing.last_verified_at) ? (
+        <span className="mt-2 inline-flex items-center gap-1 rounded-sm bg-tint px-2.5 py-1 text-[12.5px] font-semibold text-blue-700">
+          <CheckIcon />
+          Details confirmed {ago(listing.last_verified_at)}
+        </span>
+      ) : (
+        <span className="mt-2 inline-flex items-center gap-1 rounded-sm bg-amber-tint px-2.5 py-1 text-[12.5px] font-semibold text-amber">
+          {listing.last_verified_at === null
+            ? "Not yet confirmed"
+            : `Details last confirmed ${ago(listing.last_verified_at)}`}
+        </span>
+      )}
+
       {listing.subjects.length > 0 && (
-        <p className="mt-2 flex flex-wrap gap-1.5">
+        <p className="mt-3 flex flex-wrap gap-1.5">
           {listing.subjects.map((subject) => (
             <span
               key={subject}
-              className="rounded-sm bg-blue-tint px-2 py-0.5 text-[13px] font-medium text-blue"
+              className="rounded-sm bg-tint px-2.5 py-1 text-[13px] font-semibold text-blue-700"
             >
               {subjectLabel(subject)}
             </span>
           ))}
         </p>
       )}
-
-      <ContactButtons slug={listing.slug} whatsappUrl={waUrl} callUrl={callUrl} />
 
       <ListingDetailsSheet
         classes={listing.classes}
@@ -133,35 +146,29 @@ export default async function ListingPage({
       />
 
       {listing.about && (
-        <>
-          <h2 className="mt-6 text-[17px] leading-[24px] font-semibold text-ink">About</h2>
+        <div className="mt-4 rounded-lg border border-line bg-white p-5 shadow-card md:rounded-xl md:p-6">
+          <h2 className="text-[17px] leading-[24px] font-bold text-ink">About</h2>
           <p className="mt-2 max-w-prose text-[16px] leading-[24px] text-ink">{listing.about}</p>
-        </>
+        </div>
       )}
 
-      {listing.last_verified_at === null ? (
-        <p className="mt-6 text-[13px] text-amber">
-          Not yet confirmed. Please confirm with the teacher.
-        </p>
-      ) : isStale(listing.last_verified_at) ? (
-        <p className="mt-6 text-[13px] text-amber">
-          Details last confirmed {ago(listing.last_verified_at)}. Please confirm with the
-          teacher.
-        </p>
-      ) : (
-        <p className="mt-6 flex items-center gap-1 text-[13px] text-ink-3">
-          <CheckIcon />
-          Details confirmed {ago(listing.last_verified_at)}
-        </p>
-      )}
-      <p className="mt-1 text-[13px] text-ink-3">Ref {listing.ref_code}</p>
+      <p className="mt-4 text-[13px] text-ink-3">Ref {listing.ref_code}</p>
 
       <a
         href={shareWaUrl}
-        className="mt-6 flex h-12 items-center justify-center rounded-md border border-rule bg-paper text-[16px] font-semibold text-blue"
+        className="mt-4 flex h-[54px] items-center justify-center rounded-md border-[1.5px] border-line bg-white text-[16px] font-bold text-blue-700"
       >
         Share this page on WhatsApp
       </a>
+
+      <div
+        className="fixed inset-x-0 bottom-0 border-t border-line bg-white/96 px-4 py-3"
+        style={{ paddingBottom: "calc(12px + env(safe-area-inset-bottom))" }}
+      >
+        <div className="mx-auto max-w-[42rem]">
+          <ContactButtons slug={listing.slug} whatsappUrl={waUrl} callUrl={callUrl} />
+        </div>
+      </div>
     </div>
   );
 }

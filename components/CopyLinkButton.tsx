@@ -18,7 +18,7 @@ export default function CopyLinkButton({ url }: { url: string }) {
           // Clipboard access can fail (permissions, insecure context); the link text is still visible to copy by hand.
         }
       }}
-      className="h-11 rounded-md border border-rule bg-paper px-4 text-[15px] font-medium text-blue"
+      className="h-11 rounded-md border-[1.5px] border-line bg-white px-4 text-[15px] font-bold text-blue-700"
     >
       {copied ? "Copied!" : "Copy link"}
     </button>

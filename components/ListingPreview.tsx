@@ -18,10 +18,11 @@ const KIND_LABELS: Record<ListingKind, string> = {
 };
 
 /**
- * J4 "Review": "the real public listing page as a preview" (app_flow.md). Renders the same
- * facts the real `/t/[slug]` page will show, from an in-progress JoinDraft instead of a
- * saved Listing — sharing ListingDetailsSheet keeps the two from drifting apart. The
- * WhatsApp/Call buttons are shown but not real links: there's no slug or saved record yet.
+ * J4 "Review": "the real public listing page as a preview" (app_flow.md), shown in a tint
+ * frame per design.md §6 "Review sections". Renders the same facts the real `/t/[slug]`
+ * page will show, from an in-progress JoinDraft instead of a saved Listing — sharing
+ * ListingDetailsSheet keeps the two from drifting apart. The WhatsApp/Call buttons are
+ * shown but not real links: there's no slug or saved record yet.
  */
 export default function ListingPreview({ draft }: { draft: JoinDraft }) {
   const kind: ListingKind = draft.kind === "academy" ? "academy" : "teacher";
@@ -33,10 +34,12 @@ export default function ListingPreview({ draft }: { draft: JoinDraft }) {
     draft.serves_areas.length > 0 ? draft.serves_areas.map((a) => areaLabel(a, null)).join(", ") : null;
 
   return (
-    <div className="rounded-md border border-rule bg-paper p-4">
+    <div className="rounded-lg bg-tint p-4">
       <p className="text-[13px] text-ink-3">This is what parents will see.</p>
 
-      <h2 className="mt-2 text-[24px] leading-[30px] font-bold text-ink">{name || "Your name"}</h2>
+      <h2 className="mt-2 text-[24px] leading-[30px] font-extrabold tracking-[-0.025em] text-ink">
+        {name || "Your name"}
+      </h2>
       <p className="mt-1 text-[15px] leading-[22px] text-ink-2">
         {KIND_LABELS[kind]}
         {contactLine}
@@ -45,18 +48,18 @@ export default function ListingPreview({ draft }: { draft: JoinDraft }) {
       {subjects.length > 0 && (
         <p className="mt-2 flex flex-wrap gap-1.5">
           {subjects.map((subject) => (
-            <span key={subject} className="rounded-sm bg-blue-tint px-2 py-0.5 text-[13px] font-medium text-blue">
+            <span key={subject} className="rounded-sm bg-white px-2.5 py-1 text-[13px] font-semibold text-blue-700">
               {subjectLabel(subject)}
             </span>
           ))}
         </p>
       )}
 
-      <div className="mt-4 grid grid-cols-2 gap-3" aria-hidden>
-        <span className="flex h-12 cursor-default items-center justify-center rounded-md bg-wa text-[16px] font-semibold text-white opacity-60">
+      <div className="mt-4 grid grid-cols-2 gap-2.5" aria-hidden>
+        <span className="flex h-[54px] cursor-default items-center justify-center rounded-md bg-wa text-[16px] font-bold text-white opacity-60">
           WhatsApp
         </span>
-        <span className="flex h-12 cursor-default items-center justify-center gap-1.5 rounded-md bg-blue text-[16px] font-semibold text-white opacity-60">
+        <span className="flex h-[54px] cursor-default items-center justify-center gap-1.5 rounded-md bg-gradient-to-b from-blue-600 to-blue-700 text-[16px] font-bold text-white opacity-60">
           <PhoneIcon />
           Call
         </span>
@@ -75,10 +78,10 @@ export default function ListingPreview({ draft }: { draft: JoinDraft }) {
       />
 
       {draft.about && (
-        <>
-          <h3 className="mt-6 text-[17px] leading-[24px] font-semibold text-ink">About</h3>
+        <div className="mt-4 rounded-lg border border-line bg-white p-5 shadow-card">
+          <h3 className="text-[17px] leading-[24px] font-bold text-ink">About</h3>
           <p className="mt-2 max-w-prose text-[16px] leading-[24px] text-ink">{draft.about}</p>
-        </>
+        </div>
       )}
     </div>
   );

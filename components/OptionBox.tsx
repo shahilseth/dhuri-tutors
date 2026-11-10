@@ -1,7 +1,7 @@
 /**
- * Bordered option box for radios/checkboxes (design.md §11): ≥48px tall, selected = blue
- * border + blue-tint background. Controlled only — the multi-step forms keep every
- * answer in a step draft object rather than relying on uncontrolled defaultChecked.
+ * Bordered option box for radios/checkboxes (design.md §6 "Option boxes"): 54px min height,
+ * selected = blue-600 border + tint background. Controlled only — the multi-step forms keep
+ * every answer in a step draft object rather than relying on uncontrolled defaultChecked.
  */
 export default function OptionBox({
   type,
@@ -20,8 +20,8 @@ export default function OptionBox({
 }) {
   return (
     <label
-      className={`flex min-h-12 items-center gap-2 rounded-md border px-3 text-[16px] text-ink ${
-        checked ? "border-2 border-blue bg-blue-tint" : "border border-rule bg-paper"
+      className={`flex min-h-[54px] items-center gap-2 rounded-md border-[1.5px] px-4 text-[16px] font-semibold text-ink transition-colors ${
+        checked ? "border-blue-600 bg-tint" : "border-line bg-white"
       }`}
     >
       <input
@@ -30,7 +30,7 @@ export default function OptionBox({
         value={value}
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="h-5 w-5"
+        className="h-5 w-5 accent-blue-700"
       />
       {label}
     </label>

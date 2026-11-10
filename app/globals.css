@@ -2,26 +2,38 @@
 
 /* Tokens from design.md §3. Components use these tokens only — no raw hex values. */
 @theme {
-  --color-page: #eef1f5;
-  --color-paper: #ffffff;
-  --color-ink: #1a2233;
-  --color-ink-2: #4a5468;
-  --color-ink-3: #6b7486;
-  --color-rule: #d3d9e2;
-  --color-blue: #1f3c88;
-  --color-blue-hover: #18306e;
-  --color-blue-tint: #e7ecf6;
-  --color-wa: #17784a;
-  --color-margin: #c0504d;
+  --color-white: #ffffff;
+  --color-bg: #f5f8fd;
+  --color-bg-glow: #e3edfc;
+  --color-tint: #eaf1fc;
+  --color-tint-2: #dce8fa;
+  --color-line: #d5deeb;
+  --color-ink: #0f2445;
+  --color-ink-2: #4a5a74;
+  --color-ink-3: #5f6d86;
+  --color-blue-800: #163b7a;
+  --color-blue-700: #1c4fa6;
+  --color-blue-600: #2563c9;
+  --color-blue-500: #3c7be0;
+  --color-sky: #4a90e2;
+  --color-navy: #0d2142;
+  --color-ice: #a9cbff;
+  --color-wa: #167a47;
+  --color-danger: #b42318;
   --color-amber: #8a5300;
-  --color-amber-tint: #fbf1de;
-  --color-danger: #a8322a;
+  --color-amber-tint: #fdf3e1;
 
-  --font-sans: Roboto, "Noto Sans", "Noto Sans Gurmukhi", "Noto Sans Devanagari",
-    system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: var(--font-inter), "Noto Sans Gurmukhi", "Noto Sans Devanagari", system-ui,
+    -apple-system, "Segoe UI", Roboto, sans-serif;
 
-  --radius-sm: 4px;
-  --radius-md: 6px;
+  --radius-sm: 8px; /* tags */
+  --radius-md: 12px; /* inputs, buttons, option boxes, info boxes */
+  --radius-lg: 18px; /* cards on mobile */
+  --radius-xl: 22px; /* form card and navy panel on desktop */
+
+  --shadow-card: 0 1px 2px rgb(15 36 69 / 0.04), 0 12px 32px -12px rgb(15 36 69 / 0.12);
+  --shadow-btn: 0 8px 20px -8px rgb(28 79 166 / 0.55);
+  --shadow-wa: 0 8px 20px -10px rgb(22 122 71 / 0.6);
 }
 
 /* design.md §3: no dark mode in V0, site always renders light */
@@ -36,7 +48,9 @@ body {
 }
 
 body {
-  background: var(--color-page);
+  background-color: var(--color-bg);
+  background-image: radial-gradient(900px 500px at 100% 0%, var(--color-bg-glow), transparent 60%);
+  background-attachment: fixed;
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -53,9 +67,9 @@ a {
 }
 
 /* design.md §10: visible focus ring on every interactive element.
-   Inputs/selects override this with their own border+ring treatment (design.md §6),
+   Inputs/selects override this with their own border+halo treatment (design.md §6),
    which wins on specificity, so this only applies to links, buttons and checkboxes. */
 :focus-visible {
-  outline: 2px solid var(--color-blue);
+  outline: 2px solid var(--color-blue-600);
   outline-offset: 2px;
 }

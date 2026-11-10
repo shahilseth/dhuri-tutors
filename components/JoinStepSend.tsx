@@ -62,7 +62,7 @@ export default function JoinStepSend({
       <div className="flex flex-col gap-5">
         <StepBackLink href={backHref} />
         <p className="text-[14px] text-danger">{error}</p>
-        <Link href="/join?step=1" className="text-[15px] text-blue underline">
+        <Link href="/join?step=1" className="text-[15px] font-semibold text-blue-700 underline">
           Start from step 1
         </Link>
       </div>
@@ -83,7 +83,7 @@ export default function JoinStepSend({
         href={draft.whatsapp_url}
         target="_blank"
         rel="noreferrer"
-        className="flex h-12 items-center justify-center rounded-md bg-wa text-[16px] font-semibold text-white"
+        className="flex h-[54px] items-center justify-center rounded-md bg-wa text-[16px] font-bold text-white shadow-wa"
       >
         Send on WhatsApp
       </a>

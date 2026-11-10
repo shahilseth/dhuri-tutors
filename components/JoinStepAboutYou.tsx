@@ -8,7 +8,7 @@ import OptionBox from "./OptionBox";
 import StepContinueButton from "./StepContinueButton";
 
 const inputClass =
-  "mt-1 block h-12 w-full rounded-md border border-rule bg-paper px-3 text-[16px] text-ink focus:border-blue focus:outline-none focus:ring-2 focus:ring-blue/25";
+  "mt-1 block h-[54px] w-full rounded-md border-[1.5px] border-line bg-white px-4 text-[16px] text-ink placeholder:text-ink-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-600/15";
 
 const NAME_MAX = 100;
 

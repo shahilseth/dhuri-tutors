@@ -72,11 +72,11 @@ function noMatchGroups(requests: RequestRecord[], listings: Listing[]): { label:
 function StatusBadge({ status }: { status: RequestStatus }) {
   const style =
     status === "new"
-      ? "bg-blue-tint text-blue"
+      ? "bg-tint text-blue-700"
       : status === "closed"
-        ? "border border-rule bg-paper text-ink-2"
+        ? "border border-line bg-white text-ink-2"
         : "bg-amber-tint text-amber";
-  return <span className={`rounded-sm px-2 py-0.5 text-[13px] ${style}`}>{STATUS_LABELS[status]}</span>;
+  return <span className={`rounded-sm px-2 py-0.5 text-[13px] font-semibold ${style}`}>{STATUS_LABELS[status]}</span>;
 }
 
 export default async function AdminRequests() {
@@ -96,8 +96,8 @@ export default async function AdminRequests() {
         </p>
 
         {groups.length > 0 && (
-          <div className="mt-4 rounded-md border border-rule bg-paper p-4">
-            <h2 className="text-[15px] font-semibold text-ink">No teacher found</h2>
+          <div className="mt-4 rounded-lg border border-line bg-white p-4 shadow-card">
+            <h2 className="text-[15px] font-bold text-ink">No teacher found</h2>
             <ul className="mt-2 flex flex-col gap-1">
               {groups.map((group) => (
                 <li key={group.label} className="text-[14px] text-ink-2">
@@ -108,9 +108,11 @@ export default async function AdminRequests() {
           </div>
         )}
 
-        <div className="mt-4 divide-y divide-rule rounded-md border border-rule bg-paper">
+        <div className="mt-4 flex flex-col gap-3">
           {requests.length === 0 ? (
-            <p className="p-6 text-center text-[15px] text-ink-2">No requests yet.</p>
+            <p className="rounded-lg border border-line bg-white p-6 text-center text-[15px] text-ink-2">
+              No requests yet.
+            </p>
           ) : (
             requests.map((request) => {
               const matches = matchingListings(request, listings);
@@ -124,7 +126,7 @@ export default async function AdminRequests() {
               });
 
               return (
-                <div key={request.id} className="p-4">
+                <div key={request.id} className="rounded-lg border border-line bg-white p-4 shadow-card">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-ink">Ref {request.ref_code}</span>
                     <StatusBadge status={request.status} />
@@ -152,8 +154,8 @@ export default async function AdminRequests() {
                   <form action={toggleShareNumberConsentAction.bind(null, request.id)} className="mt-3">
                     <button
                       type="submit"
-                      className={`h-11 rounded-md border px-3 text-[14px] ${
-                        request.share_number_consent ? "border-blue text-blue" : "border-rule text-ink-2"
+                      className={`h-10 rounded-md border-[1.5px] px-3 text-[14px] font-semibold ${
+                        request.share_number_consent ? "border-blue-600 text-blue-700" : "border-line text-ink-2"
                       }`}
                     >
                       {request.share_number_consent ? "✓ Parent agreed to share number" : "Parent agreed to share number?"}
@@ -180,7 +182,7 @@ export default async function AdminRequests() {
                             )}
                             target="_blank"
                             rel="noreferrer"
-                            className="flex h-11 items-center rounded-md bg-wa px-3 text-[14px] font-medium text-white"
+                            className="flex h-10 items-center rounded-md bg-wa px-3 text-[14px] font-bold text-white shadow-wa"
                           >
                             Send to {listing.name}
                           </a>
@@ -193,7 +195,7 @@ export default async function AdminRequests() {
                     <select
                       name="status"
                       defaultValue={request.status}
-                      className="h-11 rounded-md border border-rule bg-paper px-2 text-[14px] text-ink"
+                      className="h-10 rounded-md border-[1.5px] border-line bg-white px-2 text-[14px] text-ink"
                     >
                       {STATUS_OPTIONS.map((status) => (
                         <option key={status} value={status}>
@@ -201,7 +203,10 @@ export default async function AdminRequests() {
                         </option>
                       ))}
                     </select>
-                    <button type="submit" className="h-11 rounded-md border border-rule px-3 text-[14px] text-blue">
+                    <button
+                      type="submit"
+                      className="h-10 rounded-md border-[1.5px] border-line bg-white px-3 text-[14px] font-semibold text-blue-700"
+                    >
                       Update status
                     </button>
                   </form>

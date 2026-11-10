@@ -9,7 +9,7 @@ export default function NotFound() {
       </p>
       <Link
         href="/"
-        className="mt-6 inline-flex h-12 items-center justify-center rounded-md bg-blue px-6 text-[16px] font-semibold text-white"
+        className="mt-6 inline-flex h-[54px] items-center justify-center rounded-md bg-gradient-to-b from-blue-600 to-blue-700 px-6 text-[16px] font-bold text-white shadow-btn"
       >
         See all teachers
       </Link>

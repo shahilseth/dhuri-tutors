@@ -38,7 +38,7 @@ export default async function AdminDashboard() {
           <h1 className="text-[22px] font-bold text-ink">Listings</h1>
           <Link
             href="/admin/new"
-            className="flex h-11 items-center rounded-md bg-blue px-4 text-[15px] font-semibold text-white"
+            className="flex h-11 items-center rounded-md bg-gradient-to-b from-blue-600 to-blue-700 px-4 text-[15px] font-bold text-white shadow-btn"
           >
             New listing
           </Link>
@@ -50,10 +50,10 @@ export default async function AdminDashboard() {
 
         {newSignups.length > 0 && (
           <div className="mt-4">
-            <h2 className="text-[17px] font-semibold text-ink">New sign-ups</h2>
-            <div className="mt-2 divide-y divide-rule rounded-md border border-rule bg-paper">
+            <h2 className="text-[17px] font-bold text-ink">New sign-ups</h2>
+            <div className="mt-2 flex flex-col gap-3">
               {newSignups.map((listing) => (
-                <div key={listing.id} className="p-4">
+                <div key={listing.id} className="rounded-lg border border-line bg-white p-4 shadow-card">
                   <p className="font-semibold text-ink">{listing.name}</p>
                   <p className="mt-1 text-[14px] text-ink-2">
                     {KIND_LABELS[listing.kind]}, {areaLabel(listing.area, listing.area_other)}. Ref {listing.ref_code}.
@@ -68,17 +68,23 @@ export default async function AdminDashboard() {
                   <div className="mt-3 flex flex-wrap gap-2">
                     <Link
                       href={`/admin/${listing.id}`}
-                      className="flex h-11 items-center rounded-md border border-rule px-3 text-[14px] text-blue"
+                      className="flex h-10 items-center rounded-md border-[1.5px] border-line bg-white px-3 text-[14px] font-semibold text-blue-700"
                     >
                       View details
                     </Link>
                     <form action={approveSignupAction.bind(null, listing.id)}>
-                      <button type="submit" className="h-11 rounded-md bg-blue px-3 text-[14px] font-medium text-white">
+                      <button
+                        type="submit"
+                        className="h-10 rounded-md bg-gradient-to-b from-blue-600 to-blue-700 px-3 text-[14px] font-bold text-white shadow-btn"
+                      >
                         Approve
                       </button>
                     </form>
                     <form action={rejectSignupAction.bind(null, listing.id)}>
-                      <button type="submit" className="h-11 rounded-md border border-danger px-3 text-[14px] text-danger">
+                      <button
+                        type="submit"
+                        className="h-10 rounded-md border-[1.5px] border-danger bg-white px-3 text-[14px] font-semibold text-danger"
+                      >
                         Reject
                       </button>
                     </form>
@@ -89,23 +95,25 @@ export default async function AdminDashboard() {
           </div>
         )}
 
-        <div className="mt-4 divide-y divide-rule rounded-md border border-rule bg-paper">
+        <div className="mt-4 flex flex-col gap-3">
           {listings.length === 0 ? (
-            <p className="p-6 text-center text-[15px] text-ink-2">No listings yet.</p>
+            <p className="rounded-lg border border-line bg-white p-6 text-center text-[15px] text-ink-2">
+              No listings yet.
+            </p>
           ) : (
             listings.map((listing) => {
               const taps = tapsByListing.get(listing.id);
               const stale = isStale(listing.last_verified_at);
 
               return (
-                <div key={listing.id} className="p-4">
+                <div key={listing.id} className="rounded-lg border border-line bg-white p-4 shadow-card">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-ink">{listing.name}</span>
                     <span
-                      className={`rounded-sm px-2 py-0.5 text-[13px] ${
+                      className={`rounded-sm px-2 py-0.5 text-[13px] font-semibold ${
                         listing.published
-                          ? "bg-blue-tint text-blue"
-                          : "border border-rule bg-paper text-ink-2"
+                          ? "bg-tint text-blue-700"
+                          : "border border-line bg-white text-ink-2"
                       }`}
                     >
                       {listing.published ? "Live" : "Hidden"}
@@ -133,14 +141,14 @@ export default async function AdminDashboard() {
                   <div className="mt-3 flex flex-wrap gap-2">
                     <Link
                       href={`/admin/${listing.id}`}
-                      className="flex h-11 items-center rounded-md border border-rule px-3 text-[14px] text-blue"
+                      className="flex h-10 items-center rounded-md border-[1.5px] border-line bg-white px-3 text-[14px] font-semibold text-blue-700"
                     >
                       Edit
                     </Link>
                     <form action={markVerifiedAction.bind(null, listing.id)}>
                       <button
                         type="submit"
-                        className="h-11 rounded-md border border-rule px-3 text-[14px] text-blue"
+                        className="h-10 rounded-md border-[1.5px] border-line bg-white px-3 text-[14px] font-semibold text-blue-700"
                       >
                         Mark verified today
                       </button>
@@ -148,8 +156,8 @@ export default async function AdminDashboard() {
                     <form action={togglePublishedAction.bind(null, listing.id)}>
                       <button
                         type="submit"
-                        className={`h-11 rounded-md border px-3 text-[14px] ${
-                          listing.published ? "border-danger text-danger" : "border-rule text-blue"
+                        className={`h-10 rounded-md border-[1.5px] px-3 text-[14px] font-semibold ${
+                          listing.published ? "border-danger bg-white text-danger" : "border-line bg-white text-blue-700"
                         }`}
                       >
                         {listing.published ? "Unpublish" : "Publish"}
@@ -157,7 +165,7 @@ export default async function AdminDashboard() {
                     </form>
                     <a
                       href={`/api/qr/${listing.slug}`}
-                      className="flex h-11 items-center rounded-md border border-rule px-3 text-[14px] text-blue"
+                      className="flex h-10 items-center rounded-md border-[1.5px] border-line bg-white px-3 text-[14px] font-semibold text-blue-700"
                     >
                       Download QR
                     </a>
@@ -165,7 +173,7 @@ export default async function AdminDashboard() {
                       href={`/t/${listing.slug}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex h-11 items-center rounded-md border border-rule px-3 text-[14px] text-blue"
+                      className="flex h-10 items-center rounded-md border-[1.5px] border-line bg-white px-3 text-[14px] font-semibold text-blue-700"
                     >
                       View page
                     </a>

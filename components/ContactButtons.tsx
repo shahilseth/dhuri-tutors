@@ -34,18 +34,18 @@ export default function ContactButtons({
   callUrl: string;
 }) {
   return (
-    <div className="mt-4 grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-2 gap-2.5">
       <a
         href={whatsappUrl}
         onClick={() => logTap(slug, "whatsapp")}
-        className="flex h-12 items-center justify-center rounded-md bg-wa text-[16px] font-semibold text-white"
+        className="flex h-[54px] items-center justify-center rounded-md bg-wa text-[16px] font-bold text-white shadow-wa"
       >
         WhatsApp
       </a>
       <a
         href={callUrl}
         onClick={() => logTap(slug, "call")}
-        className="flex h-12 items-center justify-center gap-1.5 rounded-md bg-blue text-[16px] font-semibold text-white"
+        className="flex h-[54px] items-center justify-center gap-1.5 rounded-md bg-gradient-to-b from-blue-600 to-blue-700 text-[16px] font-bold text-white shadow-btn"
       >
         <PhoneIcon />
         Call

@@ -33,7 +33,7 @@ function parseFilters(params: Record<string, string | string[] | undefined>): Se
 }
 
 const selectClass =
-  "mt-1 block h-12 w-full rounded-md border border-rule bg-paper px-3 text-[16px] text-ink focus:border-blue focus:outline-none focus:ring-2 focus:ring-blue/25";
+  "mt-1 block h-[54px] w-full rounded-md border-[1.5px] border-line bg-white px-4 text-[16px] text-ink focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-600/15";
 
 function Field({
   label,
@@ -46,7 +46,7 @@ function Field({
 }) {
   return (
     <label className={`block ${className}`}>
-      <span className="text-[15px] font-medium text-ink">{label}</span>
+      <span className="text-[15px] font-semibold text-ink">{label}</span>
       {children}
     </label>
   );
@@ -63,16 +63,21 @@ export default async function Home({
   const hasFilters = Object.values(filters).some(Boolean);
 
   return (
-    <div className="mx-auto max-w-[42rem] px-4 py-6">
-      <h1 className="text-[22px] leading-[28px] font-bold text-ink">
-        Tuition teachers in {CITY}
+    <div className="mx-auto max-w-[42rem] px-4 py-6 md:px-6">
+      <p className="text-[12.5px] font-bold uppercase tracking-[0.14em] text-blue-600">
+        {CITY} and nearby villages
+      </p>
+      <h1 className="mt-2.5 text-[30px] font-extrabold leading-[1.1] tracking-[-0.025em] text-ink md:text-[40px]">
+        Find a tuition teacher near you
       </h1>
-      <p className="mt-2 text-[15px] leading-[22px] text-ink-2">
-        Search by subject, class and area. Call or WhatsApp the teacher
-        directly.
+      <p className="mt-3 max-w-[40rem] text-[16px] leading-[1.55] text-ink-2">
+        Search by subject, class and area. Call or WhatsApp the teacher directly.
       </p>
 
-      <form method="get" className="mt-6 rounded-md border border-rule bg-paper p-4">
+      <form
+        method="get"
+        className="mt-6 rounded-lg border border-line bg-white p-5 shadow-card md:rounded-xl md:p-7"
+      >
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Subject">
             <select name="subject" defaultValue={filters.subject ?? ""} className={selectClass}>
@@ -143,7 +148,7 @@ export default async function Home({
 
         <button
           type="submit"
-          className="mt-4 h-12 w-full rounded-md bg-blue text-[16px] font-semibold text-white"
+          className="mt-4 h-[54px] w-full rounded-md bg-gradient-to-b from-blue-600 to-blue-700 text-[16px] font-bold text-white shadow-btn active:from-blue-800 active:to-blue-800 active:shadow-none"
         >
           Search
         </button>
@@ -151,38 +156,52 @@ export default async function Home({
         {hasFilters && (
           <Link
             href="/"
-            className="mt-3 block text-center text-[15px] text-blue underline"
+            className="mt-3 block text-center text-[15px] font-semibold text-blue-700 underline"
           >
             Clear filters
           </Link>
         )}
       </form>
 
-      <p className="mt-6 text-[15px] text-ink-2">
-        {listings.length} {listings.length === 1 ? "teacher" : "teachers"} found
-      </p>
-
-      <div className="mt-2 rounded-md border border-rule bg-paper">
-        {listings.length === 0 ? (
-          <div className="p-6 text-center">
-            <p className="text-[15px] text-ink-2">No teachers match these filters yet.</p>
-            <Link href="/" className="mt-2 inline-block text-[15px] text-blue underline">
-              Clear filters
-            </Link>
-            <p className="mt-4 text-[15px] text-ink-2">
-              <Link href="/request" className="text-blue underline">
-                Can&apos;t find the right teacher? Tell us what you need
-              </Link>
-            </p>
-          </div>
-        ) : (
-          <div className="divide-y divide-rule">
-            {listings.map((listing) => (
-              <ListingCard key={listing.id} listing={listing} />
-            ))}
-          </div>
-        )}
+      <div className="mt-6 flex items-center justify-between">
+        <p className="text-[15px] text-ink-2">
+          {listings.length} {listings.length === 1 ? "teacher" : "teachers"} found
+        </p>
       </div>
+
+      {listings.length === 0 ? (
+        <div className="mt-2 rounded-lg border border-line bg-white p-6 text-center shadow-card md:rounded-xl">
+          <p className="text-[15px] text-ink-2">No teachers match these filters yet.</p>
+          <Link href="/" className="mt-2 inline-block text-[15px] font-semibold text-blue-700 underline">
+            Clear filters
+          </Link>
+          <p className="mt-4 text-[15px] text-ink-2">
+            <Link href="/request" className="font-semibold text-blue-700 underline">
+              Can&apos;t find the right teacher? Tell us what you need
+            </Link>
+          </p>
+        </div>
+      ) : (
+        <div className="mt-3.5 flex flex-col gap-3.5">
+          {listings.map((listing) => (
+            <ListingCard key={listing.id} listing={listing} />
+          ))}
+        </div>
+      )}
+
+      {listings.length > 0 && (
+        <div className="mt-6 rounded-md border border-tint-2 bg-tint p-4">
+          <p className="text-[14.5px] leading-[1.5] text-ink-2">
+            Can&apos;t find the right teacher? Tell us what you need and we&apos;ll find one.
+          </p>
+          <Link
+            href="/request"
+            className="mt-3 flex h-[54px] items-center justify-center rounded-md bg-gradient-to-b from-blue-600 to-blue-700 text-[16px] font-bold text-white shadow-btn"
+          >
+            Tell us what you need
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

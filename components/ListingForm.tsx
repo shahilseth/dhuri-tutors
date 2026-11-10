@@ -15,10 +15,10 @@ export type ListingFormState = {
 };
 
 const inputBase =
-  "mt-1 block h-12 w-full rounded-md border px-3 text-[16px] text-ink focus:outline-none focus:ring-2 focus:ring-blue/25";
+  "mt-1 block h-[54px] w-full rounded-md border-[1.5px] px-4 text-[16px] text-ink bg-white focus:outline-none focus:ring-4 focus:ring-blue-600/15";
 
 function fieldBorder(hasError: boolean): string {
-  return hasError ? "border-danger" : "border-rule focus:border-blue";
+  return hasError ? "border-danger" : "border-line focus:border-blue-600";
 }
 
 function Field({
@@ -73,14 +73,14 @@ function CheckboxOption({
   onChange?: (checked: boolean) => void;
 }) {
   return (
-    <label className="flex h-11 items-center gap-2 rounded-md border border-rule px-2 text-[15px] text-ink">
+    <label className="flex min-h-[54px] items-center gap-2 rounded-md border-[1.5px] border-line bg-white px-4 text-[16px] font-semibold text-ink">
       <input
         type="checkbox"
         name={name}
         value={value}
         defaultChecked={defaultChecked}
         onChange={onChange ? (e) => onChange(e.target.checked) : undefined}
-        className="h-5 w-5"
+        className="h-5 w-5 accent-blue-700"
       />
       {label}
     </label>
@@ -320,8 +320,8 @@ export default function ListingForm({
       </Field>
 
       <label
-        className={`flex items-start gap-2 rounded-md border border-rule p-3 ${
-          consentChecked ? "" : "bg-amber-tint"
+        className={`flex items-start gap-2 rounded-md border-[1.5px] p-4 ${
+          consentChecked ? "border-line bg-white" : "border-tint-2 bg-amber-tint"
         }`}
       >
         <input
@@ -330,7 +330,7 @@ export default function ListingForm({
           value="yes"
           defaultChecked={consentChecked}
           onChange={(e) => setConsentChecked(e.target.checked)}
-          className="mt-0.5 h-5 w-5"
+          className="mt-0.5 h-5 w-5 accent-blue-700"
         />
         {consentAt ? (
           <span className="text-[15px] text-ink-2">Consent recorded on {formatConsentDate(consentAt)}</span>
@@ -349,7 +349,7 @@ export default function ListingForm({
               name="intent"
               value="hidden"
               disabled={pending}
-              className="h-12 rounded-md border border-rule bg-paper text-[16px] font-semibold text-blue disabled:opacity-50"
+              className="h-[54px] rounded-md border-[1.5px] border-line bg-white text-[16px] font-bold text-blue-700 disabled:opacity-50"
             >
               {pending ? "Saving…" : "Save as hidden"}
             </button>
@@ -358,7 +358,7 @@ export default function ListingForm({
               name="intent"
               value="publish"
               disabled={pending}
-              className="h-12 rounded-md bg-blue text-[16px] font-semibold text-white disabled:opacity-50"
+              className="h-[54px] rounded-md bg-gradient-to-b from-blue-600 to-blue-700 text-[16px] font-bold text-white shadow-btn disabled:bg-none disabled:bg-tint-2 disabled:text-ink-3 disabled:shadow-none"
             >
               {pending ? "Saving…" : "Save and publish"}
             </button>
@@ -369,7 +369,7 @@ export default function ListingForm({
             name="intent"
             value="save"
             disabled={pending}
-            className="h-12 rounded-md bg-blue text-[16px] font-semibold text-white disabled:opacity-50"
+            className="h-[54px] rounded-md bg-gradient-to-b from-blue-600 to-blue-700 text-[16px] font-bold text-white shadow-btn disabled:bg-none disabled:bg-tint-2 disabled:text-ink-3 disabled:shadow-none"
           >
             {pending ? "Saving…" : "Save"}
           </button>

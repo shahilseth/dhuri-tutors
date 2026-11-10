@@ -41,19 +41,24 @@ export default async function EditListingPage({
         <p className="mt-1 text-[15px] text-ink-2">Ref {listing.ref_code}</p>
 
         {publishError && (
-          <p className="mt-4 rounded-md border border-danger bg-paper p-3 text-[14px] text-danger">
+          <p className="mt-4 rounded-md border-[1.5px] border-danger bg-white p-4 text-[14px] text-danger">
             Tick &ldquo;The teacher agreed to be listed on this site&rdquo; and save before publishing this
             listing.
           </p>
         )}
 
         {editUrl && (
-          <div className="mt-4 rounded-md border border-rule bg-amber-tint p-3">
-            <p className="text-[14px] font-medium text-ink">
+          <div className="mt-4 rounded-md border-[1.5px] border-tint-2 bg-amber-tint p-4">
+            <p className="text-[14px] font-semibold text-ink">
               Private edit link — copy and send this now. It won&apos;t be shown again.
             </p>
             <div className="mt-2 flex items-center gap-3">
-              <a href={editUrl} target="_blank" rel="noreferrer" className="flex-1 truncate text-[15px] text-blue underline">
+              <a
+                href={editUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="flex-1 truncate text-[15px] font-semibold text-blue-700 underline"
+              >
                 {editUrl}
               </a>
               <CopyLinkButton url={editUrl} />
@@ -61,19 +66,19 @@ export default async function EditListingPage({
           </div>
         )}
 
-        <div className="mt-4 flex items-center gap-3 rounded-md border border-rule bg-paper p-3">
+        <div className="mt-4 flex items-center gap-3 rounded-md border border-line bg-white p-4">
           <a
             href={publicUrl}
             target="_blank"
             rel="noreferrer"
-            className="flex-1 truncate text-[15px] text-blue underline"
+            className="flex-1 truncate text-[15px] font-semibold text-blue-700 underline"
           >
             {publicUrl}
           </a>
           <CopyLinkButton url={publicUrl} />
         </div>
 
-        <div className="mt-4 flex items-center gap-4 rounded-md border border-rule bg-paper p-3">
+        <div className="mt-4 flex items-center gap-4 rounded-md border border-line bg-white p-4">
           <Image
             src={`/api/qr/${listing.slug}`}
             alt="QR code linking to the public listing page"
@@ -84,7 +89,7 @@ export default async function EditListingPage({
           />
           <a
             href={`/api/qr/${listing.slug}`}
-            className="flex h-11 items-center rounded-md border border-rule px-3 text-[14px] text-blue"
+            className="flex h-10 items-center rounded-md border-[1.5px] border-line bg-white px-3 text-[14px] font-semibold text-blue-700"
           >
             Download QR
           </a>

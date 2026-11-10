@@ -1,4 +1,4 @@
-/** design.md §11: "Continue" is a Primary button; the save note sits directly under it. */
+/** design.md §6 "Buttons": Continue is a Primary button; the save note sits directly under it. */
 export default function StepContinueButton({
   label = "Continue",
   pending = false,
@@ -11,7 +11,7 @@ export default function StepContinueButton({
       <button
         type="submit"
         disabled={pending}
-        className="h-12 rounded-md bg-blue text-[16px] font-semibold text-white disabled:opacity-50"
+        className="h-[54px] rounded-md bg-gradient-to-b from-blue-600 to-blue-700 text-[16px] font-bold text-white shadow-btn active:from-blue-800 active:to-blue-800 active:shadow-none disabled:bg-none disabled:bg-tint-2 disabled:text-ink-3 disabled:shadow-none"
       >
         {pending ? "Saving…" : label}
       </button>

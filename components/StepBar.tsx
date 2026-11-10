@@ -1,4 +1,4 @@
-/** design.md §11: numbered circles joined by a line, filled blue for completed steps. */
+/** design.md §6 "Step bar": numbered circles with a 4px top bar, filled blue-700 for current/done steps. */
 export default function StepBar({ steps, current }: { steps: string[]; current: number }) {
   return (
     <ol className="flex">
@@ -11,32 +11,38 @@ export default function StepBar({ steps, current }: { steps: string[]; current: 
             <div className="flex w-full items-center">
               <span
                 aria-hidden
-                className={`h-0.5 flex-1 ${i === 0 ? "invisible" : n <= current ? "bg-blue" : "bg-rule"}`}
+                className={`h-1 flex-1 ${i === 0 ? "invisible" : n <= current ? "bg-blue-600" : "bg-tint-2"}`}
               />
               <span
                 aria-current={isCurrent ? "step" : undefined}
                 className={[
-                  "flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[13px] font-semibold",
-                  done
-                    ? "border-blue bg-blue text-white"
-                    : isCurrent
-                      ? "border-blue bg-paper text-blue"
-                      : "border-rule bg-paper text-ink-3",
+                  "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold",
+                  done || isCurrent
+                    ? "bg-blue-700 text-white"
+                    : "bg-tint text-ink-3",
+                  isCurrent ? "ring-4 ring-tint-2" : "",
                 ].join(" ")}
               >
                 {done ? "✓" : n}
               </span>
               <span
                 aria-hidden
-                className={`h-0.5 flex-1 ${i === steps.length - 1 ? "invisible" : n < current ? "bg-blue" : "bg-rule"}`}
+                className={`h-1 flex-1 ${i === steps.length - 1 ? "invisible" : n < current ? "bg-blue-600" : "bg-tint-2"}`}
               />
             </div>
-            <span className={`mt-1 text-center text-[13px] ${isCurrent ? "font-semibold text-blue" : "text-ink-2"}`}>
+            <span
+              className={`mt-2 text-center text-[13px] ${
+                isCurrent ? "font-semibold text-ink" : "text-ink-2"
+              } ${isCurrent ? "" : "hidden sm:inline"}`}
+            >
               {label}
             </span>
           </li>
         );
       })}
+      <li className="sr-only sm:hidden">
+        Step {current} of {steps.length}
+      </li>
     </ol>
   );
 }

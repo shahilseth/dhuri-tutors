@@ -35,7 +35,7 @@ export default async function EditOwnListingPage({
       <p className="mt-1 text-[15px] text-ink-2">Ref {listing.ref_code}</p>
 
       {saved && (
-        <p className="mt-4 rounded-md border border-rule bg-blue-tint p-3 text-[14px] text-blue">
+        <p className="mt-4 rounded-md border border-tint-2 bg-tint p-4 text-[14px] font-semibold text-blue-700">
           Saved. Parents will see the new details right away.
         </p>
       )}

@@ -7,7 +7,7 @@ const KIND_LABELS: Record<Listing["kind"], string> = {
   academy: "Academy",
 };
 
-/** One row in the result list on the home page (design.md §6 "Result list"). */
+/** One result card on the home page (design.md §6 "Home and search" item 5). */
 export default function ListingCard({ listing }: { listing: Listing }) {
   const fee = feeText(listing.fee_min, listing.fee_max);
   const classes = classesText(listing.classes);
@@ -16,10 +16,10 @@ export default function ListingCard({ listing }: { listing: Listing }) {
   return (
     <Link
       href={`/t/${listing.slug}`}
-      className="block px-4 py-3 active:bg-blue-tint"
+      className="block rounded-lg border border-line bg-white p-4 shadow-card transition-colors active:border-blue-600 md:rounded-xl"
     >
-      <p className="text-[17px] leading-[24px] font-semibold text-ink">{listing.name}</p>
-      <p className="mt-0.5 text-[15px] leading-[22px] text-ink-2">
+      <p className="text-[17.5px] font-bold leading-[24px] tracking-[-0.01em] text-ink">{listing.name}</p>
+      <p className="mt-0.5 text-[14.5px] leading-[22px] text-ink-2">
         {KIND_LABELS[listing.kind]}, {listing.area}
       </p>
       <p className="mt-0.5 text-[16px] leading-[24px] tabular-nums">
@@ -27,8 +27,8 @@ export default function ListingCard({ listing }: { listing: Listing }) {
           <span className="text-[15px] text-ink-3">{fee}</span>
         ) : (
           <>
-            <span className="font-semibold text-ink">{fee.replace(" a month", "")}</span>{" "}
-            <span className="text-[15px] font-normal text-ink-2">a month</span>
+            <span className="font-bold text-ink">{fee.replace(" a month", "")}</span>{" "}
+            <span className="text-[14.5px] font-normal text-ink-2">a month</span>
           </>
         )}
       </p>
@@ -37,7 +37,7 @@ export default function ListingCard({ listing }: { listing: Listing }) {
           {listing.subjects.map((subject) => (
             <span
               key={subject}
-              className="rounded-sm bg-blue-tint px-2 py-0.5 text-[13px] font-medium text-blue"
+              className="rounded-sm bg-tint px-2.5 py-1 text-[13px] font-semibold text-blue-700"
             >
               {subjectLabel(subject)}
             </span>
@@ -45,7 +45,7 @@ export default function ListingCard({ listing }: { listing: Listing }) {
         </p>
       )}
       {(classes || modes) && (
-        <p className="mt-2 text-[15px] leading-[22px] text-ink-2">
+        <p className="mt-2 text-[14.5px] leading-[22px] text-ink-2">
           {classes}
           {classes && modes ? ". " : ""}
           {modes ? `At ${modes}` : ""}

@@ -12,7 +12,7 @@ import StepContinueButton from "./StepContinueButton";
 const SUBJECT_OPTIONS = SUBJECTS.flatMap((g) => g.options);
 
 const selectClass =
-  "mt-1 block h-12 w-full rounded-md border border-rule bg-paper px-3 text-[16px] text-ink focus:border-blue focus:outline-none focus:ring-2 focus:ring-blue/25";
+  "mt-1 block h-[54px] w-full rounded-md border-[1.5px] border-line bg-white px-4 text-[16px] text-ink placeholder:text-ink-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-600/15";
 
 /** app_flow.md R1 "What": class, subjects (search-as-you-type + "All subjects"), board, mode. */
 export default function RequestStepWhat({
@@ -182,7 +182,7 @@ export default function RequestStepWhat({
       {matchCount !== null && (
         <p className="text-[15px] text-ink-2">
           {matchCount} {matchCount === 1 ? "teacher" : "teachers"} match.{" "}
-          <Link href={matchHref()} className="text-blue underline">
+          <Link href={matchHref()} className="font-semibold text-blue-700 underline">
             See them now.
           </Link>
         </p>
