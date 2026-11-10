@@ -37,6 +37,8 @@ export type Listing = {
   headline: string | null;
   /** 'self' = came in through /join; 'admin' = entered by the admin (schema.md §3). */
   source: "admin" | "self";
+  /** Set by the admin's "Reject" on a /join sign-up (migration 0004, P8.8) — never set on source='admin' listings. */
+  rejected_at: string | null;
   created_at: string;
   updated_at: string;
 };

@@ -5,10 +5,12 @@ import type { ListingFormState } from "@/components/ListingForm";
 import { CITY } from "@/lib/config";
 import { logIn, logOut, requireAdmin } from "@/lib/auth";
 import {
+  createEditToken,
   createListing,
   getListingById,
   getRequestById,
   nextRefCode,
+  replaceTeachingEntries,
   setShareNumberConsent,
   uniqueSlug,
   updateListing,
@@ -57,15 +59,15 @@ export async function createListingAction(
 
   const slug = await uniqueSlug(result.value.slug);
   const refCode = await nextRefCode();
+  const { teaching_entries, ...listingFields } = result.value;
 
   const listing = await createListing({
-    ...result.value,
+    ...listingFields,
     slug,
     ref_code: refCode,
     city: CITY,
-    // The fields below this line are only set from the Phase 8 self-sign-up form; the admin
-    // form has no fields for them yet (app_flow.md's admin listing form fields list, P8.8).
-    serves_areas: [],
+    // The fields below this line have no field in the admin form yet (app_flow.md's admin
+    // listing form fields list, P8.8) — only set from the Phase 8 self-sign-up form.
     area_other: null,
     experience_years: null,
     qualification_level: null,
@@ -76,7 +78,10 @@ export async function createListingAction(
     published: publish,
     consent_at: consentGiven ? new Date().toISOString() : null,
     last_verified_at: null,
+    rejected_at: null,
   });
+
+  await replaceTeachingEntries(listing.id, teaching_entries);
 
   redirect(`/admin/${listing.id}`);
 }
@@ -109,9 +114,11 @@ export async function updateListingAction(
   // tech_spec.md §8: consent_at is set the first time it's ticked, and kept after.
   const consentAt = consentGiven ? existing.consent_at ?? new Date().toISOString() : null;
   const slug = result.value.slug === existing.slug ? existing.slug : await uniqueSlug(result.value.slug);
+  const { teaching_entries, ...listingFields } = result.value;
 
   try {
-    await updateListing(id, { ...result.value, slug, consent_at: consentAt });
+    await updateListing(id, { ...listingFields, slug, consent_at: consentAt });
+    await replaceTeachingEntries(id, teaching_entries);
   } catch (error) {
     if (isConsentCheckViolation(error)) {
       return {
@@ -162,6 +169,30 @@ export async function updateRequestStatusAction(id: string, formData: FormData):
   }
 
   redirect("/admin/requests");
+}
+
+/**
+ * Bound with the listing id (app_flow.md A2 "New sign-ups": Approve). Publishes the
+ * sign-up and issues its private edit link (schema.md §4.9) — the raw token is shown once
+ * on the edit page via the redirect's query param, for the admin to copy into WhatsApp.
+ */
+export async function approveSignupAction(id: string): Promise<void> {
+  await requireAdmin();
+
+  const listing = await getListingById(id);
+  if (!listing) redirect("/admin");
+
+  await updateListing(id, { published: true });
+  const token = await createEditToken(id);
+
+  redirect(`/admin/${id}?editToken=${token}`);
+}
+
+/** Bound with the listing id (app_flow.md A2 "New sign-ups": Reject). Stays unpublished; marks rejected_at so it stops reappearing (migration 0004). */
+export async function rejectSignupAction(id: string): Promise<void> {
+  await requireAdmin();
+  await updateListing(id, { rejected_at: new Date().toISOString() });
+  redirect("/admin");
 }
 
 /** Bound with the request id (app_flow.md A5: admin ticks this after confirming with the parent directly). */

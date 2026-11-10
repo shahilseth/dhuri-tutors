@@ -2,21 +2,29 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import AdminHeader from "@/components/AdminHeader";
 import { requireAdmin } from "@/lib/auth";
-import { countNewRequests, getTapCounts, listAllListings } from "@/lib/data";
-import { ago, daysSince, isStale } from "@/lib/format";
-import { markVerifiedAction, togglePublishedAction } from "./actions";
+import { countNewRequests, getTapCounts, listAllListings, listNewSignups } from "@/lib/data";
+import { ago, areaLabel, classesText, daysSince, isStale, subjectLabel } from "@/lib/format";
+import { approveSignupAction, markVerifiedAction, rejectSignupAction, togglePublishedAction } from "./actions";
 
 export const metadata: Metadata = { title: "Dashboard" };
+
+const KIND_LABELS: Record<string, string> = { teacher: "Teacher", academy: "Academy" };
 
 export default async function AdminDashboard() {
   await requireAdmin();
 
-  const [listings, tapCounts, newRequestCount] = await Promise.all([
+  const [allListings, tapCounts, newRequestCount, newSignups] = await Promise.all([
     listAllListings(),
     getTapCounts(),
     countNewRequests(),
+    listNewSignups(),
   ]);
   const tapsByListing = new Map(tapCounts.map((t) => [t.listing_id, t]));
+
+  // "New sign-ups" (below) is where an unreviewed /join sign-up lives; keep it out of the
+  // main Listings table too, so it isn't shown twice with no Approve/Reject there.
+  const newSignupIds = new Set(newSignups.map((l) => l.id));
+  const listings = allListings.filter((l) => !newSignupIds.has(l.id));
 
   const liveCount = listings.filter((l) => l.published).length;
   const hiddenCount = listings.length - liveCount;
@@ -39,6 +47,47 @@ export default async function AdminDashboard() {
           {liveCount} live, {hiddenCount} hidden, {staleCount} need re-confirming, {newRequestCount} new{" "}
           {newRequestCount === 1 ? "request" : "requests"}
         </p>
+
+        {newSignups.length > 0 && (
+          <div className="mt-4">
+            <h2 className="text-[17px] font-semibold text-ink">New sign-ups</h2>
+            <div className="mt-2 divide-y divide-rule rounded-md border border-rule bg-paper">
+              {newSignups.map((listing) => (
+                <div key={listing.id} className="p-4">
+                  <p className="font-semibold text-ink">{listing.name}</p>
+                  <p className="mt-1 text-[14px] text-ink-2">
+                    {KIND_LABELS[listing.kind]}, {areaLabel(listing.area, listing.area_other)}. Ref {listing.ref_code}.
+                  </p>
+                  {listing.classes.length > 0 && (
+                    <p className="mt-1 text-[14px] text-ink-2">{classesText(listing.classes)}</p>
+                  )}
+                  {listing.subjects.length > 0 && (
+                    <p className="mt-1 text-[14px] text-ink-2">{listing.subjects.map(subjectLabel).join(", ")}</p>
+                  )}
+                  <p className="mt-1 text-[14px] text-ink-2">{listing.phone}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Link
+                      href={`/admin/${listing.id}`}
+                      className="flex h-11 items-center rounded-md border border-rule px-3 text-[14px] text-blue"
+                    >
+                      View details
+                    </Link>
+                    <form action={approveSignupAction.bind(null, listing.id)}>
+                      <button type="submit" className="h-11 rounded-md bg-blue px-3 text-[14px] font-medium text-white">
+                        Approve
+                      </button>
+                    </form>
+                    <form action={rejectSignupAction.bind(null, listing.id)}>
+                      <button type="submit" className="h-11 rounded-md border border-danger px-3 text-[14px] text-danger">
+                        Reject
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="mt-4 divide-y divide-rule rounded-md border border-rule bg-paper">
           {listings.length === 0 ? (

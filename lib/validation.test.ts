@@ -18,11 +18,11 @@ function validInput(overrides: Partial<ListingFormInput> = {}): ListingFormInput
     contact_person: "",
     phone: "9876543210",
     whatsapp: "",
-    subjects: ["maths"],
-    classes: ["9", "10"],
+    teaching_entries: [{ track: "school", classes: ["9", "10"], subjects: ["maths"] }],
     boards: ["PSEB"],
     modes: ["home"],
     area: "bamal",
+    serves_areas: [],
     address: "",
     fee_min: "",
     fee_max: "",
@@ -144,16 +144,26 @@ describe("validateListingInput: fee min/max", () => {
 });
 
 describe("validateListingInput: empty arrays", () => {
-  it("requires at least one subject", () => {
-    const result = validateListingInput(validInput({ subjects: [] }));
+  it("requires at least one teaching-list entry", () => {
+    const result = validateListingInput(validInput({ teaching_entries: [] }));
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.errors.subjects).toBeDefined();
+    if (!result.ok) expect(result.errors.teaching_entries).toBeDefined();
   });
 
-  it("requires at least one class", () => {
-    const result = validateListingInput(validInput({ classes: [] }));
-    expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.errors.classes).toBeDefined();
+  it("derives subjects/classes as the union of the teaching list", () => {
+    const result = validateListingInput(
+      validInput({
+        teaching_entries: [
+          { track: "school", classes: ["9", "10"], subjects: ["maths"] },
+          { track: "skill", classes: [], subjects: ["coding"] },
+        ],
+      }),
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.subjects.sort()).toEqual(["coding", "maths"]);
+      expect(result.value.classes).toEqual(["9", "10"]);
+    }
   });
 
   it("requires at least one mode", () => {
@@ -167,25 +177,33 @@ describe("validateListingInput: empty arrays", () => {
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.value.boards).toEqual([]);
   });
+
+  it("allows an empty serves_areas array (optional)", () => {
+    const result = validateListingInput(validInput({ serves_areas: [] }));
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.value.serves_areas).toEqual([]);
+  });
 });
 
 describe("validateListingInput: invalid list values", () => {
-  it("rejects a subject not in lib/config.ts", () => {
-    const result = validateListingInput(validInput({ subjects: ["astrology"] }));
+  it("rejects a teaching-list entry with a subject not in lib/config.ts", () => {
+    const result = validateListingInput(
+      validInput({ teaching_entries: [{ track: "school", classes: ["9"], subjects: ["astrology"] }] }),
+    );
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.errors.subjects).toBeDefined();
-  });
-
-  it("rejects a class not in lib/config.ts", () => {
-    const result = validateListingInput(validInput({ classes: ["13"] }));
-    expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.errors.classes).toBeDefined();
+    if (!result.ok) expect(result.errors.teaching_entries).toBeDefined();
   });
 
   it("rejects a mode not in lib/config.ts", () => {
     const result = validateListingInput(validInput({ modes: ["telepathy"] }));
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.errors.modes).toBeDefined();
+  });
+
+  it("rejects a village not in lib/config.ts under serves_areas", () => {
+    const result = validateListingInput(validInput({ serves_areas: ["Mars Colony"] }));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.serves_areas).toBeDefined();
   });
 
   it("rejects a board not in lib/config.ts", () => {

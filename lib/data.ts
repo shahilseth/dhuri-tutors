@@ -220,6 +220,7 @@ export async function createSignup(input: NewSignup): Promise<Listing> {
     published: false,
     consent_at: new Date().toISOString(),
     last_verified_at: null,
+    rejected_at: null,
     experience_years: input.experience_years,
     qualification_level: input.qualification_level,
     qualification: input.qualification,
@@ -231,6 +232,30 @@ export async function createSignup(input: NewSignup): Promise<Listing> {
   await replaceTeachingEntries(listing.id, input.teaching_entries);
 
   return listing;
+}
+
+/** A listing's teaching list, in display order — for pre-filling the admin form on edit (P8.8). */
+export async function listTeachingEntriesByListingId(listingId: string): Promise<TeachingEntry[]> {
+  const { data, error } = await getClient()
+    .from("teaching_entries")
+    .select("track, classes, subjects")
+    .eq("listing_id", listingId)
+    .order("sort", { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as TeachingEntry[];
+}
+
+/** Unpublished, self-signed-up, not-yet-rejected listings — A2 "New sign-ups" (app_flow.md). */
+export async function listNewSignups(): Promise<Listing[]> {
+  const { data, error } = await getClient()
+    .from("listings")
+    .select("*")
+    .eq("source", "self")
+    .eq("published", false)
+    .is("rejected_at", null)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as Listing[];
 }
 
 function hashToken(rawToken: string): string {

@@ -12,11 +12,11 @@ export type ListingFormInput = {
   contact_person: string;
   phone: string;
   whatsapp: string;
-  subjects: string[];
-  classes: string[];
+  teaching_entries: TeachingEntry[];
   boards: string[];
   modes: string[];
   area: string;
+  serves_areas: string[];
   address: string;
   fee_min: string;
   fee_max: string;
@@ -35,11 +35,14 @@ export type ValidatedListingFields = {
   contact_person: string | null;
   phone: string;
   whatsapp: string | null;
+  /** The union of teaching_entries' subjects/classes — schema.md §3's "rewritten on every save" rule. */
   subjects: string[];
   classes: string[];
+  teaching_entries: TeachingEntry[];
   boards: string[];
   modes: string[];
   area: string;
+  serves_areas: string[];
   address: string | null;
   fee_min: number | null;
   fee_max: number | null;
@@ -105,17 +108,8 @@ export function validateListingInput(input: ListingFormInput): ValidationResult 
     if (!whatsapp) errors.whatsapp = PHONE_ERROR;
   }
 
-  if (input.subjects.length === 0) {
-    errors.subjects = "Choose at least one subject.";
-  } else if (!input.subjects.every((s) => subjectValues.has(s))) {
-    errors.subjects = "Choose subjects from the list.";
-  }
-
-  if (input.classes.length === 0) {
-    errors.classes = "Choose at least one class.";
-  } else if (!input.classes.every((c) => classValues.has(c))) {
-    errors.classes = "Choose classes from the list.";
-  }
+  const teachingResult = validateTeachingEntries(input.teaching_entries);
+  if (!teachingResult.ok) errors.teaching_entries = teachingResult.error;
 
   if (input.modes.length === 0) {
     errors.modes = "Choose at least one way of teaching.";
@@ -129,6 +123,10 @@ export function validateListingInput(input: ListingFormInput): ValidationResult 
 
   if (!input.area || !areaValues.has(input.area)) {
     errors.area = "Choose an area from the list.";
+  }
+
+  if (!input.serves_areas.every((a) => areaValues.has(a))) {
+    errors.serves_areas = "Choose villages from the list.";
   }
 
   const address = trimmedOrNull(input.address, 120);
@@ -160,6 +158,9 @@ export function validateListingInput(input: ListingFormInput): ValidationResult 
 
   if (Object.keys(errors).length > 0) return { ok: false, errors };
 
+  const teachingEntries = teachingResult.ok ? teachingResult.value : [];
+  const { subjects, classes } = teachingEntriesUnion(teachingEntries);
+
   return {
     ok: true,
     value: {
@@ -168,11 +169,13 @@ export function validateListingInput(input: ListingFormInput): ValidationResult 
       contact_person: trimmedOrNull(input.contact_person, 80).value,
       phone: phone as string,
       whatsapp,
-      subjects: input.subjects,
-      classes: input.classes,
+      subjects,
+      classes,
+      teaching_entries: teachingEntries,
       boards: input.boards,
       modes: input.modes,
       area: input.area,
+      serves_areas: input.serves_areas,
       address: address.value,
       fee_min: feeMin.value,
       fee_max: feeMax.value,
@@ -190,11 +193,11 @@ export const emptyListingFormInput: ListingFormInput = {
   contact_person: "",
   phone: "",
   whatsapp: "",
-  subjects: [],
-  classes: [],
+  teaching_entries: [],
   boards: [],
   modes: [],
   area: "",
+  serves_areas: [],
   address: "",
   fee_min: "",
   fee_max: "",
@@ -204,19 +207,19 @@ export const emptyListingFormInput: ListingFormInput = {
   slug: "",
 };
 
-/** Pre-fills ListingForm when editing (app_flow.md A4). */
-export function listingToFormInput(listing: Listing): ListingFormInput {
+/** Pre-fills ListingForm when editing (app_flow.md A4). `teachingEntries` comes from a separate `teaching_entries` table read. */
+export function listingToFormInput(listing: Listing, teachingEntries: TeachingEntry[]): ListingFormInput {
   return {
     kind: listing.kind,
     name: listing.name,
     contact_person: listing.contact_person ?? "",
     phone: listing.phone,
     whatsapp: listing.whatsapp ?? "",
-    subjects: listing.subjects,
-    classes: listing.classes,
+    teaching_entries: teachingEntries,
     boards: listing.boards,
     modes: listing.modes,
     area: listing.area,
+    serves_areas: listing.serves_areas ?? [],
     address: listing.address ?? "",
     fee_min: listing.fee_min != null ? String(listing.fee_min) : "",
     fee_max: listing.fee_max != null ? String(listing.fee_max) : "",
@@ -225,6 +228,23 @@ export function listingToFormInput(listing: Listing): ListingFormInput {
     about: listing.about ?? "",
     slug: listing.slug,
   };
+}
+
+/** Parses the hidden JSON input TeachingList serializes its entries into, sanitizing untrusted shapes before validateTeachingEntries runs (rules.md §4). */
+function parseTeachingEntriesJson(raw: string): TeachingEntry[] {
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((e): e is Record<string, unknown> => typeof e === "object" && e !== null)
+      .map((e) => ({
+        track: typeof e.track === "string" ? e.track : "",
+        classes: Array.isArray(e.classes) ? e.classes.filter((c): c is string => typeof c === "string") : [],
+        subjects: Array.isArray(e.subjects) ? e.subjects.filter((s): s is string => typeof s === "string") : [],
+      })) as TeachingEntry[];
+  } catch {
+    return [];
+  }
 }
 
 /** Reads a submitted ListingForm into the raw shape validateListingInput expects. */
@@ -236,11 +256,11 @@ export function parseListingFormData(formData: FormData): ListingFormInput {
     contact_person: str("contact_person"),
     phone: str("phone"),
     whatsapp: str("whatsapp"),
-    subjects: formData.getAll("subjects").map(String),
-    classes: formData.getAll("classes").map(String),
+    teaching_entries: parseTeachingEntriesJson(formData.get("teaching_entries")?.toString() ?? "[]"),
     boards: formData.getAll("boards").map(String),
     modes: formData.getAll("modes").map(String),
     area: str("area"),
+    serves_areas: formData.getAll("serves_areas").map(String),
     address: str("address"),
     fee_min: str("fee_min"),
     fee_max: str("fee_max"),

@@ -1,8 +1,10 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { AREAS, BOARDS, CLASSES, MODES, SUBJECTS } from "@/lib/config";
+import TeachingList from "@/components/TeachingList";
+import { AREAS, BOARDS, MODES } from "@/lib/config";
 import { modeLabel, slugify } from "@/lib/format";
+import type { TeachingEntry } from "@/lib/types";
 import type { ListingFormErrors, ListingFormInput } from "@/lib/validation";
 
 export type ListingFormState = {
@@ -61,15 +63,25 @@ function CheckboxOption({
   value,
   label,
   defaultChecked,
+  onChange,
 }: {
   name: string;
   value: string;
   label: string;
   defaultChecked: boolean;
+  /** Optional: only Mode wires this up, to track which modes are ticked for the serves_areas reveal. */
+  onChange?: (checked: boolean) => void;
 }) {
   return (
     <label className="flex h-11 items-center gap-2 rounded-md border border-rule px-2 text-[15px] text-ink">
-      <input type="checkbox" name={name} value={value} defaultChecked={defaultChecked} className="h-5 w-5" />
+      <input
+        type="checkbox"
+        name={name}
+        value={value}
+        defaultChecked={defaultChecked}
+        onChange={onChange ? (e) => onChange(e.target.checked) : undefined}
+        className="h-5 w-5"
+      />
       {label}
     </label>
   );
@@ -101,6 +113,13 @@ export default function ListingForm({
   // app_flow.md A3: slug is prefilled from the name as it's typed, until the admin edits it directly.
   const [slug, setSlug] = useState(values.slug);
   const [slugTouched, setSlugTouched] = useState(mode === "edit" || values.slug !== "");
+
+  // P8.2's shared component (also used by /join); kept in state and submitted via a hidden
+  // JSON input since FormData can't carry nested arrays of objects natively.
+  const [teachingEntries, setTeachingEntries] = useState<TeachingEntry[]>(values.teaching_entries);
+  // Tracked separately from the native "modes" checkboxes below (which still submit
+  // normally via FormData) only so "Villages I can travel to" can show/hide live.
+  const [watchedModes, setWatchedModes] = useState<string[]>(values.modes);
 
   return (
     <form action={action} className="flex flex-col gap-5">
@@ -150,45 +169,10 @@ export default function ListingForm({
         />
       </Field>
 
-      <FieldsetGroup legend="Subjects" error={errors.subjects}>
-        <div className="mt-1 flex flex-col gap-3">
-          {SUBJECTS.map((group) => (
-            <div key={group.group}>
-              <p className="mb-1 text-[13px] text-ink-3">{group.group}</p>
-              <div className="grid grid-cols-2 gap-2">
-                {group.options.map((option) => (
-                  <CheckboxOption
-                    key={option.value}
-                    name="subjects"
-                    value={option.value}
-                    label={option.label}
-                    defaultChecked={values.subjects.includes(option.value)}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </FieldsetGroup>
-
-      <FieldsetGroup legend="Classes" error={errors.classes}>
-        <div className="mt-1 flex flex-col gap-3">
-          {CLASSES.map((group) => (
-            <div key={group.group}>
-              <p className="mb-1 text-[13px] text-ink-3">{group.group}</p>
-              <div className="grid grid-cols-2 gap-2">
-                {group.options.map((option) => (
-                  <CheckboxOption
-                    key={option.value}
-                    name="classes"
-                    value={option.value}
-                    label={option.label}
-                    defaultChecked={values.classes.includes(option.value)}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
+      <FieldsetGroup legend="Teaching list" error={errors.teaching_entries}>
+        <input type="hidden" name="teaching_entries" value={JSON.stringify(teachingEntries)} />
+        <div className="mt-1">
+          <TeachingList entries={teachingEntries} onChange={setTeachingEntries} />
         </div>
       </FieldsetGroup>
 
@@ -215,6 +199,9 @@ export default function ListingForm({
               value={m}
               label={modeLabel(m)}
               defaultChecked={values.modes.includes(m)}
+              onChange={(checked) =>
+                setWatchedModes((current) => (checked ? [...current, m] : current.filter((x) => x !== m)))
+              }
             />
           ))}
         </div>
@@ -234,6 +221,29 @@ export default function ListingForm({
           ))}
         </select>
       </Field>
+
+      {watchedModes.includes("home") && (
+        <FieldsetGroup legend="Villages I can travel to" error={errors.serves_areas}>
+          <div className="mt-1 flex flex-col gap-3">
+            {AREAS.map((group) => (
+              <div key={group.group}>
+                <p className="mb-1 text-[13px] text-ink-3">{group.group}</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {group.options.map((option) => (
+                    <CheckboxOption
+                      key={option.value}
+                      name="serves_areas"
+                      value={option.value}
+                      label={option.label}
+                      defaultChecked={values.serves_areas.includes(option.value)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </FieldsetGroup>
+      )}
 
       <Field label="Address / landmark" error={errors.address}>
         <input

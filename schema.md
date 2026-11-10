@@ -171,6 +171,7 @@ alter table taps     enable row level security;
 | languages | text[] | yes | | `{"punjabi","hindi","english"}` |
 | headline | text | yes | | ≤ 80 chars |
 | source | text | no | `'admin'` | `check (source in ('admin','self'))` — `self` = came in through `/join` |
+| rejected_at | timestamptz | yes | | Migration `0004`. Set by the admin's "Reject" on a `/join` sign-up (A2 "New sign-ups"), so it stops reappearing there; never set on `source='admin'` listings |
 
 New index: GIN on `serves_areas` (array-contains search, same pattern as `subjects`/`classes`).
 
@@ -320,5 +321,6 @@ Admin taps Approve on A2 → approveSignupAction(id)
 | `0001_init.sql` | `pgcrypto`, `listings`, `taps`, indexes, checks, RLS, `set_updated_at` trigger, `listing_tap_counts` view | 1 |
 | `0002_requests_teacher_signup.sql` | `teaching_entries`, `requests`, `edit_tokens` tables; new `listings` columns (`serves_areas`, `area_other`, `experience_years`, `qualification_level`, `qualification`, `languages`, `headline`, `source`) + GIN index on `serves_areas` | 7 (introduced here; `teaching_entries`/`edit_tokens` aren't used until Phase 8) |
 | `0003_requests_share_number_consent.sql` | `requests.share_number_consent` (admin-ticked, gates whether "Send to teacher" includes the parent's phone) | 7 |
+| `0004_signup_rejection.sql` | `listings.rejected_at` (set by the admin's "Reject" on a `/join` sign-up, so it stops reappearing in "New sign-ups") | 8 |
 
 `supabase/seed.sql` holds clearly fake sample listings (names starting with "Sample", phones `99999000xx`) and is run **only on the dev project**.

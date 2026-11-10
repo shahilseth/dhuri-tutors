@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ListingForm from "@/components/ListingForm";
-import { getListingByEditToken } from "@/lib/data";
+import { getListingByEditToken, listTeachingEntriesByListingId } from "@/lib/data";
 import { listingToFormInput } from "@/lib/validation";
 import { updateOwnListingAction } from "./actions";
 
@@ -26,6 +26,7 @@ export default async function EditOwnListingPage({
   const listing = await getListingByEditToken(token);
   if (!listing) notFound();
 
+  const teachingEntries = await listTeachingEntriesByListingId(listing.id);
   const boundUpdateAction = updateOwnListingAction.bind(null, token);
 
   return (
@@ -42,7 +43,7 @@ export default async function EditOwnListingPage({
       <div className="mt-6">
         <ListingForm
           formAction={boundUpdateAction}
-          initialValues={listingToFormInput(listing)}
+          initialValues={listingToFormInput(listing, teachingEntries)}
           consentAt={listing.consent_at}
           mode="edit"
         />
