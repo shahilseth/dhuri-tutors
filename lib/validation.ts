@@ -4,7 +4,7 @@
  * (rules.md §4: every write is validated server-side regardless of the client).
  */
 import { AREAS, BOARDS, CLASSES, MODES, OTHER_AREA, SUBJECTS, TIMINGS } from "./config";
-import type { Listing, ListingKind, RequestDraft } from "./types";
+import type { Listing, ListingKind, RequestDraft, TeachingEntry } from "./types";
 
 export type ListingFormInput = {
   kind: string;
@@ -445,3 +445,45 @@ export const emptyRequestFormInput: RequestFormInput = {
   notes: "",
   consent: "",
 };
+
+/**
+ * Shared by /join (P8.6) and the admin listing form (P8.8) — both build a listing from a
+ * `TeachingEntry[]` via components/TeachingList.tsx (app_flow.md J2, schema.md §3). "College"
+ * classes aren't reachable here: `teaching_entries.track` is constrained to school/exam/skill
+ * (migration 0002), owner-confirmed 2026-11-10.
+ */
+export function validateTeachingEntries(
+  entries: TeachingEntry[],
+): { ok: true; value: TeachingEntry[] } | { ok: false; error: string } {
+  if (entries.length === 0) return { ok: false, error: "Add at least one thing you teach." };
+
+  for (const entry of entries) {
+    if (entry.subjects.length === 0 || !entry.subjects.every((s) => subjectValues.has(s))) {
+      return { ok: false, error: "Each teaching list entry needs at least one subject from the list." };
+    }
+
+    if (entry.track === "skill") {
+      if (entry.classes.length > 0) return { ok: false, error: "A skills entry doesn't take a class." };
+    } else if (entry.track === "exam") {
+      if (entry.classes.length !== 1 || !classValues.has(entry.classes[0])) {
+        return { ok: false, error: "Each exam entry needs exactly one exam from the list." };
+      }
+    } else if (entry.track === "school") {
+      if (entry.classes.length === 0 || !entry.classes.every((c) => classValues.has(c))) {
+        return { ok: false, error: "Each school entry needs a class range from the list." };
+      }
+    } else {
+      return { ok: false, error: "Each teaching list entry needs a valid track." };
+    }
+  }
+
+  return { ok: true, value: entries };
+}
+
+/** listings.subjects/classes stay the union of all a listing's teaching_entries (schema.md §3). */
+export function teachingEntriesUnion(entries: TeachingEntry[]): { subjects: string[]; classes: string[] } {
+  return {
+    subjects: Array.from(new Set(entries.flatMap((e) => e.subjects))),
+    classes: Array.from(new Set(entries.flatMap((e) => e.classes))),
+  };
+}

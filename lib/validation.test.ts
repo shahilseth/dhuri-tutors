@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { type ListingFormInput, type RequestFormInput, validateListingInput, validateRequestInput } from "./validation";
+import type { TeachingEntry } from "./types";
+import {
+  type ListingFormInput,
+  type RequestFormInput,
+  teachingEntriesUnion,
+  validateListingInput,
+  validateRequestInput,
+  validateTeachingEntries,
+} from "./validation";
 
 function validInput(overrides: Partial<ListingFormInput> = {}): ListingFormInput {
   return {
@@ -373,5 +381,63 @@ describe("validateRequestInput: other fields", () => {
     const result = validateRequestInput(validAdultRequest({ notes: "a".repeat(301) }));
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.errors.notes).toBeDefined();
+  });
+});
+
+describe("validateTeachingEntries", () => {
+  const schoolEntry: TeachingEntry = { track: "school", classes: ["9", "10"], subjects: ["maths"] };
+  const examEntry: TeachingEntry = { track: "exam", classes: ["jee"], subjects: ["physics", "quant"] };
+  const skillEntry: TeachingEntry = { track: "skill", classes: [], subjects: ["coding"] };
+
+  it("accepts one valid entry per track", () => {
+    const result = validateTeachingEntries([schoolEntry, examEntry, skillEntry]);
+    expect(result.ok).toBe(true);
+  });
+
+  it("rejects an empty list", () => {
+    const result = validateTeachingEntries([]);
+    expect(result.ok).toBe(false);
+  });
+
+  it("rejects an entry with no subjects", () => {
+    const result = validateTeachingEntries([{ ...schoolEntry, subjects: [] }]);
+    expect(result.ok).toBe(false);
+  });
+
+  it("rejects a subject not in lib/config.ts", () => {
+    const result = validateTeachingEntries([{ ...schoolEntry, subjects: ["astrology"] }]);
+    expect(result.ok).toBe(false);
+  });
+
+  it("rejects a school entry with no classes", () => {
+    const result = validateTeachingEntries([{ ...schoolEntry, classes: [] }]);
+    expect(result.ok).toBe(false);
+  });
+
+  it("rejects an exam entry with more than one class", () => {
+    const result = validateTeachingEntries([{ ...examEntry, classes: ["jee", "neet"] }]);
+    expect(result.ok).toBe(false);
+  });
+
+  it("rejects a skill entry that has classes", () => {
+    const result = validateTeachingEntries([{ ...skillEntry, classes: ["9"] }]);
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe("teachingEntriesUnion", () => {
+  it("unions and dedupes subjects and classes across entries", () => {
+    const entries: TeachingEntry[] = [
+      { track: "school", classes: ["9", "10"], subjects: ["maths"] },
+      { track: "school", classes: ["10", "11"], subjects: ["maths", "science"] },
+      { track: "skill", classes: [], subjects: ["coding"] },
+    ];
+    const union = teachingEntriesUnion(entries);
+    expect(union.classes.sort()).toEqual(["10", "11", "9"].sort());
+    expect(union.subjects.sort()).toEqual(["coding", "maths", "science"].sort());
+  });
+
+  it("returns empty arrays for no entries", () => {
+    expect(teachingEntriesUnion([])).toEqual({ subjects: [], classes: [] });
   });
 });
