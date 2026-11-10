@@ -110,6 +110,17 @@ export function intl(phone: string): string {
   return `91${phone.replace(/\D/g, "")}`;
 }
 
+/**
+ * Quick client-side phone check for the multi-step forms (design.md §11: client checks are
+ * for convenience only — lib/validation.ts's normalizePhone is the real, server-side check).
+ */
+export function looksLikePhone(value: string): boolean {
+  let digits = value.replace(/\D/g, "");
+  if (digits.length === 12 && digits.startsWith("91")) digits = digits.slice(2);
+  else if (digits.length === 11 && digits.startsWith("0")) digits = digits.slice(1);
+  return /^[6-9]\d{9}$/.test(digits);
+}
+
 export function whatsappMessage(refCode: string): string {
   return `Hi, I found you on ${APP_NAME} (ref ${refCode}). Is this still open for new students?`;
 }

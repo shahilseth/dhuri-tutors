@@ -71,8 +71,16 @@ export async function createListingAction(
     slug,
     ref_code: refCode,
     city: CITY,
-    // Only set from the Phase 8 self-sign-up form; the admin form has no field for it yet.
+    // The fields below this line are only set from the Phase 8 self-sign-up form; the admin
+    // form has no fields for them yet (app_flow.md's admin listing form fields list, P8.8).
     serves_areas: [],
+    area_other: null,
+    experience_years: null,
+    qualification_level: null,
+    qualification: null,
+    languages: null,
+    headline: null,
+    source: "admin",
     published: publish,
     consent_at: consentGiven ? new Date().toISOString() : null,
     last_verified_at: null,

@@ -17,6 +17,8 @@ export type Listing = {
   area: string;
   /** Villages a home tutor also travels to, beyond `area` (migration 0002, Phase 8). Used by P7.9's request matching. */
   serves_areas: string[];
+  /** Free text when "Other village" was picked instead of a lib/config.ts AREAS value (migration 0002, Phase 8). */
+  area_other: string | null;
   address: string | null;
   city: string;
   fee_min: number | null;
@@ -27,8 +29,33 @@ export type Listing = {
   published: boolean;
   consent_at: string | null;
   last_verified_at: string | null;
+  /** The rest of this block mirrors the Phase 8 columns added by migration 0002 (schema.md §3). */
+  experience_years: number | null;
+  qualification_level: string | null;
+  qualification: string | null;
+  languages: string[] | null;
+  headline: string | null;
+  /** 'self' = came in through /join; 'admin' = entered by the admin (schema.md §3). */
+  source: "admin" | "self";
   created_at: string;
   updated_at: string;
+};
+
+/** One "add to teaching list" entry (app_flow.md J2; schema.md §3 `teaching_entries`). */
+export type TeachingTrack = "school" | "exam" | "skill";
+
+/** Shape kept in a JoinDraft / the admin form's client state — no id or sort yet. */
+export type TeachingEntry = {
+  track: TeachingTrack;
+  classes: string[];
+  subjects: string[];
+};
+
+/** Mirrors the `teaching_entries` table (migration 0002). */
+export type TeachingEntryRecord = TeachingEntry & {
+  id: string;
+  listing_id: string;
+  sort: number;
 };
 
 /** Public search params, each a single value (a listing's own fields are arrays). */
@@ -91,6 +118,46 @@ export type RequestRecord = {
   status: RequestStatus;
   created_at: string;
   updated_at: string;
+};
+
+/** Client-side draft for the /join multi-step form (app_flow.md J1–J5, Phase 8). */
+export type JoinDraft = {
+  kind: string; // "teacher" | "academy" | ""
+  name: string;
+  academy_name: string;
+  phone: string;
+  whatsapp: string;
+  area: string;
+  area_other: string;
+  address: string;
+  teaching_entries: TeachingEntry[];
+  boards: string[];
+  modes: string[];
+  serves_areas: string[];
+  experience_years: string;
+  qualification_level: string;
+  qualification: string;
+  languages: string[];
+  fee_min: string;
+  fee_max: string;
+  fee_note: string;
+  timings: string;
+  headline: string;
+  about: string;
+  consent: boolean;
+  /** Set by JoinStepSend once the sign-up is saved, so a reload of step 5 doesn't save it twice. */
+  ref_code: string;
+  /** Persisted alongside ref_code — ADMIN_WHATSAPP is server-only, so it can't be rebuilt on the client after a reload. */
+  whatsapp_url: string;
+};
+
+/** Mirrors the `edit_tokens` table (migration 0002, Phase 8). */
+export type EditToken = {
+  id: string;
+  listing_id: string;
+  token_hash: string;
+  created_at: string;
+  revoked_at: string | null;
 };
 
 export type Channel = "whatsapp" | "call";

@@ -6,8 +6,8 @@
 
 ## Current status
 
-- **Current phase:** Phase 7 (Parent request form) — **done**. All of P7.1–P7.9 complete as of 2026-11-09 (session 10). Next: owner go-ahead to start Phase 8, or P6.5–P6.8 (owner steps, parallel, see below).
-- **Current task:** none — stopped at the end of Phase 7 per the owner's "stop at the end of the phase" instruction.
+- **Current phase:** Phase 8 (Teacher sign-up form) — **starting** (session 12). Owner gave the full Phase 8 spec in chat and said "continue from the next open task... stop at the end of the phase" — per rules.md §1, a chat instruction is the explicit go-ahead implementation_plan.md was waiting for.
+- **Current task:** P8.1.
 - **Last updated:** 2026-11-10
 - **Blocked on owner:** P6.5 (Supabase prod project), P6.6 (GitHub + Vercel deploy), P6.7 (enter real teachers), P6.8 (test on real phones) — see numbered steps in session log below. Also: the **dev Supabase project** (`mhwtkhsxsapxabbgeilx.supabase.co`) is still returning NXDOMAIN — looks paused or deleted; blocks live verification of any real database write/read (incl. P7.7's `createRequestAction`, P7.9's `/admin/requests`, and the home page `/` itself, which 500s right now because `searchListings` can't reach it) until the owner recreates it or confirms the URL. Everything built this session was verified as far as possible without a live database (see each task's Notes) and passed `typecheck`/`build`/`test` throughout, but nothing that reads or writes `requests`/`listings` has been confirmed against a real database yet. **New migration `0003_requests_share_number_consent.sql` (2026-11-10) still needs to be run**, in addition to `0002`, once the dev project is back.
 
@@ -82,8 +82,8 @@ Not started. Do not begin without the owner's explicit go-ahead to start buildin
 - [x] P7.9 /admin/requests
 
 ## Phase 8: Teacher sign-up form
-Not started. Do not begin without the owner's explicit go-ahead to start building.
-- [ ] P8.1 /join step 1 "About you"
+Started session 12 (owner go-ahead given in chat).
+- [x] P8.1 /join step 1 "About you"
 - [ ] P8.2 Shared teaching-list component
 - [ ] P8.3 /join step 2 "Teaching"
 - [ ] P8.4 /join step 3 "Profile"
@@ -133,6 +133,11 @@ Add items here instead of guessing. Remove when answered.
 
 ## Session log
 One entry per session, newest first. Keep each entry to 2–4 lines.
+
+### 2026-11-10 (session 12)
+- Owner pasted the full Phase 8 spec in chat and said "continue from the next open task... stop at the end of the phase" — treated as the explicit go-ahead implementation_plan.md was waiting for (rules.md §1: a chat instruction overrides a waiting tracker note, same precedent as session 2's P1.3). Before building, asked two scoping questions and got answers: (1) `lib/config.ts`'s CLASSES "College" group (bcom/ba/bsc/bca/other-college, added 2026-10-29 for an unrelated reason) will **not** get a 4th teaching-list track — `teaching_entries.track` is already constrained by migration 0002 to `school`/`exam`/`skill`, so College stays out of the shared teaching-list component (P8.2) and, once P8.8 switches the admin form to it, out of the UI entirely; logged below under Blockers. (2) P8.8's admin "Reject" action will get a new `listings.rejected_at` column (migration 0004, still to be written when P8.8 is reached) so rejected sign-ups stop reappearing in "New sign-ups" — owner confirmed before any schema change, per rules.md §5.
+- Done: P8.1 `/join` step 1 "About you". Found and fixed a real gap while adding the Phase 8 columns to `lib/types.ts`'s `Listing` type (migration 0002 had added `area_other`, `experience_years`, `qualification_level`, `qualification`, `languages`, `headline`, `source` to the database back in Phase 7, but the TS type was never updated to match — only `serves_areas` had been added, in P7.9). Updating the type surfaced a real compile error in `createListingAction` (`app/admin/actions.ts`), fixed by setting sensible defaults for the fields the admin form has no UI for yet (same treatment P7.9 already gave `serves_areas`). Also added `TeachingTrack`/`TeachingEntry`/`TeachingEntryRecord`/`JoinDraft`/`EditToken` types (the latter two used by later Phase 8 tasks, same "define the whole draft type up front" pattern P7.4 used for `RequestDraft`). Extracted the phone-shape check that lived only inside `RequestStepYourDetails.tsx` into an exported `looksLikePhone()` in `lib/format.ts` (reused by the new `JoinStepAboutYou.tsx`, and `RequestStepYourDetails.tsx` now imports it instead of keeping its own copy — straight dedup, no behaviour change). New `components/JoinForm.tsx` (shell, mirrors `RequestForm.tsx`, `BUILT_STEPS = 1`) + `components/JoinStepAboutYou.tsx` (teacher/academy option boxes, name, academy name if academy, phone, WhatsApp if different, area dropdown with "Other village" free text and the "never shown publicly" note, address/landmark) + `app/join/page.tsx`.
+- Notes: verified live with a headless browser, not just typecheck/build/98 tests (all green) — confirmed the step bar shows all 5 labels with step 1 current, picking Academy reveals "Academy name" and picking Teacher hides it again, submitting empty shows "Choose teacher or academy." with no navigation, picking "Other village (type name)" reveals the village-name field, and a filled submission advances the URL to `?step=2` (falls back to step 1, as designed, since P8.3 isn't built yet). One test-harness-only hiccup, same as session 9's: the very first scripted click landed before React finished hydrating and fell through to a native form GET (no `name` attributes on the text inputs, so it stripped the URL down to bare `/join?` instead of actually submitting anything) — not a real bug, a ~600ms wait before the first interaction fixed it, and the same flow worked correctly afterwards. Screenshot at 390px confirmed no overflow.
 
 ### 2026-11-10 (session 11)
 - Done: the owner pasted the full Phase 7 spec and asked for confirmation it was all built as described. Audited the actual code against it line by line rather than assuming — most of it matched, but found three real gaps: the consent checkbox's exact wording, the parent-facing WhatsApp message missing timings/budget/name, and (most significant) `/admin/requests`'s "Send to teacher" always including the parent's number instead of gating it behind "Parent agreed to share number" — which directly contradicted the "no schema change" decision from session 10, since this session's spec made clear that checkbox is ticked by the **admin** after confirming with the parent, not collected from the parent at R3 as session 10 had assumed. Owner said to fix that one (#3) now; the other two (wording, message content) are still open, not yet actioned.

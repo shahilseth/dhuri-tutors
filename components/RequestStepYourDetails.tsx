@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { looksLikePhone } from "@/lib/format";
 import type { RequestDraft } from "@/lib/types";
 import OptionBox from "./OptionBox";
 import StepBackLink from "./StepBackLink";
@@ -10,13 +11,6 @@ const inputClass =
   "mt-1 block h-12 w-full rounded-md border border-rule bg-paper px-3 text-[16px] text-ink focus:border-blue focus:outline-none focus:ring-2 focus:ring-blue/25";
 
 const NOTES_MAX = 300;
-
-function looksLikePhone(value: string): boolean {
-  let digits = value.replace(/\D/g, "");
-  if (digits.length === 12 && digits.startsWith("91")) digits = digits.slice(2);
-  else if (digits.length === 11 && digits.startsWith("0")) digits = digits.slice(1);
-  return /^[6-9]\d{9}$/.test(digits);
-}
 
 /** app_flow.md R3 "Your details": adult/minor branching, notes, consent. */
 export default function RequestStepYourDetails({
